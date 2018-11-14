@@ -1,7 +1,6 @@
 package sjtu.yhapter.reader.widget;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.support.annotation.Nullable;
@@ -10,7 +9,6 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.widget.Toast;
 
 import sjtu.yhapter.reader.App;
 
@@ -71,7 +69,7 @@ public abstract class BaseReaderView extends View implements PageAnimation.PageC
                 startX = x;
                 startY = y;
                 isMoving = false;
-                pageAnimation.dispatchTouchEvent(event);
+                pageAnimation.onTouchEvent(event);
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (!isMoving)
@@ -79,10 +77,10 @@ public abstract class BaseReaderView extends View implements PageAnimation.PageC
                             || Math.abs(startY - y) > MOVE_SENSITIVITY;
 
                 if (isMoving)
-                    pageAnimation.dispatchTouchEvent(event);
+                    pageAnimation.onTouchEvent(event);
                 break;
             case MotionEvent.ACTION_UP:
-                pageAnimation.dispatchTouchEvent(event);
+                pageAnimation.onTouchEvent(event);
                 break;
         }
         return true;

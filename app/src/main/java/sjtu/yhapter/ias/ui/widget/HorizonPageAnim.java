@@ -15,7 +15,7 @@ import sjtu.yhapter.reader.App;
  */
 
 public abstract class HorizonPageAnim extends PageAnimation{
-    private static final String TAG = "HorizonPageAnim";
+    private static final String TAG = "HorizontalPageAnim";
 
     protected Bitmap mCurBitmap;
     protected Bitmap mNextBitmap;

@@ -7,94 +7,84 @@ import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
 
 /**
- * Created by newbiechen on 17-7-24.
+ * Created by CocoAdapter on 2018/11/13.
  */
 
-public class CoverPageAnim extends HorizonPageAnim {
-
-    private Rect mSrcRect, mDestRect;
-    private GradientDrawable mBackShadowDrawableLR;
+public class CoverPageAnim extends HorizontalPageAnim {
+    private Rect srcRect, destRect;
+    private GradientDrawable shadowDrawable;
 
     public CoverPageAnim(Context context, int w, int h) {
         super(context, w, h);
-        mSrcRect = new Rect(0, 0, mViewWidth, mViewHeight);
-        mDestRect = new Rect(0, 0, mViewWidth, mViewHeight);
-        int[] mBackShadowColors = new int[] { 0x66000000,0x00000000};
-        mBackShadowDrawableLR = new GradientDrawable(
+
+        srcRect = new Rect(0, 0, viewWidth, viewHeight);
+        destRect = new Rect(0, 0, viewWidth, viewHeight);
+
+        int[] mBackShadowColors = new int[]{0x66000000, 0x00000000};
+        shadowDrawable = new GradientDrawable(
                 GradientDrawable.Orientation.LEFT_RIGHT, mBackShadowColors);
-        mBackShadowDrawableLR.setGradientType(GradientDrawable.LINEAR_GRADIENT);
     }
 
     @Override
     public void drawStatic(Canvas canvas) {
-        if (isCancel){
-            mNextBitmap = mCurBitmap.copy(Bitmap.Config.RGB_565, true);
-            canvas.drawBitmap(mCurBitmap, 0, 0, null);
-        }else {
-            canvas.drawBitmap(mNextBitmap, 0, 0, null);
+        if (isCancel) {
+            nextBitmap = currBitmap.copy(Bitmap.Config.RGB_565, true);
+            canvas.drawBitmap(currBitmap, 0, 0, null);
+        } else {
+            canvas.drawBitmap(nextBitmap, 0, 0, null);
         }
     }
 
     @Override
     public void drawMove(Canvas canvas) {
-
-        switch (mDirection){
+        switch (direction) {
             case NEXT:
-                int dis = (int) (mViewWidth - mStartX + mTouchX);
-                if (dis > mViewWidth){
-                    dis = mViewWidth;
-                }
-                //计算bitmap截取的区域
-                mSrcRect.left = mViewWidth - dis;
-                //计算bitmap在canvas显示的区域
-                mDestRect.right = dis;
-                canvas.drawBitmap(mNextBitmap,0,0,null);
-                canvas.drawBitmap(mCurBitmap,mSrcRect,mDestRect,null);
-                addShadow(dis,canvas);
+                int dis = (int) (viewWidth - startX + touchX);
+                if (dis > viewWidth) dis = viewWidth;
+
+                srcRect.left = viewWidth - dis;
+                destRect.right = dis;
+
+                canvas.drawBitmap(nextBitmap, 0, 0, null);
+                canvas.drawBitmap(currBitmap, srcRect, destRect, null);
+                addShadow(dis, canvas);
                 break;
-            default:
-                mSrcRect.left = (int) (mViewWidth - mTouchX);
-                mDestRect.right = (int) mTouchX;
-                canvas.drawBitmap(mCurBitmap,0,0,null);
-                canvas.drawBitmap(mNextBitmap,mSrcRect,mDestRect,null);
-                addShadow((int) mTouchX,canvas);
+            case PRE:
+                srcRect.left = (int) (viewWidth - touchX);
+                destRect.right = (int) touchX;
+
+                canvas.drawBitmap(currBitmap, 0, 0, null);
+                canvas.drawBitmap(nextBitmap, srcRect, destRect, null);
+                addShadow((int) touchX, canvas);
                 break;
         }
-    }
-
-    //添加阴影
-    public void addShadow(int left,Canvas canvas) {
-        mBackShadowDrawableLR.setBounds(left, 0, left + 30 , mScreenHeight);
-        mBackShadowDrawableLR.draw(canvas);
     }
 
     @Override
-    public void startAnim() {
-        super.startAnim();
+    public void startAnimation() {
+        super.startAnimation();
         int dx = 0;
-        switch (mDirection){
+        switch (direction) {
             case NEXT:
-                if (isCancel){
-                    int dis = (int) ((mViewWidth - mStartX) + mTouchX);
-                    if (dis > mViewWidth){
-                        dis = mViewWidth;
-                    }
-                    dx = mViewWidth - dis;
-                }else{
-                    dx = (int) -(mTouchX + (mViewWidth - mStartX));
-                }
+                if (isCancel) {
+                    int dis = (int) ((viewWidth - startX) + touchX);
+                    if (dis > viewWidth) dis = viewWidth;
+
+                    dx = viewWidth - dis;
+                } else
+                    dx = (int) -(touchX + (viewWidth - startX));
                 break;
-            default:
-                if (isCancel){
-                    dx = (int) -mTouchX;
-                }else{
-                    dx = (int) (mViewWidth - mTouchX);
-                }
+            case PRE:
+                dx = isCancel ? (int) -touchX : (int) (viewWidth - touchX);
                 break;
         }
 
-        //滑动速度保持一致
-        int duration = (400 * Math.abs(dx)) / mViewWidth;
-        mScroller.startScroll((int) mTouchX, 0, dx, 0, duration);
+        int duration = (400 * Math.abs(dx)) / viewWidth;
+        scroller.startScroll((int) touchX, 0, dx, 0, duration);
+    }
+
+    private void addShadow(int left, Canvas canvas) {
+        shadowDrawable.setBounds(left, 0, left + 30, screenHeight);
+        shadowDrawable.draw(canvas);
     }
 }

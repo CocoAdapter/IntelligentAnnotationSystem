@@ -87,7 +87,7 @@ public class ReaderView extends BaseReaderView {
     }
 
     public void drawNextPage(int index) {
-        ((HorizonPageAnim) pageAnimation).changePage();
+        ((HorizontalPageAnim) pageAnimation).changePage();
 
         Canvas canvas = new Canvas(pageAnimation.getFrontBitmap());
         drawPage(canvas, index);
