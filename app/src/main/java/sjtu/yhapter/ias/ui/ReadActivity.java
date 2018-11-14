@@ -16,35 +16,5 @@ public class ReadActivity extends BaseActivity {
     protected void init(Bundle savedInstanceState) {
         setContentView(R.layout.activity_read);
 //        readerView = findViewById(R.id.reader_view);
-
-//        adapter = new PageAdapter(this, null);
-//        readerView.setPageAdapter(adapter);
-//        readerView.setOnActionListener(new BookReaderView.OnActionListener() {
-//            @Override
-//            public void onClick() {
-//                LogUtil.log(ReadActivity.this, "onClick");
-//            }
-//
-//            @Override
-//            public void onCenterClick() {
-//                LogUtil.log(ReadActivity.this, "onCenterClick");
-//            }
-//
-//            @Override
-//            public void onPrePage() {
-//                // 调 Adapter 来更新
-//                LogUtil.log(ReadActivity.this, "onPrePage");
-//            }
-//
-//            @Override
-//            public void onNextPage() {
-//                LogUtil.log(ReadActivity.this, "onNextPage");
-//            }
-//
-//            @Override
-//            public void onCancel() {
-//                LogUtil.log(ReadActivity.this, "onCancel");
-//            }
-//        });
     }
 }

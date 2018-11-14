@@ -15,10 +15,7 @@
             android:id="@+id/reader_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-        <!--<sjtu.yhapter.ias.ui.PageTurnView-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent" />-->
-        <!--&lt;!&ndash;切换页面提示&ndash;&gt;-->
+        <!--切换页面提示-->
         <!--<TextView-->
             <!--android:id="@+id/read_tv_page_tip"-->
             <!--android:layout_width="wrap_content"-->
