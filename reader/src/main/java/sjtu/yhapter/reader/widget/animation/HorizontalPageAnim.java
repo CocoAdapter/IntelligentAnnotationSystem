@@ -1,4 +1,4 @@
-package sjtu.yhapter.reader.widget;
+package sjtu.yhapter.reader.widget.animation;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -37,6 +37,7 @@ public abstract class HorizontalPageAnim extends PageAnimation {
         nextBitmap = Bitmap.createBitmap(viewWidth, viewHeight, Bitmap.Config.RGB_565);
     }
 
+    // TODO 看能不能封装到内部来，换页可以不暴露给上层
     public void changePage() {
         Bitmap bitmap = currBitmap;
         currBitmap = nextBitmap;
@@ -133,6 +134,7 @@ public abstract class HorizontalPageAnim extends PageAnimation {
                     pageCarver.cancelPage();
 
                 if (!noNext) {
+                    // finish the remaining animation
                     startAnimation();
                     pageCarver.requestInvalidate(false);
                 }

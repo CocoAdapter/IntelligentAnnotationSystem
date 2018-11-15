@@ -1,23 +1,24 @@
-package sjtu.yhapter.reader.widget;
+package sjtu.yhapter.reader.widget.page;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.support.annotation.Nullable;
-import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 
 import sjtu.yhapter.reader.App;
+import sjtu.yhapter.reader.model.Constants;
+import sjtu.yhapter.reader.widget.animation.NonePageAnim;
+import sjtu.yhapter.reader.widget.animation.PageAnimation;
 
 /**
  * Created by CocoAdapter on 2018/11/13.
  */
 
 public abstract class BaseReaderView extends View implements PageAnimation.PageCarver {
-    protected final static int MOVE_SENSITIVITY = ViewConfiguration.get(App.getInstance()).getScaledTouchSlop();
+    protected final static int MOVE_SENSITIVITY = Constants.SLOP;
 
     protected int viewWidth, viewHeight;
 
@@ -25,8 +26,6 @@ public abstract class BaseReaderView extends View implements PageAnimation.PageC
     protected boolean isMoving;
 
     protected PageAnimation pageAnimation;
-
-    protected TextPaint textPaint;
 
     public BaseReaderView(Context context) {
         this(context, null);
@@ -46,12 +45,10 @@ public abstract class BaseReaderView extends View implements PageAnimation.PageC
         viewWidth = w;
         viewHeight = h;
 
-        pageAnimation = new CoverPageAnim(getContext(), viewWidth, viewHeight);
+        pageAnimation = new NonePageAnim(getContext(), viewWidth, viewHeight);
         pageAnimation.setPageCarver(this);
-
-        textPaint = new TextPaint();
-        textPaint.setColor(Color.BLACK);
-        textPaint.setTextSize(28);
+        // from portrait to landscape will trigger refreshing curr page, auto
+        prepareCurrPage();
     }
 
     @Override
@@ -69,18 +66,20 @@ public abstract class BaseReaderView extends View implements PageAnimation.PageC
                 startX = x;
                 startY = y;
                 isMoving = false;
-                pageAnimation.onTouchEvent(event);
+                if (pageAnimation != null)
+                    pageAnimation.onTouchEvent(event);
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (!isMoving)
                     isMoving = Math.abs(startX - x) > MOVE_SENSITIVITY
                             || Math.abs(startY - y) > MOVE_SENSITIVITY;
 
-                if (isMoving)
+                if (isMoving && pageAnimation != null)
                     pageAnimation.onTouchEvent(event);
                 break;
             case MotionEvent.ACTION_UP:
-                pageAnimation.onTouchEvent(event);
+                if (pageAnimation != null)
+                    pageAnimation.onTouchEvent(event);
                 break;
         }
         return true;
@@ -88,7 +87,8 @@ public abstract class BaseReaderView extends View implements PageAnimation.PageC
 
     @Override
     public void computeScroll() {
-        pageAnimation.scroll();
+        if (pageAnimation != null)
+            pageAnimation.scroll();
     }
 
     @Override
@@ -98,4 +98,12 @@ public abstract class BaseReaderView extends View implements PageAnimation.PageC
         else
             invalidate();
     }
+
+    public void setPageAnimation(PageAnimation pageAnimation) {
+        this.pageAnimation = pageAnimation;
+        this.pageAnimation.setPageCarver(this);
+        prepareCurrPage();
+    }
+
+    public abstract void prepareCurrPage();
 }

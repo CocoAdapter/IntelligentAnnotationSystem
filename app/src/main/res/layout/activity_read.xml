@@ -11,10 +11,18 @@
         android:layout_height="match_parent">
 
         <!--阅读页面-->
-        <sjtu.yhapter.reader.widget.ReaderView
+        <sjtu.yhapter.reader.widget.page.ReaderView
             android:id="@+id/reader_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
+        <Button
+            android:id="@+id/btn"
+            android:text="换动画"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true" />
         <!--切换页面提示-->
         <!--<TextView-->
             <!--android:id="@+id/read_tv_page_tip"-->

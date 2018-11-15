@@ -1,4 +1,4 @@
-package sjtu.yhapter.reader.widget;
+package sjtu.yhapter.reader.widget.animation;
 
 import android.content.Context;
 import android.graphics.Bitmap;
