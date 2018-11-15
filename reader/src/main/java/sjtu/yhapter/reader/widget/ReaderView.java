@@ -19,7 +19,6 @@ public class ReaderView extends BaseReaderView {
     private int index = 1024;
     private boolean isLastMovingNext = false;
 
-
     public ReaderView(Context context) {
         this(context, null);
     }
@@ -51,7 +50,7 @@ public class ReaderView extends BaseReaderView {
     public boolean hasPrePage() {
         if (index == -1)
             return false;
-        LogUtil.log(this, "requestPrePage");
+//        LogUtil.log(this, "requestPrePage");
         // test
         drawNextPage(--index);
         isLastMovingNext = false;
@@ -63,7 +62,7 @@ public class ReaderView extends BaseReaderView {
     public boolean hasNextPage() {
         if (index == -1)
             return false;
-        LogUtil.log(this, "requestNextPage");
+//        LogUtil.log(this, "requestNextPage");
         // test
         drawNextPage(++index);
         isLastMovingNext = true;
@@ -84,6 +83,7 @@ public class ReaderView extends BaseReaderView {
     public void drawCurrPage(int index) {
         Canvas canvas = new Canvas(pageAnimation.getFrontBitmap());
         drawPage(canvas, index);
+        invalidate();
     }
 
     public void drawNextPage(int index) {
@@ -104,6 +104,6 @@ public class ReaderView extends BaseReaderView {
         float textWidth = textPaint.measureText(text);
         canvas.drawText(text, (viewWidth - textWidth)/ 2, (viewHeight - textHeight) / 2, textPaint);
 
-        invalidate();
+//        invalidate();
     }
 }

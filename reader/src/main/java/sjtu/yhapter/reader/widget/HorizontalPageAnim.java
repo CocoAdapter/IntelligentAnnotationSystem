@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.view.MotionEvent;
 
 import sjtu.yhapter.reader.model.Constants;
+import sjtu.yhapter.reader.util.LogUtil;
 
 /**
  * Created by CocoAdapter on 2018/11/13.
@@ -71,7 +72,7 @@ public abstract class HorizontalPageAnim extends PageAnimation {
                 if (!isMoving) {
                     isMoving = Math.abs(startX - x) > Constants.SLOP;
                 }
-
+                LogUtil.log(this, "isMoving: " + isMoving);
                 if (isMoving) {
                     if (moveX == 0 && moveY == 0) {
                         if (x - startX > 0) {
@@ -98,7 +99,6 @@ public abstract class HorizontalPageAnim extends PageAnimation {
                             isCancel = x - moveX > CANCEL_SENSITIVITY;
                         else
                             isCancel = moveX - x > CANCEL_SENSITIVITY;
-
                     }
                     moveX = x;
                     moveY = y;
@@ -108,26 +108,24 @@ public abstract class HorizontalPageAnim extends PageAnimation {
                 break;
             case MotionEvent.ACTION_UP:
                 if (!isMoving) {
+                    // if is's a click action
                     isNext = x >= screenWidth / 2;
                     if (isNext) {
                         boolean hasNext = pageCarver.hasNextPage();
                         setDirection(Direction.NEXT);
 
-                        if (!hasNext) return;
+                        if (!hasNext) {
+                            noNext = true;
+                            return;
+                        }
                     } else {
                         boolean hasPrev = pageCarver.hasPrePage();
                         setDirection(Direction.PRE);
 
-                        if (!hasPrev) return;
-                    }
-
-                    isNext = true;
-                    boolean hasNext = pageCarver.hasNextPage();
-                    setDirection(Direction.NEXT);
-
-                    if (!hasNext) {
-                        noNext = true;
-                        return;
+                        if (!hasPrev) {
+                            noNext = true;
+                            return;
+                        }
                     }
                 }
 
