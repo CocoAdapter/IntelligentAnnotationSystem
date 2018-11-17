@@ -70,10 +70,9 @@ public abstract class HorizontalPageAnim extends PageAnimation {
                 abortAnim();
                 break;
             case MotionEvent.ACTION_MOVE:
-                if (!isMoving) {
+                if (!isMoving)
                     isMoving = Math.abs(startX - x) > Constants.SLOP;
-                }
-                LogUtil.log(this, "isMoving: " + isMoving);
+
                 if (isMoving) {
                     if (moveX == 0 && moveY == 0) {
                         if (x - startX > 0) {

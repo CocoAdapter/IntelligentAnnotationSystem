@@ -1,7 +1,6 @@
 package sjtu.yhapter.reader.widget.page;
 
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 
 import java.util.List;
 import java.util.Map;

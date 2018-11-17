@@ -23,6 +23,7 @@ public class ReadActivity extends BaseActivity {
     protected void init(Bundle savedInstanceState) {
         setContentView(R.layout.activity_read);
         readerView = findViewById(R.id.reader_view);
+//        readerView.setAnimation(PageAnimationMode.COVER);
         btn = findViewById(R.id.btn);
         btn.setOnClickListener(v -> {
             PageAnimationMode mode = isAnim ? PageAnimationMode.COVER : PageAnimationMode.NONE;

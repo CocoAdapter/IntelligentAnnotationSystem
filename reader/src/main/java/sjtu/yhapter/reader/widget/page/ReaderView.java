@@ -4,9 +4,14 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.RectF;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.View;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import sjtu.yhapter.reader.model.PageData;
 import sjtu.yhapter.reader.util.LogUtil;
@@ -22,6 +27,8 @@ public class ReaderView extends BaseReaderView {
     protected PageLoader pageLoader;
     protected PageElement pageElement;
 
+    private RectF centerRect;
+
     public ReaderView(Context context) {
         this(context, null);
     }
@@ -35,13 +42,43 @@ public class ReaderView extends BaseReaderView {
 
         pageLoader = new PageLoader();
         pageElement = new PageElement();
-    }
 
-    @SuppressLint("ClickableViewAccessibility")
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        super.onTouchEvent(event);
-        return true;
+        setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean canTouch() {
+                return true;
+            }
+
+            @Override
+            public boolean onClick(int x, int y) {
+                if (centerRect == null) {
+                    centerRect = new RectF(viewWidth * 0.2f, viewHeight * 0.333f,
+                            viewWidth * 0.8f, viewHeight * 0.666f);
+                }
+                if (centerRect.contains(x, y)) {
+                    LogUtil.log(ReaderView.this, "onClick: " + x + ", " + y);
+                    return true;
+                }
+
+                return false;
+            }
+
+            @Override
+            public boolean onLongClickDown(int x, int y) {
+                LogUtil.log(ReaderView.this, "onLongClickDown: " + x + ", " + y);
+                return true;
+            }
+
+            @Override
+            public void onLongClickMove(int x, int y) {
+                LogUtil.log(ReaderView.this, "onLongClickMove: " + x + ", " + y);
+            }
+
+            @Override
+            public void onLongClickUp(int x, int y) {
+                LogUtil.log(ReaderView.this, "onLongClickUp: " + x + ", " + y);
+            }
+        });
     }
 
     @Override
