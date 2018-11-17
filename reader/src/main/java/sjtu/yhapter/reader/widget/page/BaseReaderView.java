@@ -30,7 +30,6 @@ public abstract class BaseReaderView extends View implements PageAnimation.PageC
     // onTouch
     protected boolean canTouch;
     protected boolean isLongClick;
-//    protected boolean isInAnimation;
     protected Timer timer;
 
     protected PageAnimation pageAnimation;
@@ -109,20 +108,16 @@ public abstract class BaseReaderView extends View implements PageAnimation.PageC
                     } else {
                         cancelLongClickListen();
 
-                        if (pageAnimation != null) {
-//                            isInAnimation = true;
+                        if (pageAnimation != null)
                             pageAnimation.onTouchEvent(event);
-                        }
-
                     }
                 }
                 break;
             case MotionEvent.ACTION_UP:
                 if (isLongClick) {
                     // long click has been triggered
-                    onTouchListener.onLongClickUp(x, y);
-
                     cancelLongClickListen();
+                    onTouchListener.onLongClickUp(x, y);
                 } else {
                     cancelLongClickListen();
 

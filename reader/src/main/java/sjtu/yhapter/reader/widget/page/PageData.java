@@ -1,4 +1,4 @@
-package sjtu.yhapter.reader.model;
+package sjtu.yhapter.reader.widget.page;
 
 import android.graphics.Bitmap;
 

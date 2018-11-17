@@ -1,19 +1,11 @@
 package sjtu.yhapter.reader.widget.page;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.RectF;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
-import android.view.View;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
-import sjtu.yhapter.reader.model.PageData;
 import sjtu.yhapter.reader.util.LogUtil;
 import sjtu.yhapter.reader.widget.animation.CoverPageAnim;
 import sjtu.yhapter.reader.widget.animation.HorizontalPageAnim;
@@ -23,11 +15,13 @@ import sjtu.yhapter.reader.widget.animation.NonePageAnim;
  * Created by CocoAdapter on 2018/11/13.
  */
 
+@SuppressWarnings("unchecked")
 public class ReaderView extends BaseReaderView {
-    protected PageLoader pageLoader;
-    protected PageElement pageElement;
+    protected int index;
+    protected PageAdapter pageAdapter;
 
     private RectF centerRect;
+    private boolean isLastMovingNext;
 
     public ReaderView(Context context) {
         this(context, null);
@@ -39,10 +33,7 @@ public class ReaderView extends BaseReaderView {
 
     public ReaderView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-
-        pageLoader = new PageLoader();
-        pageElement = new PageElement();
-
+        index = 0;
         setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean canTouch() {
@@ -80,47 +71,57 @@ public class ReaderView extends BaseReaderView {
             }
         });
     }
-
+    
     @Override
     public boolean hasPrePage() {
-        PageData pageData = pageLoader.getPrePageData();
-        if (pageData == null)
+        if (pageAdapter == null)
             return false;
 
-        if (pageAnimation instanceof HorizontalPageAnim)
-            ((HorizontalPageAnim) pageAnimation).changePage();
+        index--;
+        if (index >= 0 && index < pageAdapter.getCount()) {
+            if (pageAnimation instanceof HorizontalPageAnim)
+                ((HorizontalPageAnim) pageAnimation).changePage();
 
-        pageElement.setCanvas(new Canvas(pageAnimation.getFrontBitmap()));
-        pageElement.draw(pageData);
-        return true;
+            isLastMovingNext = false;
+            pageAdapter.draw(index, new Canvas(pageAnimation.getFrontBitmap()));
+            return true;
+        } else {
+            index++;
+            return false;
+        }
     }
 
     @Override
     public boolean hasNextPage() {
-        PageData pageData = pageLoader.getNextPageData();
-        if (pageData == null)
+        if (pageAdapter == null)
             return false;
 
-        if (pageAnimation instanceof HorizontalPageAnim)
-            ((HorizontalPageAnim) pageAnimation).changePage();
+        index++;
+        if (index >= 0 && index < pageAdapter.getCount()) {
+            if (pageAnimation instanceof HorizontalPageAnim)
+                ((HorizontalPageAnim) pageAnimation).changePage();
 
-        pageElement.setCanvas(new Canvas(pageAnimation.getFrontBitmap()));
-        pageElement.draw(pageData);
-        return true;
+            isLastMovingNext = true;
+            pageAdapter.draw(index, new Canvas(pageAnimation.getFrontBitmap()));
+            return true;
+        } else {
+            index--;
+            return false;
+        }
     }
 
     @Override
     public void cancelPage() {
-        LogUtil.log(this, "cancelPage");
-        pageLoader.cancelPrepare();
+        index = isLastMovingNext ? index - 1 : index + 1;
     }
 
     @Override
     public void prepareCurrPage() {
-        PageData pageData = pageLoader.getCurrPageData();
-        if (pageData != null) {
-            pageElement.setCanvas(new Canvas(pageAnimation.getFrontBitmap()));
-            pageElement.draw(pageData);
+        if (pageAdapter == null)
+            return;
+
+        if (index >= 0 && index < pageAdapter.getCount()) {
+            pageAdapter.draw(index, new Canvas(pageAnimation.getFrontBitmap()));
         }
     }
 
@@ -136,5 +137,9 @@ public class ReaderView extends BaseReaderView {
                 setPageAnimation(pageAnimation);
                 break;
         }
+    }
+
+    public void setPageAdapter(PageAdapter pageAdapter) {
+        this.pageAdapter = pageAdapter;
     }
 }
