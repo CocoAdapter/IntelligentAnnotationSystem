@@ -11,7 +11,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import sjtu.yhapter.reader.model.Constants;
-import sjtu.yhapter.reader.widget.animation.NonePageAnim;
+import sjtu.yhapter.reader.widget.animation.CoverPageAnim;
 import sjtu.yhapter.reader.widget.animation.PageAnimation;
 
 /**
@@ -56,10 +56,8 @@ public abstract class BaseReaderView extends View implements PageAnimation.PageC
         isReady = true;
         canTouch = true;
 
-        pageAnimation = new NonePageAnim(getContext(), viewWidth, viewHeight);
+        pageAnimation = new CoverPageAnim(getContext(), viewWidth, viewHeight);
         pageAnimation.setPageCarver(this);
-        // from portrait to landscape will trigger refreshing curr page, auto
-        prepareCurrPage();
     }
 
     @Override
@@ -79,8 +77,8 @@ public abstract class BaseReaderView extends View implements PageAnimation.PageC
             case MotionEvent.ACTION_DOWN:
                 startX = x;
                 startY = y;
-                isLongClick = false;
                 isMoving = false;
+                cancelLongClickListen();
 
                 if (onTouchListener != null)
                     canTouch = onTouchListener.canTouch();

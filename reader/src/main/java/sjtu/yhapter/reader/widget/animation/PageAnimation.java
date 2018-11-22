@@ -18,14 +18,15 @@ public abstract class PageAnimation {
 
     protected boolean isRunning;
 
-    protected int screenWidth;
-    protected int screenHeight;
+    protected int viewWidth;
+    protected int viewHeight;
 
+//    TODO Animation类应该不考虑 margin，操作的是整个view
     protected int marginWidth;
     protected int marginHeight;
 
-    protected int viewWidth;
-    protected int viewHeight;
+    protected int contentWidth;
+    protected int contentHeight;
 
     protected float startX;
     protected float startY;
@@ -41,14 +42,14 @@ public abstract class PageAnimation {
     }
 
     public PageAnimation(Context context, int w, int h, int marginWidth, int marginHeight) {
-        screenWidth = w;
-        screenHeight = h;
+        viewWidth = w;
+        viewHeight = h;
 
         this.marginWidth = marginWidth;
         this.marginHeight = marginHeight;
 
-        viewWidth = screenWidth - this.marginWidth * 2;
-        viewHeight = screenHeight - this.marginHeight * 2;
+        contentWidth = viewWidth - this.marginWidth * 2;
+        contentHeight = viewHeight - this.marginHeight * 2;
 
         direction = Direction.NONE;
         isRunning = false;
@@ -105,6 +106,8 @@ public abstract class PageAnimation {
     public abstract Bitmap getBackBitmap();
 
     public abstract Bitmap getFrontBitmap();
+
+    public abstract Bitmap getSurfaceBitmap();
 
     public enum Direction {
         NONE(true), NEXT(true), PRE(true), UP(false), DOWN(false);

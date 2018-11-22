@@ -1,27 +1,36 @@
 package sjtu.yhapter.reader.widget.page;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.RectF;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.view.Gravity;
+import android.widget.PopupWindow;
 
 import sjtu.yhapter.reader.util.LogUtil;
+import sjtu.yhapter.reader.util.ScreenUtil;
 import sjtu.yhapter.reader.widget.animation.CoverPageAnim;
 import sjtu.yhapter.reader.widget.animation.HorizontalPageAnim;
 import sjtu.yhapter.reader.widget.animation.NonePageAnim;
+import sjtu.yhapter.reader.widget.element.annotation.AnnotationMenu;
+import sjtu.yhapter.reader.widget.element.annotation.TextSelectorElement;
+import sjtu.yhapter.reader.widget.element.page.PageElement;
 
 /**
  * Created by CocoAdapter on 2018/11/13.
  */
 
-@SuppressWarnings("unchecked")
-public class ReaderView extends BaseReaderView {
-    protected int index;
-    protected PageAdapter pageAdapter;
+public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouchListener {
+    protected TextSelectorElement textSelector;
+    protected PageElement pageElement;
+
+    protected AnnotationMenu annotationMenu;
 
     private RectF centerRect;
-    private boolean isLastMovingNext;
 
     public ReaderView(Context context) {
         this(context, null);
@@ -33,96 +42,65 @@ public class ReaderView extends BaseReaderView {
 
     public ReaderView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        index = 0;
-        setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean canTouch() {
-                return true;
-            }
-
-            @Override
-            public boolean onClick(int x, int y) {
-                if (centerRect == null) {
-                    centerRect = new RectF(viewWidth * 0.2f, viewHeight * 0.333f,
-                            viewWidth * 0.8f, viewHeight * 0.666f);
-                }
-                if (centerRect.contains(x, y)) {
-                    LogUtil.log(ReaderView.this, "onClick: " + x + ", " + y);
-                    return true;
-                }
-
-                return false;
-            }
-
-            @Override
-            public boolean onLongClickDown(int x, int y) {
-                LogUtil.log(ReaderView.this, "onLongClickDown: " + x + ", " + y);
-                return true;
-            }
-
-            @Override
-            public void onLongClickMove(int x, int y) {
-                LogUtil.log(ReaderView.this, "onLongClickMove: " + x + ", " + y);
-            }
-
-            @Override
-            public void onLongClickUp(int x, int y) {
-                LogUtil.log(ReaderView.this, "onLongClickUp: " + x + ", " + y);
-            }
-        });
     }
-    
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+
+        pageElement = new PageElement(w, h , ScreenUtil.dpToPx(12), ScreenUtil.dpToPx(18));
+        textSelector = new TextSelectorElement(getContext());
+
+        canTouch = true;
+
+        setOnTouchListener(this);
+
+        // from portrait to landscape will trigger refreshing curr page, auto
+        prepareCurrPage();
+    }
+
     @Override
     public boolean hasPrePage() {
-        if (pageAdapter == null)
+        if (pageElement == null || !pageElement.hasPrePage())
             return false;
 
-        index--;
-        if (index >= 0 && index < pageAdapter.getCount()) {
-            if (pageAnimation instanceof HorizontalPageAnim)
-                ((HorizontalPageAnim) pageAnimation).changePage();
+        if (pageAnimation instanceof HorizontalPageAnim)
+            ((HorizontalPageAnim) pageAnimation).changePage();
+        pageElement.drawPrePage(new Canvas(pageAnimation.getFrontBitmap()));
 
-            isLastMovingNext = false;
-            pageAdapter.draw(index, new Canvas(pageAnimation.getFrontBitmap()));
-            return true;
-        } else {
-            index++;
-            return false;
-        }
+        textSelector.setCurrPage(pageElement.getCurrPage());
+        textSelector.draw(new Canvas(pageAnimation.getSurfaceBitmap()));
+        return true;
     }
 
     @Override
     public boolean hasNextPage() {
-        if (pageAdapter == null)
+        if (pageElement == null || !pageElement.hasNextPage())
             return false;
 
-        index++;
-        if (index >= 0 && index < pageAdapter.getCount()) {
-            if (pageAnimation instanceof HorizontalPageAnim)
-                ((HorizontalPageAnim) pageAnimation).changePage();
+        if (pageAnimation instanceof HorizontalPageAnim)
+            ((HorizontalPageAnim) pageAnimation).changePage();
 
-            isLastMovingNext = true;
-            pageAdapter.draw(index, new Canvas(pageAnimation.getFrontBitmap()));
-            return true;
-        } else {
-            index--;
-            return false;
-        }
+        pageElement.drawNextPage(new Canvas(pageAnimation.getFrontBitmap()));
+
+        textSelector.setCurrPage(pageElement.getCurrPage());
+        textSelector.draw(new Canvas(pageAnimation.getSurfaceBitmap()));
+        return true;
     }
 
     @Override
     public void cancelPage() {
-        index = isLastMovingNext ? index - 1 : index + 1;
+        pageElement.cancelPage();
     }
 
     @Override
     public void prepareCurrPage() {
-        if (pageAdapter == null)
+        if (pageElement == null)
             return;
 
-        if (index >= 0 && index < pageAdapter.getCount()) {
-            pageAdapter.draw(index, new Canvas(pageAnimation.getFrontBitmap()));
-        }
+        textSelector.setCurrPage(pageElement.getCurrPage());
+        pageElement.drawCurrPage(new Canvas(pageAnimation.getFrontBitmap()));
+        textSelector.draw(new Canvas(pageAnimation.getSurfaceBitmap()));
     }
 
     public void setAnimation(PageAnimationMode mode) {
@@ -139,7 +117,50 @@ public class ReaderView extends BaseReaderView {
         }
     }
 
-    public void setPageAdapter(PageAdapter pageAdapter) {
-        this.pageAdapter = pageAdapter;
+    @Override
+    public boolean canTouch() {
+        if (annotationMenu != null && annotationMenu.isShowing()) {
+            annotationMenu.dismiss();
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onClick(int x, int y) {
+        return false;
+    }
+
+    @Override
+    public boolean onLongClickDown(int x, int y) {
+        if (textSelector.onLongClickEnter(x, y)) {
+            Canvas canvas = new Canvas(pageAnimation.getSurfaceBitmap());
+            textSelector.draw(canvas);
+            postInvalidate();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onLongClickMove(int x, int y) {
+        textSelector.onLongClickMove(x, y);
+        Canvas canvas = new Canvas(pageAnimation.getSurfaceBitmap());
+        textSelector.draw(canvas);
+        postInvalidate();
+    }
+
+    @Override
+    public void onLongClickUp(int x, int y) {
+        textSelector.onLongClickUp(x, y);
+        if (annotationMenu == null) {
+            annotationMenu = new AnnotationMenu(getContext(), this);
+            annotationMenu.setOnDismissListener(() -> {
+                Canvas canvas = new Canvas(pageAnimation.getSurfaceBitmap());
+                textSelector.clear(canvas);
+                postInvalidate();
+            });
+        }
+        annotationMenu.showAtLocation(this, Gravity.NO_GRAVITY, x, y);
     }
 }

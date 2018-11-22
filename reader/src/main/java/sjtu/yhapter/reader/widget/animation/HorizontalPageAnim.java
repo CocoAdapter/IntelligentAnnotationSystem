@@ -5,8 +5,9 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
 
+import java.util.Stack;
+
 import sjtu.yhapter.reader.model.Constants;
-import sjtu.yhapter.reader.util.LogUtil;
 
 /**
  * Created by CocoAdapter on 2018/11/13.
@@ -17,6 +18,8 @@ public abstract class HorizontalPageAnim extends PageAnimation {
 
     protected Bitmap currBitmap;
     protected Bitmap nextBitmap;
+    protected Bitmap currSurfaceBitmap;
+    protected Bitmap nextSurfaceBitmap;
 
     protected boolean isCancel = false;
 
@@ -33,15 +36,23 @@ public abstract class HorizontalPageAnim extends PageAnimation {
     public HorizontalPageAnim(Context context, int w, int h, int marginWidth, int marginHeight) {
         super(context, w, h, marginWidth, marginHeight);
 
-        currBitmap = Bitmap.createBitmap(viewWidth, viewHeight, Bitmap.Config.RGB_565);
-        nextBitmap = Bitmap.createBitmap(viewWidth, viewHeight, Bitmap.Config.RGB_565);
+        currBitmap = Bitmap.createBitmap(contentWidth, contentHeight, Constants.BITMAP_CONFIG);
+        nextBitmap = Bitmap.createBitmap(contentWidth, contentHeight, Constants.BITMAP_CONFIG);
+
+        currSurfaceBitmap = Bitmap.createBitmap(contentWidth, contentHeight, Constants.BITMAP_CONFIG);
+        nextSurfaceBitmap = Bitmap.createBitmap(contentWidth, contentHeight, Constants.BITMAP_CONFIG);
     }
 
     // TODO 看能不能封装到内部来，换页可以不暴露给上层
     public void changePage() {
         Bitmap bitmap = currBitmap;
+
         currBitmap = nextBitmap;
         nextBitmap = bitmap;
+
+        bitmap = currSurfaceBitmap;
+        currSurfaceBitmap = nextSurfaceBitmap;
+        nextSurfaceBitmap = bitmap;
     }
 
     public abstract void drawStatic(Canvas canvas);
@@ -109,7 +120,7 @@ public abstract class HorizontalPageAnim extends PageAnimation {
             case MotionEvent.ACTION_UP:
                 if (!isMoving) {
                     // if is's a click action
-                    isNext = x >= screenWidth / 2;
+                    isNext = x >= viewWidth / 2;
                     if (isNext) {
                         boolean hasNext = pageCarver.hasNextPage();
                         setDirection(Direction.NEXT);
@@ -147,7 +158,11 @@ public abstract class HorizontalPageAnim extends PageAnimation {
             drawMove(canvas);
         } else {
             if (isCancel) {
-                nextBitmap = currBitmap.copy(Bitmap.Config.RGB_565, true);
+                nextBitmap.recycle();
+                nextBitmap = currBitmap.copy(Constants.BITMAP_CONFIG, true);
+
+                nextSurfaceBitmap.recycle();
+                nextSurfaceBitmap = currSurfaceBitmap.copy(Constants.BITMAP_CONFIG, true);
             }
             drawStatic(canvas);
         }
@@ -186,5 +201,10 @@ public abstract class HorizontalPageAnim extends PageAnimation {
     @Override
     public Bitmap getBackBitmap() {
         return nextBitmap;
+    }
+
+    @Override
+    public Bitmap getSurfaceBitmap() {
+        return nextSurfaceBitmap;
     }
 }

@@ -6,6 +6,8 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
 
+import sjtu.yhapter.reader.model.Constants;
+
 /**
  * Created by CocoAdapter on 2018/11/13.
  */
@@ -17,8 +19,8 @@ public class CoverPageAnim extends HorizontalPageAnim {
     public CoverPageAnim(Context context, int w, int h) {
         super(context, w, h);
 
-        srcRect = new Rect(0, 0, viewWidth, viewHeight);
-        destRect = new Rect(0, 0, viewWidth, viewHeight);
+        srcRect = new Rect(0, 0, contentWidth, contentHeight);
+        destRect = new Rect(0, 0, contentWidth, contentHeight);
 
         int[] mBackShadowColors = new int[]{0x66000000, 0x00000000};
         shadowDrawable = new GradientDrawable(
@@ -28,10 +30,16 @@ public class CoverPageAnim extends HorizontalPageAnim {
     @Override
     public void drawStatic(Canvas canvas) {
         if (isCancel) {
-            nextBitmap = currBitmap.copy(Bitmap.Config.RGB_565, true);
+            nextBitmap.recycle();
+            nextBitmap = currBitmap.copy(Constants.BITMAP_CONFIG, true);
             canvas.drawBitmap(currBitmap, 0, 0, null);
+
+            nextSurfaceBitmap.recycle();
+            nextSurfaceBitmap = currSurfaceBitmap.copy(Constants.BITMAP_CONFIG, true);
+            canvas.drawBitmap(currSurfaceBitmap, 0, 0, null);
         } else {
             canvas.drawBitmap(nextBitmap, 0, 0, null);
+            canvas.drawBitmap(nextSurfaceBitmap, 0, 0, null);
         }
     }
 
@@ -39,22 +47,26 @@ public class CoverPageAnim extends HorizontalPageAnim {
     public void drawMove(Canvas canvas) {
         switch (direction) {
             case NEXT:
-                int dis = (int) (viewWidth - startX + touchX);
-                if (dis > viewWidth) dis = viewWidth;
+                int dis = (int) (contentWidth - startX + touchX);
+                if (dis > contentWidth) dis = contentWidth;
 
-                srcRect.left = viewWidth - dis;
+                srcRect.left = contentWidth - dis;
                 destRect.right = dis;
 
                 canvas.drawBitmap(nextBitmap, 0, 0, null);
+                canvas.drawBitmap(nextSurfaceBitmap, 0, 0, null);
                 canvas.drawBitmap(currBitmap, srcRect, destRect, null);
+                canvas.drawBitmap(currSurfaceBitmap, 0, 0, null);
                 addShadow(dis, canvas);
                 break;
             case PRE:
-                srcRect.left = (int) (viewWidth - touchX);
+                srcRect.left = (int) (contentWidth - touchX);
                 destRect.right = (int) touchX;
 
                 canvas.drawBitmap(currBitmap, 0, 0, null);
+                canvas.drawBitmap(currSurfaceBitmap, 0, 0, null);
                 canvas.drawBitmap(nextBitmap, srcRect, destRect, null);
+                canvas.drawBitmap(nextSurfaceBitmap, srcRect, destRect, null);
                 addShadow((int) touchX, canvas);
                 break;
         }
@@ -67,24 +79,24 @@ public class CoverPageAnim extends HorizontalPageAnim {
         switch (direction) {
             case NEXT:
                 if (isCancel) {
-                    int dis = (int) ((viewWidth - startX) + touchX);
-                    if (dis > viewWidth) dis = viewWidth;
+                    int dis = (int) ((contentWidth - startX) + touchX);
+                    if (dis > contentWidth) dis = contentWidth;
 
-                    dx = viewWidth - dis;
+                    dx = contentWidth - dis;
                 } else
-                    dx = (int) -(touchX + (viewWidth - startX));
+                    dx = (int) -(touchX + (contentWidth - startX));
                 break;
             case PRE:
-                dx = isCancel ? (int) -touchX : (int) (viewWidth - touchX);
+                dx = isCancel ? (int) -touchX : (int) (contentWidth - touchX);
                 break;
         }
 
-        int duration = (400 * Math.abs(dx)) / viewWidth;
+        int duration = (400 * Math.abs(dx)) / contentWidth;
         scroller.startScroll((int) touchX, 0, dx, 0, duration);
     }
 
     private void addShadow(int left, Canvas canvas) {
-        shadowDrawable.setBounds(left, 0, left + 30, screenHeight);
+        shadowDrawable.setBounds(left, 0, left + 30, viewHeight);
         shadowDrawable.draw(canvas);
     }
 }
