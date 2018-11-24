@@ -45,13 +45,11 @@ public class TextSelectorElement {
 
         endPointPaint = new Paint();
         endPointPaint.setAntiAlias(true);
-//        endPointPaint.setTextSize(ScreenUtil.dpToPx(15));
         endPointPaint.setColor(Color.RED);
 
         selectTextPaint = new Paint();
         selectTextPaint.setAntiAlias(true);
         selectTextPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-//        selectTextPaint.setTextSize(ScreenUtil.dpToPx(15));
         selectTextPaint.setColor(Color.parseColor("#77FADB08"));
 
         path = new Path();
@@ -78,14 +76,13 @@ public class TextSelectorElement {
     }
 
     public void onLongClickMove(int x, int y) {
-        // TODO 如果反向，需要记录下来并 clear掉已有的selectLine
-        // TODO 这个时候，选中的char已经减少
         PointChar pc = getSelectedChar(x, y);
         if (pc != null) {
             currChar = pc;
 
             boolean lastMovingLeftUp = isMovingLeftUp;
-            isMovingLeftUp = pc.topLeft.x < lastChar.topLeft.x || pc.topLeft.y < lastChar.topLeft.y;
+            isMovingLeftUp = pc.topLeft.x < lastChar.topLeft.x && pc.topLeft.y <= lastChar.topLeft.y;
+            isMovingLeftUp = isMovingLeftUp || (pc.topLeft.x >= lastChar.topLeft.x && pc.topLeft.y < lastChar.topLeft.y);
             if (lastMovingLeftUp != isMovingLeftUp && selectLines != null)
                 selectLines.clear();
         }
@@ -102,14 +99,6 @@ public class TextSelectorElement {
             return;
 
         drawSelectLines(canvas);
-//        if (lastChar != null) {
-//            path.reset();
-//            path.moveTo(lastChar.topLeft.x, lastChar.topLeft.y);
-//            path.lineTo(lastChar.topRight.x , lastChar.topRight.y);
-//            path.lineTo(lastChar.bottomRight.x , lastChar.bottomRight.y);
-//            path.lineTo(lastChar.bottomLeft.x , lastChar.bottomLeft.y);
-//            canvas.drawPath(path, selectTextPaint);
-//        }
     }
 
     public void clear(Canvas canvas) {
@@ -135,6 +124,7 @@ public class TextSelectorElement {
     }
 
     private void getSelectLines() {
+        selectLines.clear();
         boolean isForStartChar = true;
         boolean isEnded = false;
 
@@ -175,11 +165,10 @@ public class TextSelectorElement {
     }
 
     private void drawSelectLines(Canvas canvas) {
+        canvas.drawRect(canvas.getClipBounds(), erasePaint);
         getSelectLines();
-        if (selectLines.isEmpty())
-            LogUtil.log(this, "empty");
+
         for (LineData ld : selectLines) {
-            LogUtil.log(this, "ld: " + ld.content());
             PointChar pcStart = ld.getChars().get(0);
             PointChar pcEnd = ld.getChars().get(ld.getChars().size() - 1);
 
