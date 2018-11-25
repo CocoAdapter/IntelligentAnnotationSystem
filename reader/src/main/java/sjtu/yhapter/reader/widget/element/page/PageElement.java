@@ -13,8 +13,10 @@ import java.util.List;
 import sjtu.yhapter.reader.App;
 import sjtu.yhapter.reader.model.LineData;
 import sjtu.yhapter.reader.model.PageData;
+import sjtu.yhapter.reader.model.PointChar;
 import sjtu.yhapter.reader.util.LogUtil;
 import sjtu.yhapter.reader.util.ScreenUtil;
+import sjtu.yhapter.reader.util.StringUtil;
 
 /**
  * Created by CocoAdapter on 2018/11/19.
@@ -133,11 +135,13 @@ public class PageElement {
         int contentHeight = lineElement.getHeight();
 
         String paragraph;
+        lineElement.resetParse();
         while ((paragraph = br.readLine()) != null) {
-            paragraph = paragraph.replaceAll("\\s", "");
+            paragraph = paragraph.replaceAll("\\s", ""); // remove blank
             if (paragraph.equals("")) continue;
 
             paragraph = "\u3000\u3000" + paragraph; // paragraph indent
+            paragraph = StringUtil.halfToFull(paragraph);
 
             int wordCount;
             String subStr;
@@ -145,13 +149,19 @@ public class PageElement {
                 contentHeight -= lineElement.getLineHeight();
                 if (contentHeight <= 0) {
                     PageData pageData = new PageData();
+                    pageData.bookId = 1;
+                    pageData.chapterId = 1;
                     pageData.title = "第一章";
                     pageData.position = pages.size();
                     pageData.lines = new ArrayList<>(lines);
+                    pageData.startIndex = lines.get(0).getChars().get(0).chapterIndex;
+                    List<PointChar> pcs = lines.get(lines.size() - 1).getChars();
+                    pageData.endIndex = pcs.get(pcs.size() - 1).chapterIndex;
                     pages.add(pageData);
                     // reset
                     lines.clear();
                     contentHeight = lineElement.getHeight();
+                    lineElement.resetBaseLine();
                     continue;
                 }
 
@@ -165,17 +175,21 @@ public class PageElement {
 
                 paragraph = paragraph.substring(wordCount);
             }
-
             // 处理段间距
         }
 
         if (lines.size() != 0) {
             PageData pageData = new PageData();
+            pageData.bookId = 1;
+            pageData.chapterId = 1;
             pageData.title = "第一章";
             pageData.position = pages.size();
             pageData.lines = new ArrayList<>(lines);
-
+            pageData.startIndex = lines.get(0).getChars().get(0).chapterIndex;
+            List<PointChar> pcs = lines.get(lines.size() - 1).getChars();
+            pageData.endIndex = pcs.get(pcs.size() - 1).chapterIndex;
             pages.add(pageData);
+            lineElement.resetBaseLine();
             // reset
             lines.clear();
         }

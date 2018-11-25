@@ -152,15 +152,22 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
 
     @Override
     public void onLongClickUp(int x, int y) {
-        textSelector.onLongClickUp(x, y);
+        String selectContent = textSelector.onLongClickUp(x, y);
+        long startIndex = textSelector.getStartCharIndex();
+        long endIndex = textSelector.getEndCharIndex();
+
         if (annotationMenu == null) {
             annotationMenu = new AnnotationMenu(getContext(), this);
             annotationMenu.setOnDismissListener(() -> {
                 Canvas canvas = new Canvas(pageAnimation.getSurfaceBitmap());
                 textSelector.clear(canvas);
+                textSelector.draw(canvas);
                 postInvalidate();
             });
         }
+
+        annotationMenu.setAnnotation(pageElement.getCurrPage(), selectContent,
+                startIndex, endIndex);
         annotationMenu.showAtLocation(this, Gravity.NO_GRAVITY, x, y);
     }
 }

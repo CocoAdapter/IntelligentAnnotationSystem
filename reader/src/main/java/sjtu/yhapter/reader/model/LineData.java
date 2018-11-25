@@ -9,12 +9,12 @@ import java.util.List;
  */
 
 public class LineData {
+    private float baseline;
     private List<PointChar> chars;
 
     public LineData() {
         chars = new ArrayList<>();
     }
-
 
     public void append(PointChar pointChar) {
         chars.add(pointChar);
@@ -30,6 +30,14 @@ public class LineData {
             sb.append(p.c);
         }
         return sb.toString();
+    }
+
+    public float getBaseline() {
+        return baseline;
+    }
+
+    public void setBaseline(float baseline) {
+        this.baseline = baseline;
     }
 
     @Override

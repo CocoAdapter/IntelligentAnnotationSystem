@@ -10,6 +10,9 @@ import android.widget.Button;
 import android.widget.PopupWindow;
 
 import sjtu.yhapter.reader.R;
+import sjtu.yhapter.reader.model.Annotation;
+import sjtu.yhapter.reader.model.PageData;
+import sjtu.yhapter.reader.util.LogUtil;
 
 /**
  * Created by CocoAdapter on 2018/11/21.
@@ -35,6 +38,10 @@ public class AnnotationMenu extends PopupWindow {
 //        setTouchable(true);
 
         initListener();
+    }
+
+    public void setAnnotation(PageData page, String content, long startIndex, long endIndex) {
+        LogUtil.log(this, page.bookId + ", " + page.chapterId + ", " + content + ", " + startIndex + ", " + endIndex);
     }
 
     private void initListener() {

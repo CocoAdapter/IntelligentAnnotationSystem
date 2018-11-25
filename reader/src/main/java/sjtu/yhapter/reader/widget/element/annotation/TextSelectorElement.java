@@ -12,6 +12,7 @@ import android.graphics.RectF;
 import java.util.ArrayList;
 import java.util.List;
 
+import sjtu.yhapter.reader.model.Annotation;
 import sjtu.yhapter.reader.model.LineData;
 import sjtu.yhapter.reader.model.PageData;
 import sjtu.yhapter.reader.model.PointChar;
@@ -26,7 +27,6 @@ public class TextSelectorElement {
 
     protected PageData currPage;
 
-
     protected Paint erasePaint;
     protected Paint endPointPaint;
     protected Paint selectTextPaint;
@@ -36,6 +36,7 @@ public class TextSelectorElement {
     protected PointChar lastChar;
     protected PointChar currChar;
     protected List<LineData> selectLines;
+    protected StringBuilder selectContent;
 
     public TextSelectorElement(Context context) {
         this.context = context;
@@ -70,6 +71,8 @@ public class TextSelectorElement {
             currChar = pc;
             if (selectLines == null)
                 selectLines = new ArrayList<>();
+            if (selectContent == null)
+                selectContent = new StringBuilder();
             return true;
         } else
             return false;
@@ -91,7 +94,17 @@ public class TextSelectorElement {
     }
 
     public String onLongClickUp(int x, int y) {
+        if (selectContent != null)
+            return selectContent.toString();
         return null;
+    }
+
+    public long getStartCharIndex () {
+        return isMovingLeftUp ? currChar.chapterIndex : lastChar.chapterIndex;
+    }
+
+    public long getEndCharIndex () {
+        return isMovingLeftUp ? lastChar.chapterIndex : currChar.chapterIndex;
     }
 
     public void draw(Canvas canvas) {
@@ -116,8 +129,9 @@ public class TextSelectorElement {
             for (PointChar pc : lineData.getChars()) {
                 if (y > pc.bottomLeft.y)
                     break; // next lines
-                if (x >= pc.bottomLeft.x && x <= pc.bottomRight.x)
+                if (x >= pc.bottomLeft.x && x <= pc.bottomRight.x) {
                     return pc;
+                }
             }
         }
         return null;
@@ -125,6 +139,8 @@ public class TextSelectorElement {
 
     private void getSelectLines() {
         selectLines.clear();
+        selectContent.delete(0, selectContent.length());
+
         boolean isForStartChar = true;
         boolean isEnded = false;
 
@@ -143,15 +159,15 @@ public class TextSelectorElement {
                 if (isForStartChar && pc == startChar) {
                     isForStartChar = false;
                     selectLine.append(pc);
+                    selectContent.append(pc.c);
                     if (pc == endChar) {
-//                        selectLines.add(selectLine);
                         isEnded = true;
                         break;
                     }
                 } else if (!isForStartChar) {
                     selectLine.append(pc);
+                    selectContent.append(pc.c);
                     if (pc == endChar) {
-//                        selectLines.add(selectLine);
                         isEnded = true;
                         break;
                     }
