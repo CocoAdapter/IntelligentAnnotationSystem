@@ -8,9 +8,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import sjtu.yhapter.reader.App;
+import sjtu.yhapter.reader.model.Annotation;
 import sjtu.yhapter.reader.model.LineData;
 import sjtu.yhapter.reader.model.PageData;
 import sjtu.yhapter.reader.model.PointChar;
@@ -95,12 +98,6 @@ public class PageElement {
         }
     }
 
-    public void print() {
-        for (LineData lineData : currPage.lines) {
-            LogUtil.log(this, lineData.toString());
-        }
-    }
-
     public void drawNextPage(Canvas canvas) {
         if (hasNextPage()) {
             cancelPage = currPage;
@@ -109,9 +106,13 @@ public class PageElement {
         }
     }
 
+    public void addAnnotation(Annotation annotation) {
+        annotations.add(annotation);
+    }
+
     private void drawPage(Canvas canvas) {
         if (currPage == null)
-            return; // TODO 空页面的绘制
+            return;
 
         // bg
         canvas.drawColor(Color.rgb(255, 255, 240));
@@ -122,6 +123,7 @@ public class PageElement {
         footerElement.setTotalPageNum(currChapterPage.size());
         footerElement.draw(canvas, currPage);
 
+        lineElement.setAnnotations(loadAnnotations());
         lineElement.draw(canvas, currPage);
     }
 
@@ -194,6 +196,49 @@ public class PageElement {
             lines.clear();
         }
         return pages;
+    }
+
+    private List<Annotation> annotations;
+
+    private List<Annotation> loadAnnotations() {
+        if (annotations != null)
+            return annotations;
+
+        annotations = new ArrayList<>();
+        // TODO test
+        Annotation annotation = new Annotation();
+        annotation.setBookId(1);
+        annotation.setChapterId(1);
+        annotation.setContent("人的行为可能建立在坚固的岩石上面，也可能建立在潮湿的沼泽之中，但是一过某种程度，我就不管它是建立在什么上面的了。去年秋天我从");
+        annotation.setStartIndex(537);
+        annotation.setEndIndex(598);
+        annotations.add(annotation);
+
+        annotation = new Annotation();
+        annotation.setContent("身上出现的时候，心理不正常的人很快就会察觉并区抓住不放。由于这个缘故，我上大学的时候就被不公正地指责为小政客，因为我与闻一");
+        annotation.setStartIndex(216);
+        annotation.setEndIndex(276);
+        annotation.setBookId(1);
+        annotation.setChapterId(1);
+        annotations.add(annotation);
+
+        annotation = new Annotation();
+        annotation.setContent("系的实际创始人却是我祖父的哥哥。他在一八五一年来到这里，买了个替身去参加南北战争，开始做起五金批发生意，也就是我父东今天");
+        annotation.setStartIndex(1043);
+        annotation.setEndIndex(1102);
+        annotation.setBookId(1);
+        annotation.setChapterId(1);
+        annotations.add(annotation);
+
+        annotation = new Annotation();
+        annotation.setContent("的－－每逢我根据某种明白无误的迹象看出又有一次倾诉衷情在地平线上喷薄欲出的时候，我往往假装睡觉，假装心不在焉，或者装出不怀好");
+        annotation.setStartIndex(309);
+        annotation.setEndIndex(370);
+        annotation.setBookId(1);
+        annotation.setChapterId(1);
+        annotations.add(annotation);
+
+        return annotations;
     }
 
     private BufferedReader getBufferedReader() {

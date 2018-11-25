@@ -24,6 +24,7 @@ import sjtu.yhapter.reader.model.PageData;
 
 public class LineElement extends BasePageElement {
     protected TextPaint linePaint;
+    // 这个从上层传过来，分页的时候的读入
     protected List<Annotation> annotations; // needs to be sorted by startIndex
 
     protected Paint annotationPaint;
@@ -32,8 +33,6 @@ public class LineElement extends BasePageElement {
 
     private int lineHeight;
     private float baseline;
-
-    private Annotation annotation;
 
     public LineElement() {
         linePaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
@@ -45,67 +44,23 @@ public class LineElement extends BasePageElement {
 
         annotationPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         annotationPaint.setColor(Color.MAGENTA);
-
-        annotations = new ArrayList<>();
-        // TODO test
-        annotation = new Annotation();
-        annotation.setBookId(1);
-        annotation.setChapterId(1);
-        annotation.setContent("人的行为可能建立在坚固的岩石上面，也可能建立在潮湿的沼泽之中，但是一过某种程度，我就不管它是建立在什么上面的了。去年秋天我从");
-        annotation.setStartIndex(537);
-        annotation.setEndIndex(598);
-        annotations.add(annotation);
-
-        annotation = new Annotation();
-        annotation.setContent("身上出现的时候，心理不正常的人很快就会察觉并区抓住不放。由于这个缘故，我上大学的时候就被不公正地指责为小政客，因为我与闻一");
-        annotation.setStartIndex(216);
-        annotation.setEndIndex(276);
-        annotation.setBookId(1);
-        annotation.setChapterId(1);
-        annotations.add(annotation);
-
-        annotation = new Annotation();
-        annotation.setContent("系的实际创始人却是我祖父的哥哥。他在一八五一年来到这里，买了个替身去参加南北战争，开始做起五金批发生意，也就是我父东今天");
-        annotation.setStartIndex(1043);
-        annotation.setEndIndex(1102);
-        annotation.setBookId(1);
-        annotation.setChapterId(1);
-        annotations.add(annotation);
-
-        annotation = new Annotation();
-        annotation.setContent("的－－每逢我根据某种明白无误的迹象看出又有一次倾诉衷情在地平线上喷薄欲出的时候，我往往假装睡觉，假装心不在焉，或者装出不怀好");
-        annotation.setStartIndex(309);
-        annotation.setEndIndex(370);
-        annotation.setBookId(1);
-        annotation.setChapterId(1);
-        annotations.add(annotation);
-
-        Collections.sort(annotations, (o1, o2) -> (int) (o1.getStartIndex() - o2.getStartIndex()));
     }
 
     @Override
     public void draw(Canvas canvas, Object object) {
         PageData pageData = (PageData) object;
-
-//        Paint.FontMetrics metrics = linePaint.getFontMetrics();
-//        float baseline = (int) rectF.top - metrics.top;
-
+        // draw text
         for (int i = 0; i < pageData.lines.size(); i++) {
             LineData lineData = pageData.lines.get(i);
             String str = lineData.content();
-//            canvas.drawText(str, rectF.left, baseline, linePaint);
             canvas.drawText(str, rectF.left, lineData.getBaseline(), linePaint);
         }
-
+        // draw annotation
         drawAnnotations(canvas, pageData);
     }
 
     public int getLineHeight() {
         return lineHeight;
-    }
-
-    public float getBaseline() {
-        return baseline;
     }
 
     @Override
@@ -163,11 +118,20 @@ public class LineElement extends BasePageElement {
         return lineData;
     }
 
+    public void setAnnotations(List<Annotation> annotations) {
+        this.annotations = annotations;
+    }
+
     private void drawAnnotations(Canvas canvas, PageData pageData) {
+        if (annotations == null || annotations.isEmpty())
+            return;
+
         // getSelectLines
         long charStart = pageData.lines.get(0).getChars().get(0).chapterIndex;
         List<PointChar> tem = pageData.lines.get(pageData.lines.size() - 1).getChars();
         long charEnd = tem.get(tem.size() - 1).chapterIndex;
+
+        Collections.sort(annotations, (o1, o2) -> (int) (o1.getStartIndex() - o2.getStartIndex()));
 
         // search
         for (Annotation annotation : annotations) {

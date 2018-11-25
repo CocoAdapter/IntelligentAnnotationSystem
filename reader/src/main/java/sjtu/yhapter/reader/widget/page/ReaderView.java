@@ -11,6 +11,7 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.widget.PopupWindow;
 
+import sjtu.yhapter.reader.model.Annotation;
 import sjtu.yhapter.reader.util.LogUtil;
 import sjtu.yhapter.reader.util.ScreenUtil;
 import sjtu.yhapter.reader.widget.animation.CoverPageAnim;
@@ -91,6 +92,7 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
     @Override
     public void cancelPage() {
         pageElement.cancelPage();
+        textSelector.setCurrPage(pageElement.getCurrPage());
     }
 
     @Override
@@ -153,21 +155,31 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
     @Override
     public void onLongClickUp(int x, int y) {
         String selectContent = textSelector.onLongClickUp(x, y);
-        long startIndex = textSelector.getStartCharIndex();
-        long endIndex = textSelector.getEndCharIndex();
+        final long startIndex = textSelector.getStartCharIndex();
+        final long endIndex = textSelector.getEndCharIndex();
 
         if (annotationMenu == null) {
-            annotationMenu = new AnnotationMenu(getContext(), this);
+            annotationMenu = new AnnotationMenu(getContext());
             annotationMenu.setOnDismissListener(() -> {
                 Canvas canvas = new Canvas(pageAnimation.getSurfaceBitmap());
                 textSelector.clear(canvas);
-                textSelector.draw(canvas);
+
+                canvas = new Canvas(pageAnimation.getFrontBitmap());
+                Annotation annotation = annotationMenu.getAnnotation();
+                if (annotation != null) {
+                    pageElement.addAnnotation(annotation);
+                    pageElement.drawCurrPage(canvas); // draw line
+                }
+
                 postInvalidate();
             });
         }
 
-        annotationMenu.setAnnotation(pageElement.getCurrPage(), selectContent,
-                startIndex, endIndex);
+        annotationMenu.setBookId(pageElement.getCurrPage().bookId)
+                .setChapterId(pageElement.getCurrPage().chapterId)
+                .setContent(selectContent)
+                .setStartIndex(startIndex)
+                .setEndIndex(endIndex);
         annotationMenu.showAtLocation(this, Gravity.NO_GRAVITY, x, y);
     }
 }

@@ -20,11 +20,17 @@ import sjtu.yhapter.reader.util.LogUtil;
 
 public class AnnotationMenu extends PopupWindow {
     private View contentView;
-    private View parentView;
     private Button btn;
 
-    public AnnotationMenu(Context context, View parentView) {
-        this.parentView = parentView;
+    private long bookId;
+    private long chapterId;
+    private String content;
+    private long startIndex;
+    private long endIndex;
+
+    private Annotation annotation;
+
+    public AnnotationMenu(Context context) {
         contentView = LayoutInflater.from(context).inflate(R.layout.widget_annotation_menu, null);
         setContentView(contentView);
 
@@ -33,23 +39,54 @@ public class AnnotationMenu extends PopupWindow {
         setHeight((int) context.getResources().getDimension(R.dimen.annotation_menu_height));
         setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
 
-//        setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-//        setOutsideTouchable(true);
-//        setTouchable(true);
-
         initListener();
+
+        this.content = content;
+        this.startIndex = startIndex;
+        this.endIndex = endIndex;
     }
 
-    public void setAnnotation(PageData page, String content, long startIndex, long endIndex) {
-        LogUtil.log(this, page.bookId + ", " + page.chapterId + ", " + content + ", " + startIndex + ", " + endIndex);
+    public AnnotationMenu setBookId(long bookId) {
+        this.bookId = bookId;
+        return this;
+    }
+
+    public AnnotationMenu setChapterId(long chapterId) {
+        this.chapterId = chapterId;
+        return this;
+    }
+
+    public AnnotationMenu setContent(String content) {
+        this.content = content;
+        return this;
+    }
+
+    public AnnotationMenu setStartIndex(long startIndex) {
+        this.startIndex = startIndex;
+        return this;
+    }
+
+    public AnnotationMenu setEndIndex(long endIndex) {
+        this.endIndex = endIndex;
+        return this;
+    }
+
+    public Annotation getAnnotation() {
+        return annotation;
     }
 
     private void initListener() {
         View.OnClickListener ocl = v -> {
             int i = v.getId();
             if (i == R.id.btn) {
-                // 确定要画线，不要删除
+                annotation = new Annotation();
+                annotation.setBookId(bookId);
+                annotation.setChapterId(chapterId);
+                annotation.setContent(content);
+                annotation.setStartIndex(startIndex);
+                annotation.setEndIndex(endIndex);
                 // TODO
+                LogUtil.log(this, bookId + ", " + chapterId + ", " + content + ", " + startIndex + ", " + endIndex);
                 dismiss();
             }
         };
