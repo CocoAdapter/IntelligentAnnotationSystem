@@ -2,18 +2,20 @@ package sjtu.yhapter.reader.widget.element.annotation;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.PopupWindow;
 
+import sjtu.yhapter.reader.App;
 import sjtu.yhapter.reader.R;
 import sjtu.yhapter.reader.model.Annotation;
-import sjtu.yhapter.reader.model.PageData;
-import sjtu.yhapter.reader.util.LogUtil;
 import sjtu.yhapter.reader.util.ScreenUtil;
+import sjtu.yhapter.reader.widget.ImageTextView;
 
 /**
  * Created by CocoAdapter on 2018/11/21.
@@ -22,8 +24,10 @@ import sjtu.yhapter.reader.util.ScreenUtil;
 public class AnnotationMenu extends PopupWindow {
     private final static int X_OFFSET = 10; // in dp
 
-    private View contentView;
-    private View btn;
+    private View parentView;
+    private Point anchorPoint;
+    private ImageTextView btnCopy, btnDrawLine, btnWriteIdea, btnQuery, btnShare;
+    private LineTypeMenu lineTypeMenu;
 
     private long bookId;
     private long chapterId;
@@ -34,26 +38,40 @@ public class AnnotationMenu extends PopupWindow {
     private Annotation annotation;
 
     public AnnotationMenu(Context context) {
-        contentView = LayoutInflater.from(context).inflate(R.layout.widget_annotation_menu, null);
+        View contentView = LayoutInflater.from(context).inflate(R.layout.widget_anno_menu, null);
         setContentView(contentView);
 
-        btn = contentView.findViewById(R.id.btn_drawline);
+        lineTypeMenu = new LineTypeMenu(context);
+        lineTypeMenu.setSelectIndex(0);
+
+        btnCopy = contentView.findViewById(R.id.btn_copy);
+        btnDrawLine = contentView.findViewById(R.id.btn_drawline);
+        btnWriteIdea = contentView.findViewById(R.id.btn_writeidea);
+        btnQuery = contentView.findViewById(R.id.btn_query);
+        btnShare = contentView.findViewById(R.id.btn_share);
 
         setHeight((int) context.getResources().getDimension(R.dimen.annotation_menu_height));
         setWidth((int) context.getResources().getDimension(R.dimen.annotation_menu_width));
 
         initListener();
+
+        setAnimationStyle(R.style.AnnotationMenuAnim);
     }
 
     @Override
     public void showAtLocation(View parent, int gravity, int x, int y) {
+        btnDrawLine.setText(App.getInstance().getText(R.string.annotation_drawline));
+
         int xPadding = ScreenUtil.dpToPx(X_OFFSET);
-        int total = x + getWidth() + xPadding;
+        int totalX = x + getWidth() + xPadding;
         int parentWidth = parent.getWidth();
-        if (total >= parentWidth) {
+        if (totalX >= parentWidth) {
             x = parentWidth - xPadding - getWidth();
         }
-        super.showAtLocation(parent, gravity, x, y);
+        parentView = parent;
+        anchorPoint = new Point(x, y);
+        // the y pos for showAtLocation is based on whole screen
+        super.showAtLocation(parent, gravity, x, y + ScreenUtil.getStatusBarHeight());
     }
 
     public AnnotationMenu setBookId(long bookId) {
@@ -96,12 +114,97 @@ public class AnnotationMenu extends PopupWindow {
                 annotation.setStartIndex(startIndex);
                 annotation.setEndIndex(endIndex);
                 // TODO
-                LogUtil.log(this, bookId + ", " + chapterId + ", " + content + ", " + startIndex + ", " + endIndex);
+//                LogUtil.log(this, bookId + ", " + chapterId + ", " + content + ", " + startIndex + ", " + endIndex);
+                if (parentView != null) {
+                    int x = anchorPoint.x + v.getLeft() + v.getWidth() / 2;
+                    int y = anchorPoint.y + v.getTop();
+                    lineTypeMenu.showAtLocation(parentView, Gravity.NO_GRAVITY, x, y);
 
-                // TODO 弹出二级菜单, 不能dismiss
-                dismiss();
+                    btnDrawLine.setText(App.getInstance().getText(R.string.annotation_delline));
+                }
+
             }
         };
-        btn.setOnClickListener(ocl);
+        btnDrawLine.setOnClickListener(ocl);
+    }
+
+    private class LineTypeMenu extends PopupWindow implements View.OnClickListener{
+        private int width;
+        private int height;
+
+        private ImageView btnFill, btnNormal, btnWave;
+
+        public LineTypeMenu(Context context) {
+            View contentView = LayoutInflater.from(context).inflate(R.layout.widget_anno_menu_linetype, null);
+            setContentView(contentView);
+            btnFill = contentView.findViewById(R.id.btn_fill);
+            btnNormal = contentView.findViewById(R.id.btn_normalline);
+            btnWave = contentView.findViewById(R.id.btn_waveline);
+            initListener();
+
+            setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+            setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
+            contentView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+            width = contentView.getMeasuredWidth();
+            height = contentView.getMeasuredHeight();
+
+            setTouchable(true);
+            setOutsideTouchable(true);
+            setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+            setAnimationStyle(R.style.AnnotationMenuAnim);
+        }
+
+        @Override
+        public void showAtLocation(View parent, int gravity, int x, int y) {
+            x = x - width / 2;
+            int margin = (int) App.getInstance().getResources().getDimension(R.dimen.anno_menu_line_margin);
+            int statusBarHeight = ScreenUtil.getStatusBarHeight();
+            int yOffset = y - height - margin;
+            if (yOffset < statusBarHeight) {
+                y = y + AnnotationMenu.this.getHeight() + margin;
+            } else
+                y = yOffset;
+
+            super.showAtLocation(parent, gravity, x, y + statusBarHeight);
+        }
+
+        @Override
+        public void onClick(View v) {
+            v.setSelected(true);
+            if (v.getId() == btnFill.getId()) {
+                btnNormal.setSelected(false);
+                btnWave.setSelected(false);
+            } else if (v.getId() == btnNormal.getId()) {
+                btnFill.setSelected(false);
+                btnWave.setSelected(false);
+            } else if (v.getId() == btnWave.getId()) {
+                btnFill.setSelected(false);
+                btnNormal.setSelected(false);
+            }
+        }
+
+        public void setSelectIndex(int index) {
+            switch (index) {
+                case 0:
+                    onClick(btnFill);
+                    break;
+                case 1:
+                    onClick(btnNormal);
+                    break;
+                case 2:
+                    onClick(btnWave);
+                    break;
+                default:
+                    onClick(btnFill);
+                    break;
+            }
+        }
+
+        private void initListener() {
+            btnFill.setOnClickListener(this);
+            btnNormal.setOnClickListener(this);
+            btnWave.setOnClickListener(this);
+        }
     }
 }

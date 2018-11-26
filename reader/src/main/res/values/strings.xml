@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="annotation_drawline">画线</string>
+    <string name="annotation_delline">删除画线</string>
     <string name="annotation_copy">复制</string>
     <string name="annotation_writeidea">写想法</string>
     <string name="annotation_query">查询</string>

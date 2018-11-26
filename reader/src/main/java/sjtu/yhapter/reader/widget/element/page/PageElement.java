@@ -2,6 +2,7 @@ package sjtu.yhapter.reader.widget.element.page;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.RectF;
 
 import java.io.BufferedReader;

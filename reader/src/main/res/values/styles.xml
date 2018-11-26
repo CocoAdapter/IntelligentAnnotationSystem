@@ -20,7 +20,7 @@
         <!--<item name="android:background">@color/black_overlay</item>-->
     <!--</style>-->
 
-    <style name="AnnotationMenuTheme" parent="AppTheme">
+    <style name="AnnotationMenuTheme">
         <item name="android:textColor">@color/annotation_menu_text_color</item>
         <item name="android:textSize">@dimen/annotation_menu_text_size</item>
         <item name="android:layout_weight">1</item>
@@ -32,4 +32,15 @@
         <item name="drawableHeight">@dimen/annotation_menu_img_size</item>
     </style>
 
+    <style name="AnnotationMenuLineType">
+        <item name="android:padding">@dimen/anno_menu_line_padding</item>
+        <item name="android:layout_width">@dimen/annotation_menu_line_size</item>
+        <item name="android:layout_height">@dimen/annotation_menu_line_size</item>
+        <item name="android:background">@drawable/circle_black</item>
+    </style>
+
+    <style name="AnnotationMenuAnim" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/anno_menu_line_enter</item>
+        <item name="android:windowExitAnimation">@anim/anno_menu_line_exit</item>
+    </style>
 </resources>

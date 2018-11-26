@@ -4,4 +4,9 @@
     <dimen name="annotation_menu_width">300dp</dimen>
     <dimen name="annotation_menu_text_size">11sp</dimen>
     <dimen name="annotation_menu_img_size">20dp</dimen>
+
+    <dimen name="annotation_menu_line_size">40dp</dimen>
+    <dimen name="anno_menu_line_margin">10dp</dimen>
+    <dimen name="anno_menu_line_padding">10dp</dimen>
+    <dimen name="anno_menu_line_space">10dp</dimen>
 </resources>
