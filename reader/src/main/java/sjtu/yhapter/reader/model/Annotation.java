@@ -8,15 +8,25 @@ import java.util.Date;
 
 public class Annotation {
 
+    // id
     private long id;
+    // book id
     private long bookId;
+    // chapter id
     private long chapterId;
+    // start index at chapter data
     private long startIndex;
+    // end index at chapter data
     private long endIndex;
+    // annotated content (now only consider annotation over text)
     private String content;
+    // annotation type
     private String type;
+    // timestamp
     private Date date;
+    // user id
     private long userId;
+    // additional note, nullable
     private String note;
 
     public long getId() {

@@ -13,14 +13,17 @@ import sjtu.yhapter.reader.R;
 import sjtu.yhapter.reader.model.Annotation;
 import sjtu.yhapter.reader.model.PageData;
 import sjtu.yhapter.reader.util.LogUtil;
+import sjtu.yhapter.reader.util.ScreenUtil;
 
 /**
  * Created by CocoAdapter on 2018/11/21.
  */
 
 public class AnnotationMenu extends PopupWindow {
+    private final static int X_OFFSET = 10; // in dp
+
     private View contentView;
-    private Button btn;
+    private View btn;
 
     private long bookId;
     private long chapterId;
@@ -34,16 +37,23 @@ public class AnnotationMenu extends PopupWindow {
         contentView = LayoutInflater.from(context).inflate(R.layout.widget_annotation_menu, null);
         setContentView(contentView);
 
-        btn = contentView.findViewById(R.id.btn);
+        btn = contentView.findViewById(R.id.btn_drawline);
 
         setHeight((int) context.getResources().getDimension(R.dimen.annotation_menu_height));
-        setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
+        setWidth((int) context.getResources().getDimension(R.dimen.annotation_menu_width));
 
         initListener();
+    }
 
-        this.content = content;
-        this.startIndex = startIndex;
-        this.endIndex = endIndex;
+    @Override
+    public void showAtLocation(View parent, int gravity, int x, int y) {
+        int xPadding = ScreenUtil.dpToPx(X_OFFSET);
+        int total = x + getWidth() + xPadding;
+        int parentWidth = parent.getWidth();
+        if (total >= parentWidth) {
+            x = parentWidth - xPadding - getWidth();
+        }
+        super.showAtLocation(parent, gravity, x, y);
     }
 
     public AnnotationMenu setBookId(long bookId) {
@@ -78,7 +88,7 @@ public class AnnotationMenu extends PopupWindow {
     private void initListener() {
         View.OnClickListener ocl = v -> {
             int i = v.getId();
-            if (i == R.id.btn) {
+            if (i == R.id.btn_drawline) {
                 annotation = new Annotation();
                 annotation.setBookId(bookId);
                 annotation.setChapterId(chapterId);
@@ -87,6 +97,8 @@ public class AnnotationMenu extends PopupWindow {
                 annotation.setEndIndex(endIndex);
                 // TODO
                 LogUtil.log(this, bookId + ", " + chapterId + ", " + content + ", " + startIndex + ", " + endIndex);
+
+                // TODO 弹出二级菜单, 不能dismiss
                 dismiss();
             }
         };

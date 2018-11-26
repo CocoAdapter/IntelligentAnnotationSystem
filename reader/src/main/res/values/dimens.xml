@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="annotation_menu_height">65dp</dimen>
+    <dimen name="annotation_menu_height">60dp</dimen>
+    <dimen name="annotation_menu_width">300dp</dimen>
+    <dimen name="annotation_menu_text_size">11sp</dimen>
+    <dimen name="annotation_menu_img_size">20dp</dimen>
 </resources>

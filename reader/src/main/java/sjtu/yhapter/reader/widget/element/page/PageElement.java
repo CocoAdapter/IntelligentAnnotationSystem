@@ -115,7 +115,7 @@ public class PageElement {
             return;
 
         // bg
-        canvas.drawColor(Color.rgb(255, 255, 240));
+        canvas.drawColor(Color.rgb(168, 197, 168));
 
         // content
         headerElement.draw(canvas, currPage);

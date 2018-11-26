@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <!--<item name="colorPrimary">@color/colorPrimary</item>-->
+        <!--<item name="colorPrimaryDark">@color/colorPrimaryDark</item>-->
+        <!--<item name="colorAccent">@color/colorAccent</item>-->
+    </style>
+
+    <!--<style name="FullscreenTheme" parent="AppTheme">-->
+        <!--<item name="android:actionBarStyle">@style/FullscreenActionBarStyle</item>-->
+        <!--<item name="android:windowActionBarOverlay">true</item>-->
+        <!--<item name="android:windowBackground">@null</item>-->
+        <!--<item name="metaButtonBarStyle">?android:attr/buttonBarStyle</item>-->
+        <!--<item name="metaButtonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>-->
+    <!--</style>-->
+
+    <!--<style name="FullscreenActionBarStyle" parent="Widget.AppCompat.ActionBar">-->
+        <!--<item name="android:background">@color/black_overlay</item>-->
+    <!--</style>-->
+
+    <style name="AnnotationMenuTheme" parent="AppTheme">
+        <item name="android:textColor">@color/annotation_menu_text_color</item>
+        <item name="android:textSize">@dimen/annotation_menu_text_size</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">@dimen/annotation_menu_height</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="drawableWidth">@dimen/annotation_menu_img_size</item>
+        <item name="drawableHeight">@dimen/annotation_menu_img_size</item>
+    </style>
+
+</resources>
