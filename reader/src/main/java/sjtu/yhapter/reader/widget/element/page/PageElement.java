@@ -115,7 +115,8 @@ public class PageElement {
     public void addAnnotation(Annotation annotation) {
         if (annotation == null)
             return;
-        annotation.setId(count.getAndIncrement());
+        if (annotation.getId() == 0)
+            annotation.setId(count.getAndIncrement());
         annotations.add(annotation);
     }
 
@@ -124,6 +125,7 @@ public class PageElement {
             return;
 
         boolean tag = annotations.remove(annotation);
+        // TODO just for safe
         if (!tag) {
             Iterator<Annotation> it = annotations.iterator();
             while (it.hasNext()) {
@@ -260,6 +262,7 @@ public class PageElement {
         annotation.setEndIndex(1102);
         annotation.setBookId(1);
         annotation.setChapterId(1);
+        annotation.setType(AnnotationType.NORMAL.name());
         annotations.add(annotation);
 
         annotation = new Annotation();

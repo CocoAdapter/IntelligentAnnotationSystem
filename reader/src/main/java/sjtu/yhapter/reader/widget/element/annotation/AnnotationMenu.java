@@ -45,7 +45,6 @@ public class AnnotationMenu extends PopupWindow {
         setContentView(contentView);
 
         lineTypeMenu = new LineTypeMenu(context);
-        lineTypeMenu.setSelectIndex(0);
 
         btnCopy = contentView.findViewById(R.id.btn_copy);
         btnDrawLine = contentView.findViewById(R.id.btn_drawline);
@@ -63,8 +62,10 @@ public class AnnotationMenu extends PopupWindow {
 
     @Override
     public void showAtLocation(View parent, int gravity, int x, int y) {
+        // reset
         btnDrawLine.setTag(true);
         btnDrawLine.setText(App.getInstance().getText(R.string.annotation_drawline));
+        lineTypeMenu.setSelectIndex(0);
 
         int xPadding = ScreenUtil.dpToPx(X_OFFSET);
         int totalX = x + getWidth() + xPadding;
@@ -139,9 +140,10 @@ public class AnnotationMenu extends PopupWindow {
                         btnDrawLine.setTag(false);
                     }
                 } else {
-                    // TODO 没有画上
-                    if (annotationListener != null && annotation != null)
+                    if (annotationListener != null && annotation != null) {
                         annotationListener.onAnnotationDel(annotation);
+                        dismiss();
+                    }
                 }
             }
         };
@@ -220,19 +222,9 @@ public class AnnotationMenu extends PopupWindow {
         }
 
         public void setSelectIndex(int index) {
-            switch (index) {
-                case 0:
-                    onClick(btnFill);
-                    break;
-                case 1:
-                    onClick(btnNormal);
-                    break;
-                case 2:
-                    onClick(btnWave);
-                    break;
-                default:
-                    onClick(btnFill);
-                    break;
+            View[] tem = new View[]{btnFill, btnNormal, btnWave};
+            for (int i = 0; i < tem.length; i++){
+                tem[i].setSelected(index == i);
             }
         }
 

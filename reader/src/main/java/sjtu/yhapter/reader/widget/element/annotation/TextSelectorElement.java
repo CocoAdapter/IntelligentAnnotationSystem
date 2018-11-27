@@ -58,6 +58,7 @@ public class TextSelectorElement {
 
     public void setCurrPage(PageData currPage) {
         this.currPage = currPage;
+
         clear(null);
     }
 

@@ -165,6 +165,7 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
             annotationMenu.setAnnotationListener(this);
             annotationMenu.setOnDismissListener(() -> {
                 Canvas canvas = new Canvas(pageAnimation.getSurfaceBitmap());
+                LogUtil.log(this, "clear");
                 textSelector.clear(canvas);
                 postInvalidate();
             });
@@ -195,7 +196,11 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
 
     @Override
     public void onAnnotationDel(Annotation annotation) {
-        Canvas canvas = new Canvas(pageAnimation.getFrontBitmap());
+        // erase the selection
+        Canvas canvas = new Canvas(pageAnimation.getSurfaceBitmap());
+        textSelector.clear(canvas);
+        // del the annotation
+        canvas = new Canvas(pageAnimation.getFrontBitmap());
         if (annotation != null) {
             pageElement.delAnnotation(annotation);
             pageElement.drawCurrPage(canvas); // refresh

@@ -5,6 +5,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.text.TextPaint;
@@ -17,9 +19,12 @@ import java.util.Set;
 import sjtu.yhapter.reader.model.Annotation;
 import sjtu.yhapter.reader.model.LineData;
 import sjtu.yhapter.reader.model.PointChar;
+import sjtu.yhapter.reader.util.LogUtil;
 import sjtu.yhapter.reader.util.ScreenUtil;
 import sjtu.yhapter.reader.model.PageData;
 import sjtu.yhapter.reader.widget.element.annotation.AnnotationType;
+
+import static android.graphics.PorterDuff.Mode.SRC_ATOP;
 
 /**
  * Created by CocoAdapter on 2018/11/17.
@@ -161,14 +166,10 @@ public class LineElement extends BasePageElement {
                             // only one line
                             int endOffset = (int) (annotation.getEndIndex() - start);
                             PointChar pcEnd = ld.getChars().get(endOffset);
-//                            canvas.drawLine(pcStart.bottomLeft.x, pcStart.bottomLeft.y,
-//                                    pcEnd.bottomRight.x, pcEnd.bottomRight.y, annotationPaint);
                             drawAnnotation(canvas, pcStart, pcEnd, AnnotationType.valueOf(annotation.getType()), annotationPaint);
                             break;
                         } else {
                             PointChar pcEnd = ld.getChars().get(ld.getChars().size() - 1);
-//                            canvas.drawLine(pcStart.bottomLeft.x, pcStart.bottomLeft.y,
-//                                    pcEnd.bottomRight.x, pcEnd.bottomRight.y, annotationPaint);
                             drawAnnotation(canvas, pcStart, pcEnd, AnnotationType.valueOf(annotation.getType()), annotationPaint);
                         }
                     } else if (!isForStart){
@@ -176,12 +177,7 @@ public class LineElement extends BasePageElement {
                         PointChar pcStart = ld.getChars().get(0);
                         PointChar pcEnd = isEnded ? ld.getChars().get((int) (annotation.getEndIndex() - start))
                                 : ld.getChars().get(ld.getChars().size() - 1);
-
-//                        canvas.drawLine(pcStart.bottomLeft.x, pcStart.bottomLeft.y,
-//                                pcEnd.bottomRight.x, pcEnd.bottomRight.y, annotationPaint);
-
                         drawAnnotation(canvas, pcStart, pcEnd, AnnotationType.valueOf(annotation.getType()), annotationPaint);
-
                         if (isEnded)
                             break;
                     }
