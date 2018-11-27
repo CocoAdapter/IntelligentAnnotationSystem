@@ -51,6 +51,14 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
 
         pageElement = new PageElement(w, h , ScreenUtil.dpToPx(12), ScreenUtil.dpToPx(18));
         textSelector = new TextSelectorElement(getContext());
+        annotationMenu = new AnnotationMenu(getContext());
+        annotationMenu.setAnnotationListener(this);
+        annotationMenu.setOnDismissListener(() -> {
+            annotationMenu.setAnnotation(null);
+            Canvas canvas = new Canvas(pageAnimation.getSurfaceBitmap());
+            textSelector.clear(canvas);
+            postInvalidate();
+        });
 
         canTouch = true;
 
@@ -121,6 +129,11 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
 
     @Override
     public boolean canTouch() {
+        // TODO 按理说这里应该放行，让baseReaderView去处理。但现阶段发现放行会偶尔出现page显示错页，肯定哪里没写安全
+        // TODO 现阶段先按这个跑起来，毕竟作业要紧
+        if (pageAnimation.isRunning())
+            return false;
+
         if (annotationMenu != null && annotationMenu.isShowing()) {
             annotationMenu.dismiss();
             return false;
@@ -130,13 +143,24 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
 
     @Override
     public boolean onClick(int x, int y) {
-        // TODO 判断是否点击到了 标注上
-        // TextSelector 判断这是否是个 annotation ，是就返回一个实例
+        Annotation annotation = pageElement.checkIfAnnotation(x, y);
+        if (annotation != null) {
+            annotationMenu.setAnnotation(annotation);
+            annotationMenu.showAtLocation(this, Gravity.NO_GRAVITY, x, y);
+            return true;
+        }
         return false;
     }
 
     @Override
     public boolean onLongClickDown(int x, int y) {
+        Annotation annotation = pageElement.checkIfAnnotation(x, y);
+        if (annotation != null) {
+            annotationMenu.setAnnotation(annotation);
+            annotationMenu.showAtLocation(this, Gravity.NO_GRAVITY, x, y);
+            return true;
+        }
+
         if (textSelector.onLongClickEnter(x, y)) {
             Canvas canvas = new Canvas(pageAnimation.getSurfaceBitmap());
             textSelector.draw(canvas);
@@ -159,17 +183,6 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
         String selectContent = textSelector.onLongClickUp(x, y);
         final long startIndex = textSelector.getStartCharIndex();
         final long endIndex = textSelector.getEndCharIndex();
-
-        if (annotationMenu == null) {
-            annotationMenu = new AnnotationMenu(getContext());
-            annotationMenu.setAnnotationListener(this);
-            annotationMenu.setOnDismissListener(() -> {
-                Canvas canvas = new Canvas(pageAnimation.getSurfaceBitmap());
-                LogUtil.log(this, "clear");
-                textSelector.clear(canvas);
-                postInvalidate();
-            });
-        }
 
         annotationMenu.setBookId(pageElement.getCurrPage().bookId)
                 .setChapterId(pageElement.getCurrPage().chapterId)

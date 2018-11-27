@@ -5,26 +5,20 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.text.TextPaint;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import sjtu.yhapter.reader.model.Annotation;
 import sjtu.yhapter.reader.model.LineData;
-import sjtu.yhapter.reader.model.PointChar;
-import sjtu.yhapter.reader.util.LogUtil;
-import sjtu.yhapter.reader.util.ScreenUtil;
 import sjtu.yhapter.reader.model.PageData;
+import sjtu.yhapter.reader.model.PointChar;
+import sjtu.yhapter.reader.util.ScreenUtil;
 import sjtu.yhapter.reader.widget.element.annotation.AnnotationType;
-
-import static android.graphics.PorterDuff.Mode.SRC_ATOP;
 
 /**
  * Created by CocoAdapter on 2018/11/17.
@@ -131,59 +125,116 @@ public class LineElement extends BasePageElement {
         return lineData;
     }
 
-    public void setAnnotations(Set<Annotation> annotations) {
-        this.annotations = new ArrayList<>(annotations);
+    public void setAnnotations(Collection<Annotation> annotations) {
+        if (annotations != null)
+            this.annotations = new ArrayList<>(annotations);
+    }
+
+    /**
+     * check if a annotation exists at (x, y), and return it if it does.
+     * WARNING: the test may not be sufficient
+     *
+     * @param x x of MotionEvent
+     * @param y y of MotionEvent
+     * @param pageData pageData with annotations on
+     * @return the responding annotation representation if it is, null otherwise
+     */
+    protected Annotation checkIfAnnotation(int x, int y, PageData pageData) {
+        if (annotations == null || annotations.isEmpty() || pageData == null)
+            return null;
+
+        for (Annotation annotation : annotations) {
+            Point top = null, bottom = null;
+            boolean isMulti = false;
+            boolean isForStart = true;
+            for (LineData ld : pageData.lines) {
+                long start = ld.getChars().get(0).chapterIndex;
+                long end = ld.getChars().get(ld.getChars().size() - 1).chapterIndex;
+                boolean isInCurrLine = annotation.getStartIndex() >= start && annotation.getStartIndex() <= end;
+                if (isForStart && isInCurrLine) {
+                    int startOffset = (int) (annotation.getStartIndex() - start);
+                    PointChar pcStart = ld.getChars().get(startOffset);
+                    top = new Point(pcStart.topLeft.x, pcStart.topLeft.y);
+                    isForStart = false;
+
+                    if (annotation.getEndIndex() <= end) {
+                        // only one line
+                        int endOffset = (int) (annotation.getEndIndex() - start);
+                        PointChar pcEnd = ld.getChars().get(endOffset);
+                        bottom = new Point(pcEnd.bottomRight.x, pcEnd.bottomRight.y);
+                        break;
+                    } else
+                        isMulti = true;
+                } else if (!isForStart){
+                    boolean isEnded = annotation.getEndIndex() <= end;
+                    if (isEnded) {
+                        PointChar pcEnd = ld.getChars().get((int) (annotation.getEndIndex() - start));
+                        bottom = new Point(pcEnd.bottomRight.x, pcEnd.bottomRight.y);
+                        break;
+                    }
+                }
+            }
+
+            if (top != null) {
+                // found an annotation, safe-coding here cause it's certain
+                if (isMulti) {
+                    // bottom should not be null
+                    assert bottom != null;
+                    if (y < top.y || y > bottom.y)
+                        continue;
+                    if (y < top.y + getLineHeight() && x < top.x)
+                        continue;
+                    if (y > bottom.y - getLineHeight() && x > bottom.x)
+                        continue;
+
+                    return annotation;
+                } else {
+                    // only one line
+                    if (x >= top.x && x <= bottom.x && y >= top.y && y <= bottom.y)
+                        return annotation;
+                }
+            }
+        }
+        // no match
+        return null;
     }
 
     private void drawAnnotations(Canvas canvas, PageData pageData) {
         if (annotations == null || annotations.isEmpty())
             return;
 
-        // getSelectLines
-        long charStart = pageData.lines.get(0).getChars().get(0).chapterIndex;
-        List<PointChar> tem = pageData.lines.get(pageData.lines.size() - 1).getChars();
-        long charEnd = tem.get(tem.size() - 1).chapterIndex;
-
-        Collections.sort(annotations, (o1, o2) -> (int) (o1.getStartIndex() - o2.getStartIndex()));
-
-        // search
         for (Annotation annotation : annotations) {
-            if (annotation.getStartIndex() < charStart)
-                continue;
-            if (annotation.getStartIndex() <= charEnd) {
-                // draw on curr page, may be partially
-                boolean isForStart = true;
-                for (LineData ld : pageData.lines) {
-                    long start = ld.getChars().get(0).chapterIndex;
-                    long end = ld.getChars().get(ld.getChars().size() - 1).chapterIndex;
-                    boolean isInCurrLine = annotation.getStartIndex() >= start && annotation.getStartIndex() <= end;
-                    if (isForStart && isInCurrLine) {
-                        int startOffset = (int) (annotation.getStartIndex() - start);
-                        PointChar pcStart = ld.getChars().get(startOffset);
-                        isForStart = false;
+            // draw on curr page, may be partially
+            boolean isForStart = true;
+            for (LineData ld : pageData.lines) {
+                long start = ld.getChars().get(0).chapterIndex;
+                long end = ld.getChars().get(ld.getChars().size() - 1).chapterIndex;
+                boolean isInCurrLine = annotation.getStartIndex() >= start && annotation.getStartIndex() <= end;
+                if (isForStart && isInCurrLine) {
+                    int startOffset = (int) (annotation.getStartIndex() - start);
+                    PointChar pcStart = ld.getChars().get(startOffset);
+                    isForStart = false;
 
-                        if (annotation.getEndIndex() <= end) {
-                            // only one line
-                            int endOffset = (int) (annotation.getEndIndex() - start);
-                            PointChar pcEnd = ld.getChars().get(endOffset);
-                            drawAnnotation(canvas, pcStart, pcEnd, AnnotationType.valueOf(annotation.getType()), annotationPaint);
-                            break;
-                        } else {
-                            PointChar pcEnd = ld.getChars().get(ld.getChars().size() - 1);
-                            drawAnnotation(canvas, pcStart, pcEnd, AnnotationType.valueOf(annotation.getType()), annotationPaint);
-                        }
-                    } else if (!isForStart){
-                        boolean isEnded = annotation.getEndIndex() <= end;
-                        PointChar pcStart = ld.getChars().get(0);
-                        PointChar pcEnd = isEnded ? ld.getChars().get((int) (annotation.getEndIndex() - start))
-                                : ld.getChars().get(ld.getChars().size() - 1);
+                    if (annotation.getEndIndex() <= end) {
+                        // only one line
+                        int endOffset = (int) (annotation.getEndIndex() - start);
+                        PointChar pcEnd = ld.getChars().get(endOffset);
                         drawAnnotation(canvas, pcStart, pcEnd, AnnotationType.valueOf(annotation.getType()), annotationPaint);
-                        if (isEnded)
-                            break;
+                        break;
+                    } else {
+                        PointChar pcEnd = ld.getChars().get(ld.getChars().size() - 1);
+                        drawAnnotation(canvas, pcStart, pcEnd, AnnotationType.valueOf(annotation.getType()), annotationPaint);
                     }
+                } else if (!isForStart){
+                    boolean isEnded = annotation.getEndIndex() <= end;
+                    PointChar pcStart = ld.getChars().get(0);
+                    PointChar pcEnd = isEnded ? ld.getChars().get((int) (annotation.getEndIndex() - start))
+                            : ld.getChars().get(ld.getChars().size() - 1);
+                    drawAnnotation(canvas, pcStart, pcEnd, AnnotationType.valueOf(annotation.getType()), annotationPaint);
+                    if (isEnded)
+                        break;
                 }
-            } else
-                break;
+            }
         }
     }
 

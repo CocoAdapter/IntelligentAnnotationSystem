@@ -11,9 +11,11 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -47,6 +49,8 @@ public class PageElement {
 
     private List<PageData> currChapterPage;
 
+    private Map<PageData, Set<Annotation>> pageAnnotationMap;
+
     public PageElement(int viewWidth, int viewHeight, int hPadding, int vPadding) {
         this.viewWidth = viewWidth;
         this.viewHeight = viewHeight;
@@ -65,10 +69,14 @@ public class PageElement {
                 viewWidth - hPadding, viewHeight - footerElement.getHeight() - vPadding));
 
         currChapterPage = new ArrayList<>();
+
+        pageAnnotationMap = new HashMap<>();
         // TODO 测试
         try {
             currChapterPage = loadChapter();
             currPage = currChapterPage.get(0);
+
+            loadAnnotations();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -115,27 +123,56 @@ public class PageElement {
     public void addAnnotation(Annotation annotation) {
         if (annotation == null)
             return;
+
+        // TODO fake init
         if (annotation.getId() == 0)
             annotation.setId(count.getAndIncrement());
+
         annotations.add(annotation);
+        pageAnnotationMap.get(currPage).add(annotation);
     }
 
     public void delAnnotation(Annotation annotation) {
         if (annotation == null)
             return;
 
-        boolean tag = annotations.remove(annotation);
-        // TODO just for safe
-        if (!tag) {
-            Iterator<Annotation> it = annotations.iterator();
-            while (it.hasNext()) {
-                Annotation an = it.next();
-                if (an.getId() == annotation.getId()) {
-                    it.remove();
-                    break;
-                }
-            }
+        annotations.remove(annotation);
+        pageAnnotationMap.get(currPage).remove(annotation);
+    }
+
+    /**
+     * check if a annotation exists at (x, y), and return it if it does.
+     *
+     * @param x x of MotionEvent
+     * @param y y of MotionEvent
+     * @return the responding annotation representation if it is, null otherwise
+     */
+    public Annotation checkIfAnnotation(int x, int y) {
+        return lineElement.checkIfAnnotation(x, y, currPage);
+    }
+
+    private Set<Annotation> getAnnotationsOfPage(PageData pageData) {
+        if (annotations == null || annotations.isEmpty())
+            return null;
+
+        List<Annotation> annotations = new ArrayList<>();
+
+        // getSelectLines
+        long charStart = pageData.lines.get(0).getChars().get(0).chapterIndex;
+        List<PointChar> tem = pageData.lines.get(pageData.lines.size() - 1).getChars();
+        long charEnd = tem.get(tem.size() - 1).chapterIndex;
+
+        Collections.sort(annotations, (o1, o2) -> (int) (o1.getStartIndex() - o2.getStartIndex()));
+        for (Annotation annotation : annotations) {
+            if (annotation.getStartIndex() < charStart)
+                continue;
+            if (annotation.getStartIndex() <= charEnd) {
+                annotations.add(annotation);
+            } else
+                break;
         }
+
+        return new HashSet<>(annotations);
     }
 
     private void drawPage(Canvas canvas) {
@@ -151,7 +188,11 @@ public class PageElement {
         footerElement.setTotalPageNum(currChapterPage.size());
         footerElement.draw(canvas, currPage);
 
-        lineElement.setAnnotations(loadAnnotations());
+        if (pageAnnotationMap.get(currPage) == null) {
+            Set<Annotation> annotations = getAnnotationsOfPage(currPage);
+            pageAnnotationMap.put(currPage, annotations);
+        }
+        lineElement.setAnnotations(pageAnnotationMap.get(currPage));
         lineElement.draw(canvas, currPage);
     }
 

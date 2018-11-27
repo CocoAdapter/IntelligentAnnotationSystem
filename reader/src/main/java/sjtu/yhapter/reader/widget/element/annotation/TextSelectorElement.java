@@ -123,6 +123,9 @@ public class TextSelectorElement {
     }
 
     private PointChar getSelectedChar(int x, int y) {
+        if (currPage == null)
+            return null;
+
         for (LineData lineData : currPage.lines) {
             for (PointChar pc : lineData.getChars()) {
                 if (y > pc.bottomLeft.y)

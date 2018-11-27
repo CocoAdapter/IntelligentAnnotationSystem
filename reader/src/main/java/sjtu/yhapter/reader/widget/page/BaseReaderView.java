@@ -1,8 +1,11 @@
 package sjtu.yhapter.reader.widget.page;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.os.Looper;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -76,8 +79,11 @@ public abstract class BaseReaderView extends View implements PageAnimation.PageC
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         try {
-            if (!canTouch && event.getAction() != MotionEvent.ACTION_DOWN)
+            if (!canTouch && event.getAction() != MotionEvent.ACTION_DOWN) {
+                cancelLongClickListen();
                 return true;
+            }
+
 
             final int x = (int) event.getX();
             final int y = (int) event.getY();
@@ -95,8 +101,9 @@ public abstract class BaseReaderView extends View implements PageAnimation.PageC
                     timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            if (canTouch)
-                                isLongClick = onTouchListener.onLongClickDown(x, y);
+                            ((Activity) getContext()).runOnUiThread(() ->
+                                    isLongClick = onTouchListener.onLongClickDown(x, y)
+                            );
                         }
                     }, LONG_CLICK_DURATION);
                     // animation needs to reset

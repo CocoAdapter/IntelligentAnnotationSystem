@@ -123,4 +123,17 @@ public class Annotation {
 
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "Annotation{" +
+                "id=" + id +
+                ", bookId=" + bookId +
+                ", chapterId=" + chapterId +
+                ", startIndex=" + startIndex +
+                ", endIndex=" + endIndex +
+                ", content='" + content + '\'' +
+                ", type='" + type + '\'' +
+                '}';
+    }
 }

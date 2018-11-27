@@ -14,6 +14,7 @@ import android.widget.PopupWindow;
 import sjtu.yhapter.reader.App;
 import sjtu.yhapter.reader.R;
 import sjtu.yhapter.reader.model.Annotation;
+import sjtu.yhapter.reader.util.LogUtil;
 import sjtu.yhapter.reader.util.ScreenUtil;
 import sjtu.yhapter.reader.widget.ImageTextView;
 import sjtu.yhapter.reader.widget.page.ReaderView;
@@ -25,7 +26,6 @@ import sjtu.yhapter.reader.widget.page.ReaderView;
 public class AnnotationMenu extends PopupWindow {
     private final static int X_OFFSET = 10; // in dp
 
-    private ReaderView readerView;
     private View parentView;
     private Point anchorPoint;
     private ImageTextView btnCopy, btnDrawLine, btnWriteIdea, btnQuery, btnShare;
@@ -63,9 +63,25 @@ public class AnnotationMenu extends PopupWindow {
     @Override
     public void showAtLocation(View parent, int gravity, int x, int y) {
         // reset
-        btnDrawLine.setTag(true);
-        btnDrawLine.setText(App.getInstance().getText(R.string.annotation_drawline));
-        lineTypeMenu.setSelectIndex(0);
+        btnDrawLine.setTag(annotation == null);
+        btnDrawLine.setText(App.getInstance().getText(annotation == null ?
+                R.string.annotation_drawline : R.string.annotation_delline));
+        if (annotation == null)
+            lineTypeMenu.setSelectIndex(0);
+        else {
+            switch (AnnotationType.valueOf(annotation.getType())) {
+                case NORMAL:
+                    lineTypeMenu.setSelectIndex(1);
+                    break;
+                case WAVE:
+                    lineTypeMenu.setSelectIndex(2);
+                    break;
+                case FILL:
+                default:
+                    lineTypeMenu.setSelectIndex(0);
+                    break;
+            }
+        }
 
         int xPadding = ScreenUtil.dpToPx(X_OFFSET);
         int totalX = x + getWidth() + xPadding;
@@ -77,6 +93,12 @@ public class AnnotationMenu extends PopupWindow {
         anchorPoint = new Point(x, y);
         // the y pos for showAtLocation is based on whole screen
         super.showAtLocation(parent, gravity, x, y + ScreenUtil.getStatusBarHeight());
+    }
+
+    @Override
+    public void dismiss() {
+        annotation = null; // release
+        super.dismiss();
     }
 
     public AnnotationMenu setBookId(long bookId) {
@@ -104,8 +126,8 @@ public class AnnotationMenu extends PopupWindow {
         return this;
     }
 
-    public Annotation getAnnotation() {
-        return annotation;
+    public void setAnnotation(Annotation annotation) {
+        this.annotation = annotation;
     }
 
     public void setAnnotationListener(AnnotationListener annotationListener) {
@@ -201,6 +223,7 @@ public class AnnotationMenu extends PopupWindow {
                 if (annotationListener != null && annotation != null) {
                     annotation.setType(AnnotationType.FILL.name());
                     annotationListener.onAnnotationDraw(annotation);
+                    LogUtil.log(this, annotation.toString());
                 }
             } else if (v.getId() == btnNormal.getId()) {
                 btnFill.setSelected(false);
