@@ -75,74 +75,75 @@ public abstract class BaseReaderView extends View implements PageAnimation.PageC
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        try {
-            if (!canTouch && event.getAction() != MotionEvent.ACTION_DOWN)
-                return true;
+        if (!canTouch && event.getAction() != MotionEvent.ACTION_DOWN)
+            return true;
 
-            final int x = (int) event.getX();
-            final int y = (int) event.getY();
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    startX = x;
-                    startY = y;
-                    isMoving = false;
-                    cancelLongClickListen();
+        final int x = (int) event.getX();
+        final int y = (int) event.getY();
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                startX = x;
+                startY = y;
+                isMoving = false;
+                cancelLongClickListen();
 
-                    if (onTouchListener != null)
-                        canTouch = onTouchListener.canTouch();
+                if (onTouchListener != null)
+                    canTouch = onTouchListener.canTouch();
 
-                    timer = new Timer();
-                    timer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            if (canTouch)
-                                isLongClick = onTouchListener.onLongClickDown(x, y);
-                        }
-                    }, LONG_CLICK_DURATION);
-                    // animation needs to reset
-                    if (pageAnimation != null)
-                        pageAnimation.onTouchEvent(event);
-                    break;
-                case MotionEvent.ACTION_MOVE:
-                    if (!isMoving)
-                        isMoving = Math.abs(startX - x) > MOVE_SENSITIVITY
-                                || Math.abs(startY - y) > MOVE_SENSITIVITY;
-
-                    if (isMoving) {
-                        if (isLongClick && onTouchListener != null) {
-                            onTouchListener.onLongClickMove(x, y);
-                        } else {
-                            cancelLongClickListen();
-
-                            if (pageAnimation != null)
-                                pageAnimation.onTouchEvent(event);
-                        }
+                timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        if (canTouch)
+                            isLongClick = onTouchListener.onLongClickDown(x, y);
                     }
-                    break;
-                case MotionEvent.ACTION_UP:
-                    if (isLongClick) {
-                        // long click has been triggered
-                        cancelLongClickListen();
-                        onTouchListener.onLongClickUp(x, y);
+                }, LONG_CLICK_DURATION);
+                // animation needs to reset
+                if (pageAnimation != null)
+                    pageAnimation.onTouchEvent(event);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                if (!isMoving)
+                    isMoving = Math.abs(startX - x) > MOVE_SENSITIVITY
+                            || Math.abs(startY - y) > MOVE_SENSITIVITY;
+
+                if (isMoving) {
+                    if (isLongClick && onTouchListener != null) {
+                        onTouchListener.onLongClickMove(x, y);
                     } else {
                         cancelLongClickListen();
-
-                        if (!isMoving && onTouchListener != null) {
-                            boolean intercept = onTouchListener.onClick(x, y);
-                            if (intercept)
-                                return true;
-                        }
 
                         if (pageAnimation != null)
                             pageAnimation.onTouchEvent(event);
                     }
-                    break;
-            }
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+                if (isLongClick) {
+                    // long click has been triggered
+                    cancelLongClickListen();
+                    onTouchListener.onLongClickUp(x, y);
+                } else {
+                    cancelLongClickListen();
 
-            return true;
-        } catch (Exception ignore) {
-            return true;
+                    if (!isMoving && onTouchListener != null) {
+                        boolean intercept = onTouchListener.onClick(x, y);
+                        if (intercept)
+                            return true;
+                    }
+
+                    if (pageAnimation != null)
+                        pageAnimation.onTouchEvent(event);
+                }
+                break;
         }
+
+        return true;
+//        try {
+//
+//        } catch (Exception ignore) {
+//            return true;
+//        }
     }
 
     @Override

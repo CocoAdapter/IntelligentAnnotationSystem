@@ -16,6 +16,7 @@ import sjtu.yhapter.reader.R;
 import sjtu.yhapter.reader.model.Annotation;
 import sjtu.yhapter.reader.util.ScreenUtil;
 import sjtu.yhapter.reader.widget.ImageTextView;
+import sjtu.yhapter.reader.widget.page.ReaderView;
 
 /**
  * Created by CocoAdapter on 2018/11/21.
@@ -24,6 +25,7 @@ import sjtu.yhapter.reader.widget.ImageTextView;
 public class AnnotationMenu extends PopupWindow {
     private final static int X_OFFSET = 10; // in dp
 
+    private ReaderView readerView;
     private View parentView;
     private Point anchorPoint;
     private ImageTextView btnCopy, btnDrawLine, btnWriteIdea, btnQuery, btnShare;
@@ -36,6 +38,7 @@ public class AnnotationMenu extends PopupWindow {
     private long endIndex;
 
     private Annotation annotation;
+    private AnnotationListener annotationListener;
 
     public AnnotationMenu(Context context) {
         View contentView = LayoutInflater.from(context).inflate(R.layout.widget_anno_menu, null);
@@ -60,6 +63,7 @@ public class AnnotationMenu extends PopupWindow {
 
     @Override
     public void showAtLocation(View parent, int gravity, int x, int y) {
+        btnDrawLine.setTag(true);
         btnDrawLine.setText(App.getInstance().getText(R.string.annotation_drawline));
 
         int xPadding = ScreenUtil.dpToPx(X_OFFSET);
@@ -103,26 +107,42 @@ public class AnnotationMenu extends PopupWindow {
         return annotation;
     }
 
+    public void setAnnotationListener(AnnotationListener annotationListener) {
+        this.annotationListener = annotationListener;
+    }
+
     private void initListener() {
         View.OnClickListener ocl = v -> {
             int i = v.getId();
             if (i == R.id.btn_drawline) {
-                annotation = new Annotation();
-                annotation.setBookId(bookId);
-                annotation.setChapterId(chapterId);
-                annotation.setContent(content);
-                annotation.setStartIndex(startIndex);
-                annotation.setEndIndex(endIndex);
-                // TODO
-//                LogUtil.log(this, bookId + ", " + chapterId + ", " + content + ", " + startIndex + ", " + endIndex);
-                if (parentView != null) {
-                    int x = anchorPoint.x + v.getLeft() + v.getWidth() / 2;
-                    int y = anchorPoint.y + v.getTop();
-                    lineTypeMenu.showAtLocation(parentView, Gravity.NO_GRAVITY, x, y);
+                Boolean isDrawLine = (Boolean) btnDrawLine.getTag();
+                isDrawLine = isDrawLine == null ? true : isDrawLine;
+                if (isDrawLine) {
+                    annotation = new Annotation();
+                    annotation.setBookId(bookId);
+                    annotation.setChapterId(chapterId);
+                    annotation.setContent(content);
+                    annotation.setStartIndex(startIndex);
+                    annotation.setEndIndex(endIndex);
+                    annotation.setType(AnnotationType.FILL.name());
+                    // TODO
+                    // draw Annotation
+                    if (annotationListener != null)
+                        annotationListener.onAnnotationDraw(annotation);
 
-                    btnDrawLine.setText(App.getInstance().getText(R.string.annotation_delline));
+                    if (parentView != null) {
+                        int x = anchorPoint.x + v.getLeft() + v.getWidth() / 2;
+                        int y = anchorPoint.y + v.getTop();
+                        lineTypeMenu.showAtLocation(parentView, Gravity.NO_GRAVITY, x, y);
+
+                        btnDrawLine.setText(App.getInstance().getText(R.string.annotation_delline));
+                        btnDrawLine.setTag(false);
+                    }
+                } else {
+                    // TODO 没有画上
+                    if (annotationListener != null && annotation != null)
+                        annotationListener.onAnnotationDel(annotation);
                 }
-
             }
         };
         btnDrawLine.setOnClickListener(ocl);
@@ -175,12 +195,27 @@ public class AnnotationMenu extends PopupWindow {
             if (v.getId() == btnFill.getId()) {
                 btnNormal.setSelected(false);
                 btnWave.setSelected(false);
+
+                if (annotationListener != null && annotation != null) {
+                    annotation.setType(AnnotationType.FILL.name());
+                    annotationListener.onAnnotationDraw(annotation);
+                }
             } else if (v.getId() == btnNormal.getId()) {
                 btnFill.setSelected(false);
                 btnWave.setSelected(false);
+
+                if (annotationListener != null && annotation != null) {
+                    annotation.setType(AnnotationType.NORMAL.name());
+                    annotationListener.onAnnotationDraw(annotation);
+                }
             } else if (v.getId() == btnWave.getId()) {
                 btnFill.setSelected(false);
                 btnNormal.setSelected(false);
+
+                if (annotationListener != null && annotation != null) {
+                    annotation.setType(AnnotationType.WAVE.name());
+                    annotationListener.onAnnotationDraw(annotation);
+                }
             }
         }
 
@@ -206,5 +241,11 @@ public class AnnotationMenu extends PopupWindow {
             btnNormal.setOnClickListener(this);
             btnWave.setOnClickListener(this);
         }
+    }
+
+    public interface AnnotationListener {
+        void onAnnotationDraw(Annotation annotation);
+
+        void onAnnotationDel(Annotation annotation);
     }
 }

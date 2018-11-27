@@ -58,7 +58,6 @@ public class TextSelectorElement {
 
     public void setCurrPage(PageData currPage) {
         this.currPage = currPage;
-
         clear(null);
     }
 
@@ -89,8 +88,6 @@ public class TextSelectorElement {
             if (lastMovingLeftUp != isMovingLeftUp && selectLines != null)
                 selectLines.clear();
         }
-
-//        LogUtil.log(this, "curr: " + currChar.c + "last: " + lastChar.c);
     }
 
     public String onLongClickUp(int x, int y) {
@@ -193,12 +190,4 @@ public class TextSelectorElement {
             canvas.drawRect(rect, selectTextPaint);
         }
     }
-
-//    private Region getSelectRegion(Path path) {
-//        Region region = new Region();
-//        RectF rectF = new RectF();
-//        path.computeBounds(rectF, true);
-//        region.setPath(path, )
-//        return region;
-//    }
 }

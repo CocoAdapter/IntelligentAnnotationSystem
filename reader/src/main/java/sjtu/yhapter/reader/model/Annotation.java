@@ -108,4 +108,19 @@ public class Annotation {
     public void setNote(String note) {
         this.note = note;
     }
+
+    @Override
+    public int hashCode() {
+        return (int)(id ^ (id >>> 32));
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj != null && obj instanceof Annotation) {
+            Annotation other = (Annotation) obj;
+            return this.id == other.id;
+        }
+
+        return false;
+    }
 }

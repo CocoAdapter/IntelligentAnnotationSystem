@@ -11,7 +11,11 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import sjtu.yhapter.reader.App;
 import sjtu.yhapter.reader.model.Annotation;
@@ -21,6 +25,7 @@ import sjtu.yhapter.reader.model.PointChar;
 import sjtu.yhapter.reader.util.LogUtil;
 import sjtu.yhapter.reader.util.ScreenUtil;
 import sjtu.yhapter.reader.util.StringUtil;
+import sjtu.yhapter.reader.widget.element.annotation.AnnotationType;
 
 /**
  * Created by CocoAdapter on 2018/11/19.
@@ -108,7 +113,27 @@ public class PageElement {
     }
 
     public void addAnnotation(Annotation annotation) {
+        if (annotation == null)
+            return;
+        annotation.setId(count.getAndIncrement());
         annotations.add(annotation);
+    }
+
+    public void delAnnotation(Annotation annotation) {
+        if (annotation == null)
+            return;
+
+        boolean tag = annotations.remove(annotation);
+        if (!tag) {
+            Iterator<Annotation> it = annotations.iterator();
+            while (it.hasNext()) {
+                Annotation an = it.next();
+                if (an.getId() == annotation.getId()) {
+                    it.remove();
+                    break;
+                }
+            }
+        }
     }
 
     private void drawPage(Canvas canvas) {
@@ -199,31 +224,37 @@ public class PageElement {
         return pages;
     }
 
-    private List<Annotation> annotations;
+    private Set<Annotation> annotations;
+    private AtomicInteger count = new AtomicInteger(1);
 
-    private List<Annotation> loadAnnotations() {
+    private Set<Annotation> loadAnnotations() {
         if (annotations != null)
             return annotations;
 
-        annotations = new ArrayList<>();
+        annotations = new HashSet<>();
         // TODO test
         Annotation annotation = new Annotation();
+        annotation.setId(count.getAndIncrement());
         annotation.setBookId(1);
         annotation.setChapterId(1);
         annotation.setContent("人的行为可能建立在坚固的岩石上面，也可能建立在潮湿的沼泽之中，但是一过某种程度，我就不管它是建立在什么上面的了。去年秋天我从");
         annotation.setStartIndex(537);
         annotation.setEndIndex(598);
+        annotation.setType(AnnotationType.NORMAL.name());
         annotations.add(annotation);
 
         annotation = new Annotation();
+        annotation.setId(count.getAndIncrement());
         annotation.setContent("身上出现的时候，心理不正常的人很快就会察觉并区抓住不放。由于这个缘故，我上大学的时候就被不公正地指责为小政客，因为我与闻一");
         annotation.setStartIndex(216);
         annotation.setEndIndex(276);
         annotation.setBookId(1);
         annotation.setChapterId(1);
+        annotation.setType(AnnotationType.NORMAL.name());
         annotations.add(annotation);
 
         annotation = new Annotation();
+        annotation.setId(count.getAndIncrement());
         annotation.setContent("系的实际创始人却是我祖父的哥哥。他在一八五一年来到这里，买了个替身去参加南北战争，开始做起五金批发生意，也就是我父东今天");
         annotation.setStartIndex(1043);
         annotation.setEndIndex(1102);
@@ -232,11 +263,13 @@ public class PageElement {
         annotations.add(annotation);
 
         annotation = new Annotation();
+        annotation.setId(count.getAndIncrement());
         annotation.setContent("的－－每逢我根据某种明白无误的迹象看出又有一次倾诉衷情在地平线上喷薄欲出的时候，我往往假装睡觉，假装心不在焉，或者装出不怀好");
         annotation.setStartIndex(309);
         annotation.setEndIndex(370);
         annotation.setBookId(1);
         annotation.setChapterId(1);
+        annotation.setType(AnnotationType.NORMAL.name());
         annotations.add(annotation);
 
         return annotations;

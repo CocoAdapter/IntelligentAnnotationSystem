@@ -5,4 +5,6 @@ package sjtu.yhapter.reader.widget.element.annotation;
  */
 
 public enum AnnotationType {
+
+    FILL, NORMAL, WAVE
 }

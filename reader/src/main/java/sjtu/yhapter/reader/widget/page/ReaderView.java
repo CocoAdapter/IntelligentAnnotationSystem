@@ -25,7 +25,7 @@ import sjtu.yhapter.reader.widget.element.page.PageElement;
  * Created by CocoAdapter on 2018/11/13.
  */
 
-public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouchListener {
+public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouchListener, AnnotationMenu.AnnotationListener {
     protected TextSelectorElement textSelector;
     protected PageElement pageElement;
 
@@ -130,6 +130,8 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
 
     @Override
     public boolean onClick(int x, int y) {
+        // TODO 判断是否点击到了 标注上
+        // TextSelector 判断这是否是个 annotation ，是就返回一个实例
         return false;
     }
 
@@ -160,17 +162,10 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
 
         if (annotationMenu == null) {
             annotationMenu = new AnnotationMenu(getContext());
+            annotationMenu.setAnnotationListener(this);
             annotationMenu.setOnDismissListener(() -> {
                 Canvas canvas = new Canvas(pageAnimation.getSurfaceBitmap());
                 textSelector.clear(canvas);
-
-                canvas = new Canvas(pageAnimation.getFrontBitmap());
-                Annotation annotation = annotationMenu.getAnnotation();
-                if (annotation != null) {
-                    pageElement.addAnnotation(annotation);
-                    pageElement.drawCurrPage(canvas); // draw line
-                }
-
                 postInvalidate();
             });
         }
@@ -181,5 +176,31 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
                 .setStartIndex(startIndex)
                 .setEndIndex(endIndex);
         annotationMenu.showAtLocation(this, Gravity.NO_GRAVITY, x, y);
+    }
+
+    @Override
+    public void onAnnotationDraw(Annotation annotation) {
+        // erase the selection
+        Canvas canvas = new Canvas(pageAnimation.getSurfaceBitmap());
+        textSelector.clear(canvas);
+        // draw annotation
+        canvas = new Canvas(pageAnimation.getFrontBitmap());
+        if (annotation != null) {
+            pageElement.addAnnotation(annotation);
+            pageElement.drawCurrPage(canvas); // draw line
+        }
+
+        postInvalidate();
+    }
+
+    @Override
+    public void onAnnotationDel(Annotation annotation) {
+        Canvas canvas = new Canvas(pageAnimation.getFrontBitmap());
+        if (annotation != null) {
+            pageElement.delAnnotation(annotation);
+            pageElement.drawCurrPage(canvas); // refresh
+        }
+
+        postInvalidate();
     }
 }
