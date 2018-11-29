@@ -2,6 +2,7 @@ package sjtu.yhapter.reader.reader;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.RectF;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -24,6 +25,10 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
     protected TextSelectorElement textSelector;
     protected PageElement pageElement;
     protected AnnotationMenu annotationMenu;
+
+    protected OnClickListener onClickListener;
+
+    private RectF centerRect;
 
     public ReaderView(Context context) {
         this(context, null);
@@ -125,6 +130,8 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
         // TODO 现阶段先按这个跑起来，毕竟作业要紧
 //        if (pageAnimation.isRunning())
 //            return false;
+        if (onClickListener != null && !onClickListener.canTouch())
+            return false;
 
         if (annotationMenu != null && annotationMenu.isShowing()) {
             annotationMenu.dismiss();
@@ -141,6 +148,16 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
             annotationMenu.showAtLocation(this, Gravity.NO_GRAVITY, x, y);
             return true;
         }
+
+        if (onClickListener != null) {
+            if (centerRect == null)
+                centerRect = new RectF(viewWidth * 0.2f, viewHeight * 0.333f, viewWidth * 0.8f, viewHeight * 0.666f);
+            if (centerRect.contains(x, y)) {
+                onClickListener.onCenterClick();
+                return true;
+            }
+        }
+
         return false;
     }
 
@@ -213,5 +230,15 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
         }
 
         postInvalidate();
+    }
+
+    public void setOnClickListener(OnClickListener onClickListener) {
+        this.onClickListener = onClickListener;
+    }
+
+    public interface OnClickListener {
+        boolean canTouch();
+
+        void onCenterClick();
     }
 }

@@ -3,4 +3,9 @@
 
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="drawer_catalog">目录</string>
+    <string name="drawer_note">笔记</string>
+    <string name="drawer_hotline">热门划线</string>
+    <string name="catalog_search_hint">搜索全书内容</string>
+    <string name="catalog_already_read">已读</string>
 </resources>

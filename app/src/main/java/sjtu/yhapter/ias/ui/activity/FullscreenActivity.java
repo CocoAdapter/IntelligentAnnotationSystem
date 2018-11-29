@@ -1,4 +1,4 @@
-package sjtu.yhapter.ias.ui;
+package sjtu.yhapter.ias.ui.activity;
 
 import android.annotation.SuppressLint;
 import android.support.v7.app.ActionBar;

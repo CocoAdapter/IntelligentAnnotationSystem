@@ -5,4 +5,15 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="black_overlay">#66000000</color>
+
+    <color name="catalog_title">#363D36</color>
+    <color name="catalog_progress">#363D36</color>
+    <color name="catalog_divider">#AAAAAA</color>
+    <color name="catalog_chapter">#232722</color>
+    <color name="catalog_page_num">#788776</color>
+
+    <color name="drawer_bg">#B1C8B0</color>
+    <color name="drawer_tab_bg">#A9C6A8</color>
+    <color name="drawer_text_normal">#7F7F7F</color>
+    <color name="drawer_text_selected">#45802B</color>
 </resources>
