@@ -1,7 +1,6 @@
-package sjtu.yhapter.reader.widget.animation;
+package sjtu.yhapter.reader.animation;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;

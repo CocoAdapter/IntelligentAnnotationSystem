@@ -1,11 +1,11 @@
-package sjtu.yhapter.reader.widget.element.page;
+package sjtu.yhapter.reader.page;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.text.TextPaint;
 
-import sjtu.yhapter.reader.model.PageData;
+import sjtu.yhapter.reader.model.pojo.PageData;
 import sjtu.yhapter.reader.util.ScreenUtil;
 
 /**

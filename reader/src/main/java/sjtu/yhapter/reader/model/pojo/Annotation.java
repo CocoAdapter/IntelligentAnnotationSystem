@@ -1,4 +1,4 @@
-package sjtu.yhapter.reader.model;
+package sjtu.yhapter.reader.model.pojo;
 
 import java.util.Date;
 

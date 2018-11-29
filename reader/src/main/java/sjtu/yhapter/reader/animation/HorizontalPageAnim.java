@@ -1,11 +1,9 @@
-package sjtu.yhapter.reader.widget.animation;
+package sjtu.yhapter.reader.animation;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
-
-import java.util.Stack;
 
 import sjtu.yhapter.reader.model.Constants;
 

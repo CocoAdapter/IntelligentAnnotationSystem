@@ -1,4 +1,4 @@
-package sjtu.yhapter.reader.widget.element.annotation;
+package sjtu.yhapter.reader.page.annotation;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -13,11 +13,10 @@ import android.widget.PopupWindow;
 
 import sjtu.yhapter.reader.App;
 import sjtu.yhapter.reader.R;
-import sjtu.yhapter.reader.model.Annotation;
+import sjtu.yhapter.reader.model.pojo.Annotation;
 import sjtu.yhapter.reader.util.LogUtil;
 import sjtu.yhapter.reader.util.ScreenUtil;
 import sjtu.yhapter.reader.widget.ImageTextView;
-import sjtu.yhapter.reader.widget.page.ReaderView;
 
 /**
  * Created by CocoAdapter on 2018/11/21.

@@ -1,4 +1,4 @@
-package sjtu.yhapter.reader.widget.element.annotation;
+package sjtu.yhapter.reader.page.annotation;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -12,11 +12,9 @@ import android.graphics.RectF;
 import java.util.ArrayList;
 import java.util.List;
 
-import sjtu.yhapter.reader.model.Annotation;
-import sjtu.yhapter.reader.model.LineData;
-import sjtu.yhapter.reader.model.PageData;
-import sjtu.yhapter.reader.model.PointChar;
-import sjtu.yhapter.reader.util.LogUtil;
+import sjtu.yhapter.reader.model.pojo.LineData;
+import sjtu.yhapter.reader.model.pojo.PageData;
+import sjtu.yhapter.reader.model.pojo.PointChar;
 
 /**
  * Created by CocoAdapter on 2018/11/19.

@@ -4,8 +4,8 @@ import android.os.Bundle;
 import android.widget.Button;
 
 import sjtu.yhapter.ias.R;
-import sjtu.yhapter.reader.widget.page.PageAnimationMode;
-import sjtu.yhapter.reader.widget.page.ReaderView;
+import sjtu.yhapter.reader.animation.PageAnimationMode;
+import sjtu.yhapter.reader.reader.ReaderView;
 
 /**
  * Created by CocoAdapter on 2018/11/11.

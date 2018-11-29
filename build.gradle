@@ -41,4 +41,5 @@ ext {
     greenDaoVersion = '3.2.2'
     rxandroidVersion = '2.1.0'
     rxjavaVersion = '2.1.0'
+    commonsIOVersion = '2.6'
 }

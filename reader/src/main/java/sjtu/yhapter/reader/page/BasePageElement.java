@@ -1,9 +1,7 @@
-package sjtu.yhapter.reader.widget.element.page;
+package sjtu.yhapter.reader.page;
 
 import android.graphics.Canvas;
 import android.graphics.RectF;
-
-import sjtu.yhapter.reader.util.LogUtil;
 
 /**
  * Created by CocoAdapter on 2018/11/19.

@@ -1,10 +1,9 @@
-package sjtu.yhapter.reader.model;
+package sjtu.yhapter.reader.model.pojo;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 这里需要存储 在当前分页中的位置， 还要存储在原文中的位置，以便进行批注统计
  * Created by CocoAdapter on 2018/11/20.
  */
 

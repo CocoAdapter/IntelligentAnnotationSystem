@@ -1,25 +1,20 @@
-package sjtu.yhapter.reader.widget.page;
+package sjtu.yhapter.reader.reader;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.RectF;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.Gravity;
-import android.widget.PopupWindow;
 
-import sjtu.yhapter.reader.model.Annotation;
-import sjtu.yhapter.reader.util.LogUtil;
+import sjtu.yhapter.reader.animation.PageAnimationMode;
+import sjtu.yhapter.reader.model.pojo.Annotation;
 import sjtu.yhapter.reader.util.ScreenUtil;
-import sjtu.yhapter.reader.widget.animation.CoverPageAnim;
-import sjtu.yhapter.reader.widget.animation.HorizontalPageAnim;
-import sjtu.yhapter.reader.widget.animation.NonePageAnim;
-import sjtu.yhapter.reader.widget.element.annotation.AnnotationMenu;
-import sjtu.yhapter.reader.widget.element.annotation.TextSelectorElement;
-import sjtu.yhapter.reader.widget.element.page.PageElement;
+import sjtu.yhapter.reader.animation.CoverPageAnim;
+import sjtu.yhapter.reader.animation.HorizontalPageAnim;
+import sjtu.yhapter.reader.animation.NonePageAnim;
+import sjtu.yhapter.reader.page.annotation.AnnotationMenu;
+import sjtu.yhapter.reader.page.annotation.TextSelectorElement;
+import sjtu.yhapter.reader.page.PageElement;
 
 /**
  * Created by CocoAdapter on 2018/11/13.
@@ -28,10 +23,7 @@ import sjtu.yhapter.reader.widget.element.page.PageElement;
 public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouchListener, AnnotationMenu.AnnotationListener {
     protected TextSelectorElement textSelector;
     protected PageElement pageElement;
-
     protected AnnotationMenu annotationMenu;
-
-    private RectF centerRect;
 
     public ReaderView(Context context) {
         this(context, null);
@@ -131,8 +123,8 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
     public boolean canTouch() {
         // TODO 按理说这里应该放行，让baseReaderView去处理。但现阶段发现放行会偶尔出现page显示错页，肯定哪里没写安全
         // TODO 现阶段先按这个跑起来，毕竟作业要紧
-        if (pageAnimation.isRunning())
-            return false;
+//        if (pageAnimation.isRunning())
+//            return false;
 
         if (annotationMenu != null && annotationMenu.isShowing()) {
             annotationMenu.dismiss();
@@ -167,6 +159,7 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
             postInvalidate();
             return true;
         }
+
         return false;
     }
 

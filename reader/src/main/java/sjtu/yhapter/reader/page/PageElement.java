@@ -1,11 +1,11 @@
-package sjtu.yhapter.reader.widget.element.page;
+package sjtu.yhapter.reader.page;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.RectF;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -13,27 +13,39 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleObserver;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import sjtu.yhapter.reader.App;
-import sjtu.yhapter.reader.model.Annotation;
-import sjtu.yhapter.reader.model.LineData;
-import sjtu.yhapter.reader.model.PageData;
-import sjtu.yhapter.reader.model.PointChar;
+import sjtu.yhapter.reader.loader.BookLoader;
+import sjtu.yhapter.reader.loader.LocalBookLoader;
+import sjtu.yhapter.reader.model.pojo.Annotation;
+import sjtu.yhapter.reader.model.pojo.BookData;
+import sjtu.yhapter.reader.model.pojo.ChapterData;
+import sjtu.yhapter.reader.model.pojo.LineData;
+import sjtu.yhapter.reader.model.pojo.PageData;
+import sjtu.yhapter.reader.model.pojo.PointChar;
+import sjtu.yhapter.reader.util.IOUtil;
 import sjtu.yhapter.reader.util.LogUtil;
 import sjtu.yhapter.reader.util.ScreenUtil;
 import sjtu.yhapter.reader.util.StringUtil;
-import sjtu.yhapter.reader.widget.element.annotation.AnnotationType;
+import sjtu.yhapter.reader.page.annotation.AnnotationType;
 
 /**
+ * for UI
  * Created by CocoAdapter on 2018/11/19.
  */
 
-public class PageElement {
+public class PageElement implements BookLoader.OnPreLoadingListener {
     protected HeaderElement headerElement;
     protected LineElement lineElement;
     protected FooterElement footerElement;
@@ -44,18 +56,34 @@ public class PageElement {
     protected int hPadding;
     protected int vPadding;
 
+    protected BookLoader bookLoader;
+
     private PageData currPage;
     private PageData cancelPage;
 
-    private List<PageData> currChapterPage;
+    // TODO 线程安全性
+    private List<PageData> preChapterPages;
+    private List<PageData> currChapterPages;
+    private List<PageData> nextChapterPages;
 
+    // annotation
     private Map<PageData, Set<Annotation>> pageAnnotationMap;
+
+    private Disposable preLoadDisp;
 
     public PageElement(int viewWidth, int viewHeight, int hPadding, int vPadding) {
         this.viewWidth = viewWidth;
         this.viewHeight = viewHeight;
         this.hPadding = hPadding;
         this.vPadding = vPadding;
+
+        BookData bookData = new BookData();
+        bookData.setId(1);
+        bookData.setPath(App.getInstance().getFilesDir().getPath() + "the_great_gatsby.txt");
+        bookLoader = new LocalBookLoader(bookData);
+        bookLoader.setOnPreLoadingListener(this);
+        // TODO test
+        bookLoader.openBook();
 
         headerElement = new HeaderElement();
         lineElement = new LineElement();
@@ -68,17 +96,14 @@ public class PageElement {
         lineElement.setRectF(new RectF(hPadding, headerElement.getHeight() + vPadding,
                 viewWidth - hPadding, viewHeight - footerElement.getHeight() - vPadding));
 
-        currChapterPage = new ArrayList<>();
+        currChapterPages = new ArrayList<>();
 
         pageAnnotationMap = new HashMap<>();
         // TODO 测试
-        try {
-            currChapterPage = loadChapter();
-            currPage = currChapterPage.get(0);
-
+        loadChapter();
+        if (currChapterPages != null && !currChapterPages.isEmpty()) {
+            currPage = currChapterPages.get(0);
             loadAnnotations();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -88,12 +113,83 @@ public class PageElement {
 
     public boolean hasPrePage() {
         int index = currPage.position - 1;
-        return index >= 0;
+        // find in cache
+        if (index >= 0)
+            return true;
+        else {
+            // fetch next chapter if miss
+            if (preChapterPages != null && !preChapterPages.isEmpty()) {
+
+
+                return true;
+            } else if (bookLoader.toPreChapter()) {
+                // cache error, try re-fetch
+                // TODO 绘制加载界面
+            }
+            // return false if no next
+            return false;
+        }
+    }
+
+    /**
+     * TODO 没有检查是否call在hasPrePage之后，这里需要重新设计，下同
+     * @param canvas
+     */
+    public void drawPrePage(Canvas canvas) {
+        cancelPage = currPage;
+        if (currPage.position - 1 < 0) {
+            if (preLoadDisp != null && !preLoadDisp.isDisposed())
+                preLoadDisp.dispose();
+
+            // move window left
+            nextChapterPages = currChapterPages;
+            currChapterPages = preChapterPages;
+            preChapterPages = null;
+
+            currPage = currChapterPages.get(currChapterPages.size() - 1);
+
+            if (bookLoader.toPreChapter())
+                bookLoader.preLoadingPre();
+        } else
+            currPage = currChapterPages.get(currPage.position - 1);
+        drawPage(canvas);
     }
 
     public boolean hasNextPage() {
         int index = currPage.position + 1;
-        return index < currChapterPage.size();
+        // find in curr
+        if (index < currChapterPages.size())
+            return true;
+        else  {
+            // fetch in next
+            if (nextChapterPages != null && !nextChapterPages.isEmpty()) {
+                return true;
+            } else if (bookLoader.toNextChapter()) {
+                // cache error, try re-fetch
+                // TODO 绘制加载界面, 强制触发重新加载？
+            }
+            // return false if no next
+            return false;
+        }
+    }
+
+    public void drawNextPage(Canvas canvas) {
+        cancelPage = currPage;
+        if (currPage.position + 1 >= currChapterPages.size()) {
+            if (preLoadDisp != null && !preLoadDisp.isDisposed())
+                preLoadDisp.dispose();
+
+            preChapterPages = currChapterPages;
+            currChapterPages = nextChapterPages; // move window right
+            nextChapterPages = null;
+
+            currPage = currChapterPages.get(0);
+
+            if (bookLoader.toNextChapter())
+                bookLoader.preLoadingNext();
+        } else
+            currPage = currChapterPages.get(currPage.position + 1);
+        drawPage(canvas);
     }
 
     public void cancelPage() {
@@ -102,22 +198,6 @@ public class PageElement {
 
     public void drawCurrPage(Canvas canvas) {
         drawPage(canvas);
-    }
-
-    public void drawPrePage(Canvas canvas) {
-        if (hasPrePage()) {
-            cancelPage = currPage;
-            currPage = currChapterPage.get(currPage.position - 1);
-            drawPage(canvas);
-        }
-    }
-
-    public void drawNextPage(Canvas canvas) {
-        if (hasNextPage()) {
-            cancelPage = currPage;
-            currPage = currChapterPage.get(currPage.position + 1);
-            drawPage(canvas);
-        }
     }
 
     public void addAnnotation(Annotation annotation) {
@@ -185,7 +265,7 @@ public class PageElement {
         // content
         headerElement.draw(canvas, currPage);
 
-        footerElement.setTotalPageNum(currChapterPage.size());
+        footerElement.setTotalPageNum(currChapterPages.size());
         footerElement.draw(canvas, currPage);
 
         if (pageAnnotationMap.get(currPage) == null) {
@@ -196,13 +276,30 @@ public class PageElement {
         lineElement.draw(canvas, currPage);
     }
 
-    private List<PageData> loadChapter() throws Exception {
+    private void loadChapter() {
+        try {
+            BufferedReader br = bookLoader.getChapterReader();
+            String title = bookLoader.getChapterData().getTitle();
+            currChapterPages = getChapterPages(br, title);
+            // TODO
+            bookLoader.preLoadingNext();
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            currChapterPages.clear();
+            currChapterPages = null;
+        }
+
+        // 回调
+    }
+
+    private List<PageData> getChapterPages(BufferedReader br, String title) throws Exception {
+        if (br == null)
+            return null;
+
         List<PageData> pages = new ArrayList<>();
         List<LineData> lines = new ArrayList<>();
 
-        BufferedReader br = getBufferedReader();
-        if (br == null)
-            return null;
         int contentHeight = lineElement.getHeight();
 
         String paragraph;
@@ -220,9 +317,10 @@ public class PageElement {
                 contentHeight -= lineElement.getLineHeight();
                 if (contentHeight <= 0) {
                     PageData pageData = new PageData();
+                    // TODO
                     pageData.bookId = 1;
                     pageData.chapterId = 1;
-                    pageData.title = "第一章";
+                    pageData.title = title;
                     pageData.position = pages.size();
                     pageData.lines = new ArrayList<>(lines);
                     pageData.startIndex = lines.get(0).getChars().get(0).chapterIndex;
@@ -253,7 +351,7 @@ public class PageElement {
             PageData pageData = new PageData();
             pageData.bookId = 1;
             pageData.chapterId = 1;
-            pageData.title = "第一章";
+            pageData.title = title;
             pageData.position = pages.size();
             pageData.lines = new ArrayList<>(lines);
             pageData.startIndex = lines.get(0).getChars().get(0).chapterIndex;
@@ -269,7 +367,6 @@ public class PageElement {
 
     private Set<Annotation> annotations;
     private AtomicInteger count = new AtomicInteger(1);
-
     private Set<Annotation> loadAnnotations() {
         if (annotations != null)
             return annotations;
@@ -319,15 +416,54 @@ public class PageElement {
         return annotations;
     }
 
-    private BufferedReader getBufferedReader() {
-        try {
-            BufferedReader br = new BufferedReader(
-                    new InputStreamReader(App.getInstance().getAssets().open("the_great_gatsby_test.txt")));
-            return br;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    @Override
+    public void onPreLoadingPre(BufferedReader bufferedReader, ChapterData chapterData) {
+        onPreLoading(true, bufferedReader, chapterData);
+    }
 
-        return null;
+    @Override
+    public void onPreLoadingNext(BufferedReader bufferedReader, ChapterData chapterData) {
+        onPreLoading(false, bufferedReader, chapterData);
+    }
+
+    private void onPreLoading(boolean isPre, BufferedReader bufferedReader, ChapterData chapterData) {
+        if (bufferedReader == null)
+            return;
+
+        final String title = chapterData.getTitle();
+
+        if (preLoadDisp != null && !preLoadDisp.isDisposed())
+            preLoadDisp.dispose();
+
+        Single.create((SingleOnSubscribe<List<PageData>>) emitter -> {
+            try {
+                emitter.onSuccess(getChapterPages(bufferedReader, title));
+            } catch (Exception ignore) {}
+            finally {
+                IOUtil.close(bufferedReader);
+            }
+        }).subscribeOn(Schedulers.computation())
+                .subscribe(new SingleObserver<List<PageData>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        preLoadDisp = d;
+                    }
+
+                    @Override
+                    public void onSuccess(List<PageData> pageDatas) {
+                        if (isPre) {
+                            LogUtil.log(PageElement.this, pageDatas == null ? "null" : "not null");
+                        }
+                        if (isPre)
+                            preChapterPages = pageDatas;
+                        else
+                            nextChapterPages = pageDatas;
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+                });
     }
 }
