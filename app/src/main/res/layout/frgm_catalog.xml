@@ -3,14 +3,14 @@
     android:paddingStart="@dimen/drawer_padding_start"
     android:paddingEnd="@dimen/drawer_padding_end"
     android:background="@color/drawer_bg"
-    android:paddingTop="30dp"
+    android:paddingTop="20dp"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <RelativeLayout
         android:id="@+id/rl_search"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="35dp"
         android:background="@drawable/catalog_search_bg"
         android:paddingEnd="15dp"
         android:paddingStart="15dp">
@@ -49,6 +49,9 @@
             android:src="@color/colorPrimaryDark" />
 
         <LinearLayout
+            android:id="@+id/ll_center"
+            android:layout_toStartOf="@+id/ll_end"
+            android:layout_marginEnd="15dp"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginStart="15dp"
@@ -63,7 +66,7 @@
                 android:ellipsize="end"
                 android:maxEms="10"
                 android:singleLine="true"
-                android:text="大苏打连锁酒店拉克斯基大大加快"
+                android:text="了不起的盖茨比"
                 android:textColor="@color/catalog_title"
                 android:textSize="16sp" />
 
@@ -78,10 +81,11 @@
                 android:ellipsize="end"
                 android:maxEms="12"
                 android:singleLine="true"
-                android:text="大苏打连锁酒店拉克斯基大大加快" />
+                android:text="弗·司各特·菲茨杰拉德" />
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/ll_end"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_alignParentEnd="true"
@@ -101,7 +105,7 @@
                     android:layout_marginEnd="5dp"
                     android:text="8%"
                     android:textColor="@color/catalog_progress"
-                    android:textSize="22sp" />
+                    android:textSize="18sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -125,13 +129,13 @@
     <View
         android:layout_marginTop="10dp"
         android:layout_below="@+id/rl_meta"
-        android:id="@+id/devider"
+        android:id="@+id/divider"
         android:background="@color/catalog_divider"
         android:layout_width="match_parent"
         android:layout_height="0.5dp" />
 
     <ListView
-        android:layout_below="@+id/devider"
+        android:layout_below="@+id/divider"
         android:id="@+id/lv_chapter"
         android:scrollbars="none"
         android:divider="@color/catalog_divider"

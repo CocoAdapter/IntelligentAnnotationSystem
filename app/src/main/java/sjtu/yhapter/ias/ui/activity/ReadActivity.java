@@ -13,11 +13,16 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
+import java.util.List;
+
 import sjtu.yhapter.ias.R;
-import sjtu.yhapter.ias.ui.fragment.CatalogFragment;
+import sjtu.yhapter.ias.ui.fragment.CategoryFragment;
 import sjtu.yhapter.ias.ui.fragment.HotLineFragment;
 import sjtu.yhapter.ias.ui.fragment.NoteFragment;
+import sjtu.yhapter.reader.loader.BookLoader;
+import sjtu.yhapter.reader.model.pojo.ChapterData;
 import sjtu.yhapter.reader.reader.ReaderView;
+import sjtu.yhapter.reader.util.LogUtil;
 
 /**
  * Created by CocoAdapter on 2018/11/11.
@@ -55,6 +60,8 @@ public class ReadActivity extends BaseActivity {
         initTab();
         initListener();
         initAnim();
+
+        readerView.getPageElement().openBook();
     }
 
     private void initAnim() {
@@ -85,9 +92,7 @@ public class ReadActivity extends BaseActivity {
 
         drawer.addDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
-            public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
-
-            }
+            public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {}
 
             @Override
             public void onDrawerOpened(@NonNull View drawerView) {
@@ -100,9 +105,7 @@ public class ReadActivity extends BaseActivity {
             }
 
             @Override
-            public void onDrawerStateChanged(int newState) {
-
-            }
+            public void onDrawerStateChanged(int newState) {}
         });
 
         readerView.setOnClickListener(new ReaderView.OnClickListener() {
@@ -118,23 +121,32 @@ public class ReadActivity extends BaseActivity {
             public boolean canTouch() {
                 if (isMenuShowing) {
                     isMenuShowing = false;
-
                     if (drawer.isDrawerOpen(Gravity.START))
                         drawer.closeDrawer(Gravity.START);
-
                     toggleMenu(false);
                     return false;
                 }
-
-
                 return true;
+            }
+        });
+
+        readerView.getPageElement().setOnPageChangeListener(new BookLoader.OnPageChangeListener() {
+            @Override
+            public void onChaptersLoaded(List<? extends ChapterData> chapters) {
+                for (ChapterData chapter : chapters) {
+                    LogUtil.log(this, chapter.getTitle());
+                }
+
+                CategoryFragment categoryFragment = (CategoryFragment) drawerFragments[0];
+                categoryFragment.setCategories(chapters);
             }
         });
     }
 
+    @SuppressWarnings("all")
     private void initFragments() {
         drawerFragments = new Fragment[3];
-        drawerFragments[0] = new CatalogFragment();
+        drawerFragments[0] = new CategoryFragment();
         // not implemented now
         drawerFragments[1] = new NoteFragment();
         drawerFragments[2] = new HotLineFragment();

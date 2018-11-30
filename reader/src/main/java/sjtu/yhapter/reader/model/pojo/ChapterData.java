@@ -1,14 +1,20 @@
 package sjtu.yhapter.reader.model.pojo;
 
+import android.os.Parcelable;
+
 import java.io.BufferedReader;
 
 /**
  * Created by Yhapter on 2018/11/28.
  */
-public abstract class ChapterData {
+public abstract class ChapterData implements Parcelable {
     protected long id;
     protected long bookId;
     protected String title;
+
+    // TODO 只有分页后才知道
+    protected int pageStartIndex;
+    protected int pageEndIndex;
 
     public long getId() {
         return id;

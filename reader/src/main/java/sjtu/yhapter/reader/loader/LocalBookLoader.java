@@ -1,11 +1,8 @@
 package sjtu.yhapter.reader.loader;
 
 import java.io.*;
-import java.util.List;
 
-import io.reactivex.Scheduler;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 import io.reactivex.SingleObserver;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.disposables.Disposable;
@@ -21,10 +18,6 @@ import sjtu.yhapter.reader.util.LogUtil;
 public class LocalBookLoader extends BookLoader {
     private File file;
 
-    public LocalBookLoader(BookData bookData) {
-        super(bookData);
-    }
-
     @Override
     public void openBook() {
         status = STATUS_PARSING;
@@ -34,6 +27,9 @@ public class LocalBookLoader extends BookLoader {
             pageParser.parse(App.getInstance().getAssets().open("the_great_gatsby.txt"), file);
 //            pageParser.parse(file);
             status = STATUS_FINISH;
+            if (onPageChangeListener != null) {
+                onPageChangeListener.onChaptersLoaded(pageParser.getChapters());
+            }
         } catch (Exception e) {
             e.printStackTrace();
             status = STATUS_PARSING_ERROR;

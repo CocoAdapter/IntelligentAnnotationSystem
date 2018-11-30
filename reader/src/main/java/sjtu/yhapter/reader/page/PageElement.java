@@ -26,6 +26,7 @@ import io.reactivex.SingleOnSubscribe;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import sjtu.yhapter.reader.App;
+import sjtu.yhapter.reader.ChapterDataAdapter;
 import sjtu.yhapter.reader.loader.BookLoader;
 import sjtu.yhapter.reader.loader.LocalBookLoader;
 import sjtu.yhapter.reader.model.pojo.Annotation;
@@ -71,23 +72,34 @@ public class PageElement implements BookLoader.OnPreLoadingListener {
 
     private Disposable preLoadDisp;
 
-    public PageElement(int viewWidth, int viewHeight, int hPadding, int vPadding) {
+    public PageElement() {
+        // data init
+        currChapterPages = new ArrayList<>();
+        pageAnnotationMap = new HashMap<>();
+
+        bookLoader = new LocalBookLoader();
+        bookLoader.setOnPreLoadingListener(this);
+
+        // UI init
+        headerElement = new HeaderElement();
+        lineElement = new LineElement();
+        footerElement = new FooterElement();
+    }
+
+    public void openBook() {
+        BookData bookData = new BookData();
+        bookData.setId(1);
+        bookData.setPath(App.getInstance().getFilesDir().getPath() + "the_great_gatsby.txt");
+
+        bookLoader.setBookData(bookData);
+        bookLoader.openBook();
+    }
+
+    public void onSizeChanged(int viewWidth, int viewHeight, int hPadding, int vPadding) {
         this.viewWidth = viewWidth;
         this.viewHeight = viewHeight;
         this.hPadding = hPadding;
         this.vPadding = vPadding;
-
-        BookData bookData = new BookData();
-        bookData.setId(1);
-        bookData.setPath(App.getInstance().getFilesDir().getPath() + "the_great_gatsby.txt");
-        bookLoader = new LocalBookLoader(bookData);
-        bookLoader.setOnPreLoadingListener(this);
-        // TODO test
-        bookLoader.openBook();
-
-        headerElement = new HeaderElement();
-        lineElement = new LineElement();
-        footerElement = new FooterElement();
 
         headerElement.setRectF(new RectF(hPadding, vPadding,
                 viewWidth - hPadding, vPadding + ScreenUtil.dpToPx(20)));
@@ -96,9 +108,6 @@ public class PageElement implements BookLoader.OnPreLoadingListener {
         lineElement.setRectF(new RectF(hPadding, headerElement.getHeight() + vPadding,
                 viewWidth - hPadding, viewHeight - footerElement.getHeight() - vPadding));
 
-        currChapterPages = new ArrayList<>();
-
-        pageAnnotationMap = new HashMap<>();
         // TODO 测试
         loadChapter();
         if (currChapterPages != null && !currChapterPages.isEmpty()) {
@@ -229,6 +238,12 @@ public class PageElement implements BookLoader.OnPreLoadingListener {
      */
     public Annotation checkIfAnnotation(int x, int y) {
         return lineElement.checkIfAnnotation(x, y, currPage);
+    }
+
+    // 公共接口
+    public void setOnPageChangeListener(BookLoader.OnPageChangeListener onPageChangeListener) {
+        if (bookLoader != null)
+            bookLoader.setOnPageChangeListener(onPageChangeListener);
     }
 
     private Set<Annotation> getAnnotationsOfPage(PageData pageData) {

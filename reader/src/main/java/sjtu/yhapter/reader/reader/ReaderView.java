@@ -40,13 +40,8 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
 
     public ReaderView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-    }
 
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-
-        pageElement = new PageElement(w, h , ScreenUtil.dpToPx(12), ScreenUtil.dpToPx(18));
+        pageElement = new PageElement();
         textSelector = new TextSelectorElement(getContext());
         annotationMenu = new AnnotationMenu(getContext());
         annotationMenu.setAnnotationListener(this);
@@ -58,9 +53,14 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
         });
 
         canTouch = true;
-
         setOnTouchListener(this);
+    }
 
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+
+        pageElement.onSizeChanged(w, h , ScreenUtil.dpToPx(12), ScreenUtil.dpToPx(18));
         // from portrait to landscape will trigger refreshing curr page, auto
         prepareCurrPage();
     }
@@ -122,6 +122,10 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
                 setPageAnimation(pageAnimation);
                 break;
         }
+    }
+
+    public PageElement getPageElement() {
+        return pageElement;
     }
 
     @Override

@@ -1,5 +1,8 @@
 package sjtu.yhapter.reader.model.pojo;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by Yhapter on 2018/11/28.
  */
@@ -8,6 +11,10 @@ public class TxtChapterData extends ChapterData {
     protected long startIndex;
     // index in byte, excluded
     protected long endIndex;
+
+    public TxtChapterData() {
+
+    }
 
     public void setStartIndex(long startIndex) {
         this.startIndex = startIndex;
@@ -39,5 +46,39 @@ public class TxtChapterData extends ChapterData {
                 ", bookId=" + bookId +
                 ", title='" + title + '\'' +
                 '}';
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(id);
+        dest.writeLong(bookId);
+        dest.writeString(title);
+        dest.writeLong(startIndex);
+        dest.writeLong(endIndex);
+    }
+
+    public static final Parcelable.Creator<TxtChapterData> CREATOR
+            = new Parcelable.Creator<TxtChapterData>() {
+
+        public TxtChapterData createFromParcel(Parcel in) {
+            return new TxtChapterData(in);
+        }
+
+        public TxtChapterData[] newArray(int size) {
+            return new TxtChapterData[size];
+        }
+    };
+
+    private TxtChapterData(Parcel in) {
+        id = in.readLong();
+        bookId = in.readLong();
+        title = in.readString();
+        startIndex = in.readLong();
+        endIndex = in.readLong();
     }
 }

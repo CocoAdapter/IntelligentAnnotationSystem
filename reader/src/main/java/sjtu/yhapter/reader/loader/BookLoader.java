@@ -36,7 +36,13 @@ public abstract class BookLoader {
     protected OnPreLoadingListener onPreLoadingListener;
     protected Disposable preLoadDisp;
 
-    public BookLoader(BookData bookData) {
+    protected OnPageChangeListener onPageChangeListener;
+
+    public BookLoader() {
+
+    }
+
+    public void setBookData(BookData bookData) {
         this.bookData = bookData;
         // TODO 数据库中查
         readingRecord = new ReadingRecord();
@@ -90,7 +96,7 @@ public abstract class BookLoader {
 
     public abstract void openBook();
 
-    protected List<? extends ChapterData> getChapters() {
+    public List<? extends ChapterData> getChapters() {
         return pageParser.getChapters();
     }
 
@@ -123,8 +129,45 @@ public abstract class BookLoader {
         void onPreLoadingNext(BufferedReader bufferedReader, ChapterData chapterData);
     }
 
-    public interface OnPageChangeListener {
+    public void setOnPageChangeListener(OnPageChangeListener onPageChangeListener) {
+        this.onPageChangeListener = onPageChangeListener;
+    }
 
+    public interface OnPageChangeListener {
+        /**
+         * 作用：章节切换的时候进行回调
+         *
+         * @param pos:切换章节的序号
+         */
+//        void onChapterChange(int pos);
+
+        /**
+         * 作用：请求加载章节内容
+         *
+         * @param requestChapters:需要下载的章节列表
+         */
+//        void requestChapters(List<TxtChapter> requestChapters);
+
+        /**
+         * 作用：章节目录加载完成时候回调
+         *
+         * @param chapters：返回章节目录
+         */
+        void onChaptersLoaded(List<? extends ChapterData> chapters);
+
+        /**
+         * 作用：章节页码数量改变之后的回调。==> 字体大小的调整，或者是否关闭虚拟按钮功能都会改变页面的数量。
+         *
+         * @param count:页面的数量
+         */
+//        void onPageCountChange(int count);
+
+        /**
+         * 作用：当页面改变的时候回调
+         *
+         * @param pos:当前的页面的序号
+         */
+//        void onPageChange(int pos);
     }
 
     public static void main(String[] args) throws IOException {
@@ -132,7 +175,8 @@ public abstract class BookLoader {
         bookData.setId(1);
         bookData.setPath("the_great_gatsby.txt");
 
-        BookLoader bookLoader = new LocalBookLoader(bookData);
+        BookLoader bookLoader = new LocalBookLoader();
+        bookLoader.setBookData(bookData);
         bookLoader.openBook();
 
         BufferedReader reader = bookLoader.getChapterReader();
