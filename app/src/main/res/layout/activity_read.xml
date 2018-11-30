@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -16,7 +16,115 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-    </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/rl_bar"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_gravity="top"
+            android:background="@color/reader_status_bar"
+            android:gravity="center_vertical"
+            android:visibility="gone">
 
-    <include layout="@layout/widget_drawer_read"/>
+            <ImageView
+                android:id="@+id/img_back"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:padding="5dp"
+                android:src="@drawable/arrow_left" />
+        </RelativeLayout>
+
+        <!--拦截 EditText的焦点-->
+        <LinearLayout
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:id="@+id/ll_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="@color/reader_status_bar"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/read_menu_padding"
+            android:paddingEnd="@dimen/read_menu_padding"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:padding="5dp"
+                    android:src="@drawable/write_idea" />
+
+                <EditText
+                    android:id="@+id/et_idea"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginStart="5dp"
+                    android:background="@null"
+                    android:hint="@string/read_menu_idea_hint"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@color/catalog_divider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="center_vertical"
+                android:paddingStart="@dimen/read_menu_padding"
+                android:paddingEnd="@dimen/read_menu_padding">
+
+                <ImageView
+                    android:id="@+id/img_menu"
+                    style="@style/ReadBottomMenuItem"
+                    android:src="@drawable/menu" />
+
+                <ImageView
+                    android:id="@+id/img_progress"
+                    style="@style/ReadBottomMenuItem"
+                    android:src="@drawable/progress" />
+
+                <ImageView
+                    android:id="@+id/img_night"
+                    style="@style/ReadBottomMenuItem"
+                    android:src="@drawable/sun" />
+
+                <ImageView
+                    android:id="@+id/img_font"
+                    style="@style/ReadBottomMenuItem"
+                    android:src="@drawable/font" />
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+    <RelativeLayout
+        android:orientation="vertical"
+        android:layout_gravity="start"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <FrameLayout
+            android:layout_above="@id/tab_layout"
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <android.support.design.widget.TabLayout
+            android:layout_alignParentBottom="true"
+            android:id="@+id/tab_layout"
+            android:layout_gravity="bottom"
+            app:tabIndicatorHeight="0dp"
+            app:tabBackground="@color/drawer_tab_bg"
+            app:tabSelectedTextColor="@color/drawer_text_selected"
+            app:tabTextColor="@color/drawer_text_normal"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"/>
+    </RelativeLayout>
 </android.support.v4.widget.DrawerLayout>

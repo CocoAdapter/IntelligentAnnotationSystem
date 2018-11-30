@@ -260,7 +260,7 @@ public class PageElement implements BookLoader.OnPreLoadingListener {
             return;
 
         // bg
-        canvas.drawColor(Color.rgb(168, 197, 168));
+        canvas.drawColor(Color.parseColor("#A8C5A8"));
 
         // content
         headerElement.draw(canvas, currPage);

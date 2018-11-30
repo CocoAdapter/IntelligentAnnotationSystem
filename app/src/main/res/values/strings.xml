@@ -8,4 +8,5 @@
     <string name="drawer_hotline">热门划线</string>
     <string name="catalog_search_hint">搜索全书内容</string>
     <string name="catalog_already_read">已读</string>
+    <string name="read_menu_idea_hint">写下这一刻的想法</string>
 </resources>
