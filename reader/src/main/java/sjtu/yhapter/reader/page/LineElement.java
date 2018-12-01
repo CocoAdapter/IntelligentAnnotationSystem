@@ -89,6 +89,7 @@ public class LineElement extends BasePageElement {
         chapterIndex = 0;
     }
 
+    // TODO 把baseline 暴露给上层，就可以线程安全
     public LineData measureLineData(String str) {
         int count = getWordCountOfLine(str);
 

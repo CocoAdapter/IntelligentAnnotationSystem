@@ -44,65 +44,13 @@ public abstract class BookLoader {
         pageParser = new TxtPageParser();
     }
 
-    public void skipToChapter(int chapterIndex) {
-        currChapterIndex = chapterIndex;
-    }
-
-    public int getCurrChapterIndex() {
-        return currChapterIndex;
-    }
-
-    public boolean toNextChapter() {
-        currChapterIndex++;
-        if (currChapterIndex >= pageParser.getChapters().size()) {
-            currChapterIndex--;
-            return false;
-        }
-        return true;
-    }
-
-    public boolean toPreChapter() {
-        currChapterIndex--;
-        if (currChapterIndex < 0) {
-            currChapterIndex++;
-            return false;
-        }
-        return true;
-    }
-
-    public BufferedReader getChapterReader() {
-        return getChapterReader(currChapterIndex);
-    }
-
-    public ChapterData getChapterData() {
-        return getChapters().get(currChapterIndex);
-    }
-
-    public abstract void preLoadingPre();
-
-    public abstract void preLoadingNext();
-
-    public abstract void abortPreLoad();
-
-    public int getStatus() {
-        return status;
-    }
-
     public abstract void openBook();
 
     public List<? extends ChapterData> getChapters() {
         return pageParser.getChapters();
     }
 
-    public boolean hasNextChapter() {
-        return currChapterIndex + 1 < getChapters().size();
-    }
-
-    public boolean hasPreChapter() {
-        return currChapterIndex - 1 >= 0;
-    }
-
-    protected BufferedReader getChapterReader(int chapterIndex) {
+    public BufferedReader getChapterReader(int chapterIndex) {
         if (status != STATUS_PARSING_FINISHED)
             return null;
 
@@ -120,14 +68,10 @@ public abstract class BookLoader {
 
     protected abstract BufferedReader getChapterReader(ChapterData chapterData);
 
-    public void setOnPreLoadingListener(OnPreLoadingListener onPreLoadingListener) {
-        this.onPreLoadingListener = onPreLoadingListener;
-    }
-
     public interface OnPreLoadingListener {
-        void onPreLoadingPre(BufferedReader bufferedReader, ChapterData chapterData);
+        void onPreLoadingPre(BufferedReader br, ChapterData chapterData);
 
-        void onPreLoadingNext(BufferedReader bufferedReader, ChapterData chapterData);
+        void onPreLoadingNext(BufferedReader br, ChapterData chapterData);
     }
 
     public void setOnPageChangeListener(OnPageChangeListener onPageChangeListener) {
@@ -169,23 +113,5 @@ public abstract class BookLoader {
          * @param pos:当前的页面的序号
          */
 //        void onPageChange(int pos);
-    }
-
-    public static void main(String[] args) throws IOException {
-        BookData bookData = new BookData();
-        bookData.setId(1);
-        bookData.setPath("the_great_gatsby.txt");
-
-        BookLoader bookLoader = new LocalBookLoader();
-        bookLoader.setBookData(bookData);
-        bookLoader.openBook();
-
-        BufferedReader reader = bookLoader.getChapterReader();
-        String line = null;
-        if (reader == null)
-            return;
-        while ((line = reader.readLine()) != null) {
-            System.out.println(line);
-        }
     }
 }

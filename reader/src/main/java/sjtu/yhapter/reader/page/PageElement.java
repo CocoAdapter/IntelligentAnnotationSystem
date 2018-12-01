@@ -3,14 +3,9 @@ package sjtu.yhapter.reader.page;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.RectF;
-import android.os.AsyncTask;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,17 +14,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import io.reactivex.Scheduler;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleObserver;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import sjtu.yhapter.reader.App;
-import sjtu.yhapter.reader.ChapterDataAdapter;
 import sjtu.yhapter.reader.loader.BookLoader;
 import sjtu.yhapter.reader.loader.LocalBookLoader;
 import sjtu.yhapter.reader.model.pojo.Annotation;
@@ -43,14 +39,14 @@ import sjtu.yhapter.reader.util.IOUtil;
 import sjtu.yhapter.reader.util.LogUtil;
 import sjtu.yhapter.reader.util.ScreenUtil;
 import sjtu.yhapter.reader.util.StringUtil;
-import sjtu.yhapter.reader.page.annotation.AnnotationType;
 
 /**
- * for UI
+ * for UI 预加载数据太头痛了，有问题，暂时不考虑预加载了
  * Created by CocoAdapter on 2018/11/19.
  */
 
-public class PageElement implements BookLoader.OnPreLoadingListener {
+public class PageElement {
+    // 用异步后这个状态码似乎没用了
     protected final static int STATUS_LOADING = 0;
     protected final static int STATUS_FINISHED = 1;
     protected final static int STATUS_ERROR = 2;
@@ -71,6 +67,8 @@ public class PageElement implements BookLoader.OnPreLoadingListener {
     protected ReaderView readerView;
     protected BookLoader bookLoader;
 
+    protected int currChapterIndex;
+
     private PageData currPage;
     private PageData cancelPage;
 
@@ -78,16 +76,18 @@ public class PageElement implements BookLoader.OnPreLoadingListener {
     private List<PageData> currChapterPages;
     private List<PageData> nextChapterPages;
 
+    private int lastChapterIndex;
+
     // annotation
     private Map<PageData, Set<Annotation>> pageAnnotationMap;
 
     private Disposable loadDisp;
+    private Disposable preLoadPreDisp, preLoadNextDisp;
 
     public PageElement(ReaderView readerView) {
         // widget init
         this.readerView = readerView;
         bookLoader = new LocalBookLoader();
-        bookLoader.setOnPreLoadingListener(this);
 
         // data init
         currChapterPages = new ArrayList<>();
@@ -98,6 +98,8 @@ public class PageElement implements BookLoader.OnPreLoadingListener {
         headerElement = new HeaderElement();
         lineElement = new LineElement();
         footerElement = new FooterElement();
+
+        currChapterIndex = 0;
     }
 
     public void openBook() {
@@ -123,8 +125,21 @@ public class PageElement implements BookLoader.OnPreLoadingListener {
         lineElement.setRectF(new RectF(hPadding, headerElement.getHeight() + vPadding,
                 viewWidth - hPadding, viewHeight - footerElement.getHeight() - vPadding));
 
-        // TODO 测试
-        loadChapter(false);
+        dealLoadChapterPages(currChapterIndex, pageData -> {
+            if (pageData != null && !pageData.isEmpty()) {
+                currChapterPages = pageData;
+                // TODO 这里页码可能错误
+                if (currPage != null)
+                    currPage = currChapterPages.get(currPage.position);
+                else
+                    currPage = currChapterPages.get(0);
+
+                readerView.prepareCurrPage();
+            }
+        }, pageData -> {
+            readerView.postInvalidate();
+        });
+
     }
 
     public PageData getCurrPage() {
@@ -132,7 +147,7 @@ public class PageElement implements BookLoader.OnPreLoadingListener {
     }
 
     public boolean hasPrePage() {
-        if (status != STATUS_FINISHED)
+        if (!canTurnPage())
             return false;
 
         int index = currPage.position - 1;
@@ -143,8 +158,8 @@ public class PageElement implements BookLoader.OnPreLoadingListener {
             // fetch next chapter if miss
             if (preChapterPages != null && !preChapterPages.isEmpty()) {
                 return true;
-            } else if (bookLoader.hasPreChapter()){
-                // no cache
+            } else if (currChapterIndex - 1 >= 0){
+                // no cache, may be in caching
                 return true;
             }
             // return false if no next
@@ -153,36 +168,47 @@ public class PageElement implements BookLoader.OnPreLoadingListener {
     }
 
     /**
+     * can be only called after hasPrePage
      * TODO 没有检查是否call在hasPrePage之后，这里需要重新设计，下同
-     * @param canvas
+     * @param canvas canvas
      */
     public void drawPrePage(Canvas canvas) {
         cancelPage = currPage;
         if (currPage.position - 1 < 0) {
-            bookLoader.abortPreLoad();
-
             // move window left
+            int preChapter = currChapterIndex - 1;
+            lastChapterIndex = currChapterIndex;
+            currChapterIndex = preChapter;
+
+            abortPreLoadChapter();
             nextChapterPages = currChapterPages;
             currChapterPages = preChapterPages;
             preChapterPages = null;
 
             if (currChapterPages == null) {
                 currPage = null;
-                if (bookLoader.toPreChapter()) {
-                    loadChapter(true);
-                }
+
+                dealLoadChapterPages(currChapterIndex, pageData -> {
+                    if (pageData != null) {
+                        currChapterPages = pageData;
+                        currPage = currChapterPages.get(currChapterPages.size() - 1);
+
+                        readerView.prepareCurrPage();
+                    }
+                }, pageData -> {
+                    readerView.postInvalidate();
+                });
             } else {
                 currPage = currChapterPages.get(currChapterPages.size() - 1);
-                if (bookLoader.toPreChapter())
-                    bookLoader.preLoadingPre();
             }
         } else
             currPage = currChapterPages.get(currPage.position - 1);
+
         drawPage(canvas);
     }
 
     public boolean hasNextPage() {
-        if (status != STATUS_FINISHED)
+        if (!canTurnPage())
             return false;
 
         int index = currPage.position + 1;
@@ -193,8 +219,8 @@ public class PageElement implements BookLoader.OnPreLoadingListener {
             // fetch in next
             if (nextChapterPages != null && !nextChapterPages.isEmpty()) {
                 return true;
-            } else if (bookLoader.hasNextChapter()) {
-                // no cache
+            } else if (currChapterIndex + 1 < bookLoader.getChapters().size()) {
+                // just no cache yet
                 return true;
             }
             // return false if no next
@@ -204,33 +230,69 @@ public class PageElement implements BookLoader.OnPreLoadingListener {
 
     public void drawNextPage(Canvas canvas) {
         cancelPage = currPage;
-        if (currPage.position + 1 >= currChapterPages.size()) {
-            bookLoader.abortPreLoad();
 
+        if (currPage.position + 1 >= currChapterPages.size()) {
+            int nextChapterIndex = currChapterIndex + 1;
+            lastChapterIndex = currChapterIndex;
+            currChapterIndex = nextChapterIndex;
+
+            abortPreLoadChapter();
             preChapterPages = currChapterPages;
             currChapterPages = nextChapterPages; // move window right
             nextChapterPages = null;
 
             if (currChapterPages == null) {
                 currPage = null;
-                if (bookLoader.toNextChapter()) {
-                    loadChapter(false);
-                }
+
+                dealLoadChapterPages(currChapterIndex, pageData -> {
+                    if (pageData != null) {
+                        currChapterPages = pageData;
+                        currPage = currChapterPages.get(0);
+
+                        readerView.prepareCurrPage();
+                    }
+                }, pageData -> {
+                    readerView.invalidate();
+//                    preLoadChapter(currChapterIndex);
+                });
             } else {
                 currPage = currChapterPages.get(0);
-                if (bookLoader.toNextChapter())
-                    bookLoader.preLoadingNext();
+//                preLoadChapter(currChapterIndex);
             }
-
         } else
             currPage = currChapterPages.get(currPage.position + 1);
+
         drawPage(canvas);
     }
 
     public void cancelPage() {
-        currPage = cancelPage;
+        abortPreLoadChapter();
 
-        // TODO bug, 加载到下一章取消了加载又
+        if (currChapterIndex > lastChapterIndex) {
+            if (preChapterPages != null) {
+                int tem = lastChapterIndex;
+                lastChapterIndex = currChapterIndex;
+                currChapterIndex = tem;
+                nextChapterPages = currChapterPages;
+                currChapterPages = preChapterPages;
+                preChapterPages = null;
+
+            } else {
+                // 前一章为空 ？？ 为什么会出现这种情况
+                LogUtil.log(this, "前一章为空 ？？ 为什么会出现这种情况");
+            }
+        } else if (currChapterIndex < lastChapterIndex) {
+            int tem = lastChapterIndex;
+            lastChapterIndex = currChapterIndex;
+            currChapterIndex = tem;
+
+            preChapterPages = currChapterPages;
+            currChapterPages = nextChapterPages;
+            nextChapterPages = null;
+        }
+
+        currPage = cancelPage;
+        cancelPage = null;
     }
 
     public void drawCurrPage(Canvas canvas) {
@@ -275,20 +337,32 @@ public class PageElement implements BookLoader.OnPreLoadingListener {
     }
 
     public void skipToChapter(int index) {
-        bookLoader.abortPreLoad();
-        if (loadDisp != null && !loadDisp.isDisposed())
-            loadDisp.dispose();
+        abortPreLoadChapter();
 
+        // TODO public方法, index 可能越界
+        currChapterIndex = index;
+
+        // rest
+        currChapterPages = null;
         preChapterPages = null;
         nextChapterPages = null;
+        currPage = null;
 
         // show loading
-        currChapterPages = null;
-        currPage = null;
+        // 存在一个问题，就算是加载很快，也会刷一下
         readerView.prepareCurrPage();
-        // do skip
-        bookLoader.skipToChapter(index);
-        loadChapter(false);
+
+        dealLoadChapterPages(index, pageData -> {
+            if (pageData != null && !pageData.isEmpty()) {
+                currChapterPages = pageData;
+                currPage = currChapterPages.get(0);
+
+                readerView.prepareCurrPage();
+            }
+        }, pageData -> {
+            readerView.postInvalidate();
+//            preLoadChapter(index);
+        });
     }
 
     private Set<Annotation> getAnnotationsOfPage(PageData pageData) {
@@ -338,61 +412,61 @@ public class PageElement implements BookLoader.OnPreLoadingListener {
         lineElement.draw(canvas, currPage);
     }
 
-    private void loadChapter(boolean last) {
+    /**
+     * non-concurrent, the new call will cancel the pre call
+     *
+     * @param chapterIndex chapterIndex
+     * @param onBgThread action on List<PageData>, which may be null, runs on bg thread
+     * @param onUiThread action on List<PageData>, may be null, runs on ui thread
+     */
+    private void dealLoadChapterPages(int chapterIndex, Action<List<PageData>> onBgThread, Action<List<PageData>> onUiThread) {
         status = STATUS_LOADING;
 
-        bookLoader.abortPreLoad();
+        abortPreLoadChapter();
         if (loadDisp != null && !loadDisp.isDisposed())
             loadDisp.dispose();
 
         Single.create((SingleOnSubscribe<BufferedReader>) emitter -> {
-            emitter.onSuccess(bookLoader.getChapterReader());
-        })
-                .subscribeOn(Schedulers.io())
+            BufferedReader br = bookLoader.getChapterReader(chapterIndex);
+            if (br != null)
+                emitter.onSuccess(br);
+            else
+                emitter.onError(new Exception());
+        }).subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation())
                 .map(br -> {
-                    String title = bookLoader.getChapterData().getTitle();
-                    currChapterPages = getChapterPages(br, title);
-
-                    if (currChapterPages != null && !currChapterPages.isEmpty()) {
-                        currPage = currChapterPages.get(last ? currChapterPages.size() - 1 : 0);
-                        // TODO 加载标注
-                    } else {
-                        currPage = null;
-                    }
-
-                    status = STATUS_FINISHED;
-                    readerView.prepareCurrPage();
-                    return currPage;
+                    ChapterData chapter = bookLoader.getChapters().get(chapterIndex);
+                    List<PageData> pageData = getChapterPages(br, chapter);
+                    if (onBgThread != null)
+                        onBgThread.call(pageData);
+                    return pageData;
                 })
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<PageData>() {
+                .subscribe(new SingleObserver<List<PageData>>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         loadDisp = d;
                     }
 
                     @Override
-                    public void onSuccess(PageData currPage) {
-                        readerView.postInvalidate();
-//                        if (last)
-//                            bookLoader.preLoadingNext();
-//                        else
-//                            bookLoader.preLoadingPre();
-                        bookLoader.preLoadingNext();
-                        bookLoader.preLoadingPre();
-                    }
+                    public void onSuccess(List<PageData> pageData) {
+                        status = STATUS_FINISHED;
 
+                        if (onUiThread != null)
+                            onUiThread.call(pageData);
+                    }
                     @Override
                     public void onError(Throwable e) {
+                        currChapterPages = null;
                         status = STATUS_ERROR;
+                        if (onUiThread != null)
+                            onUiThread.call(null);
                     }
                 });
-        // 回调
     }
 
     // 线程在这里竞争了, 用synchronized 不是个很好的解决方法，应该让LineElement线程安全
-    private synchronized List<PageData> getChapterPages(BufferedReader br, String title) {
+    private synchronized List<PageData> getChapterPages(BufferedReader br, ChapterData chapter) throws Exception {
         try {
             if (br == null)
                 return null;
@@ -420,7 +494,7 @@ public class PageElement implements BookLoader.OnPreLoadingListener {
                         // TODO
                         pageData.bookId = 1;
                         pageData.chapterId = 1;
-                        pageData.title = title;
+                        pageData.title = chapter.getTitle();
                         pageData.position = pages.size();
                         pageData.lines = new ArrayList<>(lines);
                         pageData.startIndex = lines.get(0).getChars().get(0).chapterIndex;
@@ -437,6 +511,7 @@ public class PageElement implements BookLoader.OnPreLoadingListener {
                     wordCount = lineElement.getWordCountOfLine(paragraph);
                     subStr = paragraph.substring(0, wordCount);
                     if (!subStr.endsWith("\n")) {
+                        // TODO 这里可以传入给 lineElement 设置 baseLine
                         LineData lineData = lineElement.measureLineData(subStr);
                         lines.add(lineData);
                         // 行间距
@@ -451,7 +526,7 @@ public class PageElement implements BookLoader.OnPreLoadingListener {
                 PageData pageData = new PageData();
                 pageData.bookId = 1;
                 pageData.chapterId = 1;
-                pageData.title = title;
+                pageData.title = chapter.getTitle();
                 pageData.position = pages.size();
                 pageData.lines = new ArrayList<>(lines);
                 pageData.startIndex = lines.get(0).getChars().get(0).chapterIndex;
@@ -464,7 +539,7 @@ public class PageElement implements BookLoader.OnPreLoadingListener {
             }
             return pages;
         } catch (Exception e) {
-            return null;
+            throw new Exception(e);
         } finally {
             IOUtil.close(br);
         }
@@ -473,32 +548,96 @@ public class PageElement implements BookLoader.OnPreLoadingListener {
     private Set<Annotation> annotations = new HashSet<>();
     private AtomicInteger count = new AtomicInteger(1);
 
-    @Override
-    public void onPreLoadingPre(BufferedReader bufferedReader, ChapterData chapterData) {
-        onPreLoading(true, bufferedReader, chapterData);
+    private void abortPreLoadChapter() {
+        if (preLoadPreDisp != null && !preLoadPreDisp.isDisposed())
+            preLoadPreDisp.dispose();
+        if (preLoadNextDisp != null && !preLoadNextDisp.isDisposed())
+            preLoadNextDisp.dispose();
     }
 
-    @Override
-    public void onPreLoadingNext(BufferedReader bufferedReader, ChapterData chapterData) {
-        onPreLoading(false, bufferedReader, chapterData);
-    }
+    // TODO 这个预加载 实在是太有问题了，很容易出错，暂时先不管了
+    private void preLoadChapter(int currChapterIndex) {
+        abortPreLoadChapter();
 
-    private void onPreLoading(boolean isPre, BufferedReader bufferedReader, ChapterData chapterData) {
-        if (bufferedReader == null || chapterData == null) {
-            if (isPre)
-                preChapterPages = null;
+        final int pre = currChapterIndex - 1;
+        final int next = currChapterIndex + 1;
+
+//        Single.create((SingleOnSubscribe<BufferedReader>) emitter -> {
+//            BufferedReader br = bookLoader.getChapterReader(pre);
+//            if (br != null)
+//                emitter.onSuccess(br);
+//            else
+//                emitter.onError(new Exception());
+//        })
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(Schedulers.computation())
+//                .subscribe(new SingleObserver<BufferedReader>() {
+//                    @Override
+//                    public void onSubscribe(Disposable d) {
+//                        preLoadPreDisp = d;
+//                    }
+//
+//                    @Override
+//                    public void onSuccess(BufferedReader br) {
+//                        ChapterData chapter = bookLoader.getChapters().get(pre);
+//                        try {
+//                            preChapterPages = getChapterPages(br, chapter);
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        preChapterPages = null;
+//                    }
+//                });
+
+        Single.create((SingleOnSubscribe<BufferedReader>) emitter -> {
+            BufferedReader br = bookLoader.getChapterReader(next);
+            if (br != null)
+                emitter.onSuccess(br);
             else
-                nextChapterPages = null;
-            return;
+                emitter.onError(new Exception());
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
+                .subscribe(new SingleObserver<BufferedReader>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        preLoadNextDisp = d;
+                    }
+
+                    @Override
+                    public void onSuccess(BufferedReader br) {
+                        ChapterData chapter = bookLoader.getChapters().get(next);
+                        try {
+                            nextChapterPages = getChapterPages(br, chapter);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        nextChapterPages = null;
+                    }
+                });
+    }
+
+    private boolean canTurnPage() {
+        if (status == STATUS_LOADING)
+            return false;
+
+        if (status == STATUS_ERROR) {
+            LogUtil.log(this, "status error, cannot turn page");
+            return false;
         }
 
-        final String title = chapterData.getTitle();
+        return true;
+    }
 
-        List<PageData> pages = getChapterPages(bufferedReader, title);
-        if (isPre) {
-            preChapterPages = pages;
-        } else {
-            nextChapterPages = pages;
-        }
+    private interface Action<T> {
+        void call(T t);
     }
 }
