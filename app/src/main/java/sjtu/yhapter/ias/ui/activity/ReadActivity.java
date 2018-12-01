@@ -11,16 +11,21 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 
 import java.util.List;
 
 import sjtu.yhapter.ias.R;
+import sjtu.yhapter.ias.presenter.ReadPresenter;
+import sjtu.yhapter.ias.presenter.contract.ReadContract;
+import sjtu.yhapter.ias.ui.base.BaseMVPActivity;
 import sjtu.yhapter.ias.ui.fragment.CategoryFragment;
 import sjtu.yhapter.ias.ui.fragment.HotLineFragment;
 import sjtu.yhapter.ias.ui.fragment.NoteFragment;
 import sjtu.yhapter.reader.loader.BookLoader;
 import sjtu.yhapter.reader.model.pojo.ChapterData;
+import sjtu.yhapter.reader.page.PageElement;
 import sjtu.yhapter.reader.reader.ReaderView;
 import sjtu.yhapter.reader.util.LogUtil;
 
@@ -28,7 +33,7 @@ import sjtu.yhapter.reader.util.LogUtil;
  * Created by CocoAdapter on 2018/11/11.
  */
 
-public class ReadActivity extends BaseActivity {
+public class ReadActivity extends BaseMVPActivity<ReadContract.Presenter> implements ReadContract.View {
     private DrawerLayout drawer;
     private ReaderView readerView;
     private TabLayout tab;
@@ -41,9 +46,53 @@ public class ReadActivity extends BaseActivity {
 
     private Fragment[] drawerFragments;
 
+    private PageElement pageElement;
+
     @Override
-    protected void init(Bundle savedInstanceState) {
-        setContentView(R.layout.activity_read);
+    public void onBackPressed() {
+        onBackClick();
+    }
+
+    @Override
+    public void showError() {
+
+    }
+
+    @Override
+    public void complete() {
+
+    }
+
+    @Override
+    protected int getLayoutResID() {
+        return R.layout.activity_read;
+    }
+
+    @Override
+    protected ReadContract.Presenter bindPresenter() {
+        return new ReadPresenter();
+    }
+
+    @Override
+    protected void initData(Bundle savedInstanceState) {
+        super.initData(savedInstanceState);
+
+        drawerFragments = new Fragment[3];
+        drawerFragments[0] = new CategoryFragment();
+        // not implemented now
+        drawerFragments[1] = new NoteFragment();
+        drawerFragments[2] = new HotLineFragment();
+
+        animTopIn = AnimationUtils.loadAnimation(ReadActivity.this, R.anim.read_menu_top_enter);
+        animTopOut = AnimationUtils.loadAnimation(ReadActivity.this, R.anim.read_menu_top_exit);
+        animBottomIn = AnimationUtils.loadAnimation(ReadActivity.this, R.anim.read_menu_bottom_enter);
+        animBottomOut = AnimationUtils.loadAnimation(ReadActivity.this, R.anim.read_menu_bottom_exit);
+    }
+
+    @Override
+    protected void initWidget() {
+        super.initWidget();
+
         topMenu = findViewById(R.id.rl_bar);
         imgBack = topMenu.findViewById(R.id.img_back);
         bottomMenu = findViewById(R.id.ll_bottom);
@@ -56,23 +105,36 @@ public class ReadActivity extends BaseActivity {
         readerView = findViewById(R.id.reader_view);
         tab = findViewById(R.id.tab_layout);
 
-        initFragments();
-        initTab();
-        initListener();
-        initAnim();
+        tab.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                FragmentManager manager = getFragmentManager();
+                FragmentTransaction tx = manager.beginTransaction();
+                tx.replace(R.id.container, drawerFragments[tab.getPosition()]);
+                tx.commit();
+            }
 
-        readerView.getPageElement().openBook();
-    }
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
 
-    private void initAnim() {
-        animTopIn = AnimationUtils.loadAnimation(ReadActivity.this, R.anim.read_menu_top_enter);
-        animTopOut = AnimationUtils.loadAnimation(ReadActivity.this, R.anim.read_menu_top_exit);
-        animBottomIn = AnimationUtils.loadAnimation(ReadActivity.this, R.anim.read_menu_bottom_enter);
-        animBottomOut = AnimationUtils.loadAnimation(ReadActivity.this, R.anim.read_menu_bottom_exit);
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+        tab.addTab(tab.newTab().setText(R.string.drawer_catalog), true);
+        tab.addTab(tab.newTab().setText(R.string.drawer_note));
+        tab.addTab(tab.newTab().setText(R.string.drawer_hotline));
+
+        pageElement = readerView.getPageElement();
     }
 
     @SuppressWarnings("all")
-    private void initListener() {
+    protected void initListener() {
+        super.initListener();
+
         View.OnClickListener ocl = v -> {
             switch (v.getId()) {
                 case R.id.img_back:
@@ -112,7 +174,6 @@ public class ReadActivity extends BaseActivity {
             @Override
             public void onCenterClick() {
                 if (!isMenuShowing) {
-                    isMenuShowing = true;
                     toggleMenu(true);
                 }
             }
@@ -120,7 +181,6 @@ public class ReadActivity extends BaseActivity {
             @Override
             public boolean canTouch() {
                 if (isMenuShowing) {
-                    isMenuShowing = false;
                     if (drawer.isDrawerOpen(Gravity.START))
                         drawer.closeDrawer(Gravity.START);
                     toggleMenu(false);
@@ -130,54 +190,36 @@ public class ReadActivity extends BaseActivity {
             }
         });
 
-        readerView.getPageElement().setOnPageChangeListener(new BookLoader.OnPageChangeListener() {
+        pageElement.setOnPageChangeListener(new BookLoader.OnPageChangeListener() {
             @Override
             public void onChaptersLoaded(List<? extends ChapterData> chapters) {
-                for (ChapterData chapter : chapters) {
-                    LogUtil.log(this, chapter.getTitle());
-                }
-
                 CategoryFragment categoryFragment = (CategoryFragment) drawerFragments[0];
                 categoryFragment.setCategories(chapters);
             }
         });
-    }
 
-    @SuppressWarnings("all")
-    private void initFragments() {
-        drawerFragments = new Fragment[3];
-        drawerFragments[0] = new CategoryFragment();
-        // not implemented now
-        drawerFragments[1] = new NoteFragment();
-        drawerFragments[2] = new HotLineFragment();
-    }
-
-    private void initTab() {
-        tab.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+        CategoryFragment categoryFragment = (CategoryFragment) drawerFragments[0];
+        categoryFragment.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                FragmentManager manager = getFragmentManager();
-                FragmentTransaction tx = manager.beginTransaction();
-                tx.replace(R.id.container, drawerFragments[tab.getPosition()]);
-                tx.commit();
-            }
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (drawer.isDrawerOpen(Gravity.START))
+                    drawer.closeDrawer(Gravity.START);
+                toggleMenu(false);
 
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
+                pageElement.skipToChapter(position);
             }
         });
-        tab.addTab(tab.newTab().setText(R.string.drawer_catalog), true);
-        tab.addTab(tab.newTab().setText(R.string.drawer_note));
-        tab.addTab(tab.newTab().setText(R.string.drawer_hotline));
+    }
+
+    @Override
+    protected void processLogic() {
+        super.processLogic();
+
+        pageElement.openBook();
     }
 
     private void toggleMenu(boolean isOpen) {
+        isMenuShowing = isOpen;
         topMenu.setEnabled(isOpen);
         bottomMenu.setEnabled(isOpen);
         topMenu.startAnimation(isOpen ? animTopIn : animTopOut);
@@ -199,10 +241,5 @@ public class ReadActivity extends BaseActivity {
         }
 
         finish();
-    }
-
-    @Override
-    public void onBackPressed() {
-        onBackClick();
     }
 }

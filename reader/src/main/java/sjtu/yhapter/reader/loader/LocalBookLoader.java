@@ -8,9 +8,7 @@ import io.reactivex.SingleOnSubscribe;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import sjtu.yhapter.reader.App;
-import sjtu.yhapter.reader.model.pojo.BookData;
 import sjtu.yhapter.reader.model.pojo.ChapterData;
-import sjtu.yhapter.reader.util.LogUtil;
 
 /**
  * Created by Yhapter on 2018/11/28.
@@ -26,7 +24,7 @@ public class LocalBookLoader extends BookLoader {
             file = new File(bookData.getPath());
             pageParser.parse(App.getInstance().getAssets().open("the_great_gatsby.txt"), file);
 //            pageParser.parse(file);
-            status = STATUS_FINISH;
+            status = STATUS_PARSING_FINISHED;
             if (onPageChangeListener != null) {
                 onPageChangeListener.onChaptersLoaded(pageParser.getChapters());
             }
@@ -38,7 +36,7 @@ public class LocalBookLoader extends BookLoader {
 
     @Override
     protected boolean hasContent(ChapterData chapterData) {
-        return true;
+        return status == STATUS_PARSING_FINISHED;
     }
 
     @SuppressWarnings("all")
@@ -55,50 +53,65 @@ public class LocalBookLoader extends BookLoader {
 
     @Override
     public void preLoadingPre() {
-        int preIndex = currChapterIndex - 1;
-        preLoading(true, preIndex);
+        preLoading(true, currChapterIndex - 1);
     }
 
     @Override
     public void preLoadingNext() {
-        int preIndex = currChapterIndex + 1;
-        preLoading(false, preIndex);
+        preLoading(false, currChapterIndex + 1);
+    }
+
+    @Override
+    public void abortPreLoad() {
+        if (preLoadPreDisp != null && !preLoadPreDisp.isDisposed())
+            preLoadPreDisp.dispose();
+
+        if (preLoadNextDisp != null && !preLoadNextDisp.isDisposed())
+            preLoadNextDisp.dispose();
     }
 
     private void preLoading(boolean isPre, int index) {
         if (onPreLoadingListener == null)
             return;
 
-        final ChapterData nextChapter = getChapters().get(index);
-        // no next chapter, or no content in the next chapter(unavailable)
-        if (!hasNextChapter() || !hasContent(nextChapter))
-            return;
-
-        if (preLoadDisp != null)
-            preLoadDisp.dispose();
+        if (isPre) {
+            if (preLoadPreDisp != null && !preLoadPreDisp.isDisposed())
+                preLoadPreDisp.dispose();
+        } else {
+            if (preLoadNextDisp != null && !preLoadNextDisp.isDisposed())
+                preLoadNextDisp.dispose();
+        }
 
         Single.create((SingleOnSubscribe<BufferedReader>) emitter -> {
-            LogUtil.log(this, "preLoading: " + index);
-            emitter.onSuccess(getChapterReader(index));
-        })
-                .subscribeOn(Schedulers.io())
+            BufferedReader bf = getChapterReader(index);
+            if (bf != null)
+                emitter.onSuccess(getChapterReader(index));
+            else
+                emitter.onError(new NullPointerException());
+        }).subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
                 .subscribe(new SingleObserver<BufferedReader>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-                        preLoadDisp = d;
+                        if (isPre)
+                            preLoadPreDisp = d;
+                        else
+                            preLoadNextDisp = d;
                     }
 
                     @Override
-                    public void onSuccess(BufferedReader o) {
+                    public void onSuccess(BufferedReader bf) {
+                        ChapterData nextChapter = getChapters().get(index);
                         if (isPre)
-                            onPreLoadingListener.onPreLoadingPre(o, nextChapter);
-                        else
-                            onPreLoadingListener.onPreLoadingNext(o, nextChapter);
+                            onPreLoadingListener.onPreLoadingPre(bf, nextChapter);
+                        else {
+                            onPreLoadingListener.onPreLoadingNext(bf, nextChapter);
+                        }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-
+                        onPreLoadingListener.onPreLoadingNext(null, null);
                     }
                 });
     }

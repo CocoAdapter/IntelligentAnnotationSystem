@@ -9,21 +9,16 @@ import sjtu.yhapter.reader.loader.parser.TxtPageParser;
 import sjtu.yhapter.reader.model.pojo.BookData;
 import sjtu.yhapter.reader.model.pojo.ChapterData;
 import sjtu.yhapter.reader.model.pojo.ReadingRecord;
-import sjtu.yhapter.reader.util.LogUtil;
 
 /**
  * Created by Yhapter on 2018/11/28.
  */
 public abstract class BookLoader {
-    public static final int STATUS_LOADING = 1;
-    public static final int STATUS_FINISH = 2;
-    public static final int STATUS_ERROR = 3;
-//    public static final int STATUS_EMPTY = 4;
-    public static final int STATUS_PARSING = 5;
-    public static final int STATUS_PARSING_ERROR = 6;
-//    public static final int STATUS_CATEGORY_EMPTY = 7;
+    public static final int STATUS_PARSING = 1;
+    public static final int STATUS_PARSING_FINISHED = 2;
+    public static final int STATUS_PARSING_ERROR = 3;
 
-    protected int status = STATUS_LOADING;
+    protected int status = STATUS_PARSING;
 
     protected PageParser pageParser;
 
@@ -34,13 +29,10 @@ public abstract class BookLoader {
     protected ReadingRecord readingRecord;
 
     protected OnPreLoadingListener onPreLoadingListener;
-    protected Disposable preLoadDisp;
+    protected Disposable preLoadPreDisp;
+    protected Disposable preLoadNextDisp;
 
     protected OnPageChangeListener onPageChangeListener;
-
-    public BookLoader() {
-
-    }
 
     public void setBookData(BookData bookData) {
         this.bookData = bookData;
@@ -90,6 +82,8 @@ public abstract class BookLoader {
 
     public abstract void preLoadingNext();
 
+    public abstract void abortPreLoad();
+
     public int getStatus() {
         return status;
     }
@@ -100,12 +94,19 @@ public abstract class BookLoader {
         return pageParser.getChapters();
     }
 
-    protected boolean hasNextChapter() {
+    public boolean hasNextChapter() {
         return currChapterIndex + 1 < getChapters().size();
     }
 
+    public boolean hasPreChapter() {
+        return currChapterIndex - 1 >= 0;
+    }
+
     protected BufferedReader getChapterReader(int chapterIndex) {
-        if (status != STATUS_FINISH)
+        if (status != STATUS_PARSING_FINISHED)
+            return null;
+
+        if (chapterIndex < 0 || chapterIndex >= pageParser.getChapters().size())
             return null;
 
         ChapterData chapter = pageParser.getChapters().get(chapterIndex);

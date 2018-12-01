@@ -7,7 +7,7 @@ import android.graphics.Point;
  */
 
 public class PointChar {
-    // annotation related
+    // annotation related, the char index in it's chapter
     public long chapterIndex;
 
     // UI related

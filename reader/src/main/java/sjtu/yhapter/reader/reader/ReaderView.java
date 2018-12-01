@@ -41,7 +41,7 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
     public ReaderView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        pageElement = new PageElement();
+        pageElement = new PageElement(this);
         textSelector = new TextSelectorElement(getContext());
         annotationMenu = new AnnotationMenu(getContext());
         annotationMenu.setAnnotationListener(this);
