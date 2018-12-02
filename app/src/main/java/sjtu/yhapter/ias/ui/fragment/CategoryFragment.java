@@ -11,8 +11,11 @@ import android.widget.ListView;
 import java.util.List;
 
 import sjtu.yhapter.ias.R;
+import sjtu.yhapter.ias.presenter.contract.CategoryContract;
 import sjtu.yhapter.ias.ui.activity.ReadActivity;
 import sjtu.yhapter.ias.ui.adapter.CategoryAdapter;
+import sjtu.yhapter.ias.ui.base.BaseContract;
+import sjtu.yhapter.ias.ui.base.BaseMVPFragment;
 import sjtu.yhapter.reader.model.pojo.ChapterData;
 import sjtu.yhapter.reader.util.LogUtil;
 
@@ -20,7 +23,7 @@ import sjtu.yhapter.reader.util.LogUtil;
  * Created by CocoAdapter on 2018/11/29.
  */
 
-public class CategoryFragment extends BaseFragment {
+public class CategoryFragment extends BaseMVPFragment<CategoryContract.Presenter> implements CategoryContract.View {
     private ListView lvChapter;
     private CategoryAdapter adapter;
     private List<? extends ChapterData> categories;
@@ -32,13 +35,19 @@ public class CategoryFragment extends BaseFragment {
         super.onCreate(savedInstanceState);
     }
 
-    @Nullable
     @Override
-    @SuppressWarnings("all")
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        View content = inflater.inflate(R.layout.frgm_catalog, null);
-        lvChapter = content.findViewById(R.id.lv_chapter);
+    protected int getLayoutResID() {
+        return R.layout.frgm_catalog;
+    }
 
+    @Override
+    protected void initData(Bundle savedInstanceState) {
+
+    }
+
+    @Override
+    protected void initWidget(Bundle savedInstanceState) {
+        lvChapter = findViewById(R.id.lv_chapter);
         adapter = new CategoryAdapter();
         if (categories != null) {
             adapter.setData((List<ChapterData>) categories);
@@ -48,8 +57,11 @@ public class CategoryFragment extends BaseFragment {
                     onItemClickListener.onItemClick(parent, view, position, id);
             });
         }
+    }
 
-        return content;
+    @Override
+    protected void initListener() {
+
     }
 
     @SuppressWarnings("all")
@@ -62,5 +74,20 @@ public class CategoryFragment extends BaseFragment {
 
     public void setOnItemClickListener(AdapterView.OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
+    }
+
+    @Override
+    protected CategoryContract.Presenter bindPresenter() {
+        return null;
+    }
+
+    @Override
+    public void showError() {
+
+    }
+
+    @Override
+    public void complete() {
+
     }
 }

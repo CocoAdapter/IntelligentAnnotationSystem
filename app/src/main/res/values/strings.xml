@@ -9,4 +9,8 @@
     <string name="catalog_search_hint">搜索全书内容</string>
     <string name="catalog_already_read">已读</string>
     <string name="read_menu_idea_hint">写下这一刻的想法</string>
+    <string name="no_data">暂无数据</string>
+    <string name="net_error">网络连接失败</string>
+    <string name="join_teach_class_title">请输入教学班号</string>
+    <string name="join">加入</string>
 </resources>

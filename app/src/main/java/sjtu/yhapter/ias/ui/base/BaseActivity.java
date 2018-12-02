@@ -51,7 +51,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (disposable != null && !disposable.isDisposed()){
+        if (disposable != null){
             disposable.dispose();
         }
     }
@@ -60,6 +60,5 @@ public abstract class BaseActivity extends AppCompatActivity {
         Intent intent = new Intent(this, activity);
         startActivity(intent);
     }
-
 
 }
