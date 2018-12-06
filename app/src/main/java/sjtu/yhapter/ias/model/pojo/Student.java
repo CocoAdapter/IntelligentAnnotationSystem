@@ -16,7 +16,7 @@ import sjtu.yhapter.ias.model.dao.StudentDao;
 public class Student {
 
     @Id
-    private Long id;
+    private String id;
     private String studentId;
     private String password;
     private String name;
@@ -32,8 +32,8 @@ public class Student {
     @Generated(hash = 1943931642)
     private transient StudentDao myDao;
 
-    @Generated(hash = 565415736)
-    public Student(Long id, String studentId, String password, String name) {
+    @Generated(hash = 2091681200)
+    public Student(String id, String studentId, String password, String name) {
         this.id = id;
         this.studentId = studentId;
         this.password = password;
@@ -44,11 +44,11 @@ public class Student {
     public Student() {
     }
 
-    public Long getId() {
+    public String getId() {
         return this.id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -147,4 +147,5 @@ public class Student {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getStudentDao() : null;
     }
+
 }

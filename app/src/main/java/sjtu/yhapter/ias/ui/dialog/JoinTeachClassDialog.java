@@ -16,7 +16,6 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import sjtu.yhapter.ias.R;
-import sjtu.yhapter.ias.ui.activity.MainActivity;
 
 public class JoinTeachClassDialog extends Dialog {
     private static final int CODE_LENGTH = 11;
@@ -85,7 +84,7 @@ public class JoinTeachClassDialog extends Dialog {
                 case R.id.btn_join:
                     dismiss();
                     if (action != null)
-                        action.onJoinClick(Long.parseLong(etClassNum.getText().toString()));
+                        action.onJoinClick(etClassNum.getText().toString());
                     break;
             }
         };
@@ -97,6 +96,6 @@ public class JoinTeachClassDialog extends Dialog {
     }
 
     public interface Action {
-        void onJoinClick(long code);
+        void onJoinClick(String code);
     }
 }

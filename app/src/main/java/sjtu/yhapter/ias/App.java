@@ -26,14 +26,14 @@ public class App extends Application {
 
         modulesApplicationInit();
 
-        // TODO test
+        // TODO 由Activity设置，但是还是要存储在App里
         Student student = new Student();
-        student.setId(1L);
+        student.setId("1");
         student.setName("何昊西");
         student.setPassword("mimashi123");
         student.setStudentId("123456789");
 
-        getDaoInstant().getStudentDao().save(student);
+        getDaoInstant().getStudentDao().insertOrReplaceInTx(student);
     }
 
     private void setupDatabase(){

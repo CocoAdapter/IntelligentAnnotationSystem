@@ -1,10 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <sjtu.yhapter.ias.widget.refresh.ScrollRefreshRecyclerView
-        android:id="@+id/rv_list"
+    <FrameLayout
+        android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-</LinearLayout>
+        android:layout_height="match_parent"
+        android:layout_above="@id/ll_tab" />
+
+    <LinearLayout
+        android:paddingTop="5dp"
+        android:id="@+id/ll_tab"
+        android:background="@color/main_tab_bg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+
+        <sjtu.yhapter.reader.widget.ImageTextView
+            android:id="@+id/tab_find"
+            style="@style/MainTabItem"
+            android:drawableTop="@drawable/ic_main_find"
+            android:text="@string/main_find" />
+
+        <sjtu.yhapter.reader.widget.ImageTextView
+            android:id="@+id/tab_book_shelf"
+            style="@style/MainTabItem"
+            android:drawableTop="@drawable/ic_main_book_shelf"
+            android:text="@string/main_book_shelf" />
+
+        <sjtu.yhapter.reader.widget.ImageTextView
+            android:id="@+id/tab_teach_class"
+            style="@style/MainTabItem"
+            android:drawableTop="@drawable/ic_main_teach_class"
+            android:text="@string/main_teach_class" />
+
+        <sjtu.yhapter.reader.widget.ImageTextView
+            android:id="@+id/tab_mine"
+            style="@style/MainTabItem"
+            android:drawableTop="@drawable/ic_main_mine"
+            android:text="@string/main_mine" />
+    </LinearLayout>
+</RelativeLayout>

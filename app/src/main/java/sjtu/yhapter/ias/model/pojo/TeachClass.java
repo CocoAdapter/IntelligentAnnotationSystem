@@ -7,21 +7,30 @@ import org.greenrobot.greendao.annotation.Generated;
 
 @Entity
 public class TeachClass {
+    @Override
+    public String toString() {
+        return "TeachClass{" +
+                "id=" + id +
+                ", status=" + status +
+                ", studentId='" + studentId + '\'' +
+                ", name='" + name + '\'' +
+                '}';
+    }
+
     @Id
     private Long id;
-
-    private int status; // 0 没有这个人， 1 申请了 还没通过， 2 已加入
-    private Long studentId;
+    private int status; // 1 申请了 还没通过， 2 已加入, 3 已关闭
+    private String studentId;
 
     // TODO 加入时间，有无新任务，用作排序
-    @Transient
-    private String otherInfo;
+    private String name;
 
-    @Generated(hash = 682796218)
-    public TeachClass(Long id, int status, Long studentId) {
+    @Generated(hash = 897858683)
+    public TeachClass(Long id, int status, String studentId, String name) {
         this.id = id;
         this.status = status;
         this.studentId = studentId;
+        this.name = name;
     }
 
     @Generated(hash = 1071052928)
@@ -29,7 +38,7 @@ public class TeachClass {
     }
 
     public Long getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(Long id) {
@@ -37,26 +46,26 @@ public class TeachClass {
     }
 
     public int getStatus() {
-        return status;
+        return this.status;
     }
 
     public void setStatus(int status) {
         this.status = status;
     }
 
-    public String getOtherInfo() {
-        return otherInfo;
-    }
-
-    public void setOtherInfo(String otherInfo) {
-        this.otherInfo = otherInfo;
-    }
-
-    public Long getStudentId() {
+    public String getStudentId() {
         return this.studentId;
     }
 
-    public void setStudentId(Long studentId) {
+    public void setStudentId(String studentId) {
         this.studentId = studentId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

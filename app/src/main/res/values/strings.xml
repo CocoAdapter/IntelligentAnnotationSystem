@@ -13,4 +13,10 @@
     <string name="net_error">网络连接失败</string>
     <string name="join_teach_class_title">请输入教学班号</string>
     <string name="join">加入</string>
+    <string name="main_find">发现</string>
+    <string name="main_book_shelf">书架</string>
+    <string name="main_mine">我</string>
+    <string name="main_teach_class">教学班</string>
+    <string name="bookshelf_mine">我的书架</string>
+    <string name="mine_teach_class">我的教学班</string>
 </resources>

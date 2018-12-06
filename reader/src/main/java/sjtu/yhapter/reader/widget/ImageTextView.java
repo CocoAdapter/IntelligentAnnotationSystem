@@ -5,11 +5,11 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 
 import sjtu.yhapter.reader.R;
-import sjtu.yhapter.reader.util.LogUtil;
 
 /**
  * Only supports ONE drawable at left, top, right, or bottom. The second one will be simply ignored.
@@ -43,12 +43,8 @@ public class ImageTextView extends android.support.v7.widget.AppCompatTextView {
         super.onDraw(canvas);
     }
 
-    @SuppressWarnings("all")
     private Canvas getTopCanvas(Canvas canvas) {
         Drawable[] drawables = getCompoundDrawables();
-        if (drawables == null)
-            return canvas;
-
         Drawable drawable = null;
         int directionFlag = -1;
         for (int i = 0; i < 4; i++){

@@ -1,111 +1,98 @@
 package sjtu.yhapter.ias.ui.activity;
 
+import android.app.AlertDialog;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
+import android.view.MenuInflater;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.PopupMenu;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
-import sjtu.yhapter.ias.App;
 import sjtu.yhapter.ias.R;
-import sjtu.yhapter.ias.model.pojo.Student;
-import sjtu.yhapter.ias.model.pojo.TeachClass;
 import sjtu.yhapter.ias.presenter.MainPresenter;
 import sjtu.yhapter.ias.presenter.contract.MainContract;
-import sjtu.yhapter.ias.ui.adapter.TeachClassAdapter;
-import sjtu.yhapter.ias.ui.base.BaseMVPActivity;
-import sjtu.yhapter.ias.widget.refresh.ScrollRefreshRecyclerView;
-import sjtu.yhapter.reader.util.LogUtil;
+import sjtu.yhapter.ias.ui.base.BaseFragmentActivity;
+import sjtu.yhapter.ias.ui.fragment.BookShelfFragment;
+import sjtu.yhapter.ias.ui.fragment.FindFragment;
+import sjtu.yhapter.ias.ui.fragment.MineFragment;
+import sjtu.yhapter.ias.ui.fragment.TeachClassFragment;
+import sjtu.yhapter.reader.widget.ImageTextView;
 
-// TODO MainActivity 应该由四个Fragment组成，仿微信阅读，分别是发现（搜索书，推荐书），书架，教学班，我
-public class MainActivity extends BaseMVPActivity<MainContract.Presenter> implements MainContract.View {
-    private ScrollRefreshRecyclerView rvList;
-    private TeachClassAdapter teachClassAdapter;
+public class MainActivity extends BaseFragmentActivity<MainContract.Presenter> implements MainContract.View {
+    private ImageTextView tabFind, tabBookShelf, tabTeachClass, tabMine;
 
-    private Student student;
+    private FindFragment findFragment;
+    private BookShelfFragment bookShelfFragment;
+    private TeachClassFragment teachClassFragment;
+    private MineFragment mineFragment;
+
+    @Override
+    protected int getLayoutResID() {
+        return R.layout.activity_main;
+    }
 
     @Override
     protected void initData(Bundle savedInstanceState) {
         super.initData(savedInstanceState);
-        student = App.getDaoInstant().getStudentDao().loadByRowId(0);
-
-        teachClassAdapter = new TeachClassAdapter();
+        findFragment = new FindFragment();
+        bookShelfFragment = new BookShelfFragment();
+        teachClassFragment = new TeachClassFragment();
+        mineFragment = new MineFragment();
     }
 
     @Override
     protected void initWidget() {
         super.initWidget();
-        rvList = findViewById(R.id.rv_list);
-        rvList.setVisibility(View.INVISIBLE);
-        rvList.setLayoutManager(new LinearLayoutManager(this));
-        rvList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL));
-        rvList.setAdapter(teachClassAdapter);
+        tabFind = findViewById(R.id.tab_find);
+        tabBookShelf = findViewById(R.id.tab_book_shelf);
+        tabTeachClass = findViewById(R.id.tab_teach_class);
+        tabMine = findViewById(R.id.tab_mine);
     }
 
     @Override
     protected void initListener() {
         super.initListener();
-        rvList.setOnRefreshListener(() -> {
-            fakeLoading();
-        });
+        View.OnClickListener ocl = v -> {
+            switch (v.getId()) {
+                case R.id.tab_find:
+                    setSelected(0);
+                    switchFragment(findFragment).commit();
+                    break;
+                case R.id.tab_book_shelf:
+                    setSelected(1);
+                    switchFragment(bookShelfFragment).commit();
+                    break;
+                case R.id.tab_teach_class:
+                    setSelected(2);
+                    switchFragment(teachClassFragment).commit();
+                    break;
+                case R.id.tab_mine:
+                    setSelected(3);
+                    switchFragment(mineFragment).commit();
+                    break;
+            }
+        };
+
+        tabFind.setOnClickListener(ocl);
+        tabBookShelf.setOnClickListener(ocl);
+        tabTeachClass.setOnClickListener(ocl);
+        tabMine.setOnClickListener(ocl);
     }
 
     @Override
     protected void processLogic() {
         super.processLogic();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // set foreground color of status bar to be black
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        }
 
-        // 模拟加载完了
-        rvList.setVisibility(View.VISIBLE);
-        rvList.startRefresh();
-        fakeLoading();
-
-//        JoinTeachClassDialog dialog = new JoinTeachClassDialog(this, this);
-//        dialog.setOnJoinClickListener(code -> {
-////            presenter.joinTeachClass(student.getStudentId(), code);
-//            rvList.setVisibility(View.VISIBLE);
-//            rvList.startRefresh(); // 将rvList设置成刷新状态
-//            fakeLoading(); // 开始加载
-//        });
-//        dialog.show();
-    }
-
-    private void fakeLoading() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                LogUtil.log("running");
-                List<TeachClass> teachClasses = fateTeachClasses();
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                // 只能在主线程
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Collections.sort(teachClasses, new Comparator<TeachClass>() {
-                            @Override
-                            public int compare(TeachClass o1, TeachClass o2) {
-                                return o2.getStatus() - o1.getStatus() ;
-                            }
-                        });
-                        teachClassAdapter.refreshItems(teachClasses);
-                        rvList.finishRefresh();
-                    }
-                });
-            }
-        }).start();
+        tabFind.performClick();
     }
 
     @Override
-    protected int getLayoutResID() {
-        return R.layout.activity_main;
+    protected void onResume() {
+        super.onResume();
+        //
     }
 
     @Override
@@ -115,14 +102,7 @@ public class MainActivity extends BaseMVPActivity<MainContract.Presenter> implem
 
     @Override
     public void complete() {
-        if (rvList.isRefreshing()) {
-            rvList.finishRefresh();
-        }
-    }
 
-    @Override
-    public void showError(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -130,25 +110,10 @@ public class MainActivity extends BaseMVPActivity<MainContract.Presenter> implem
         return new MainPresenter();
     }
 
-    @Override
-    public void onTeachClassInfo(TeachClass teachClass) {
-
-    }
-
-    private List<TeachClass> fateTeachClasses() {
-        List<TeachClass> teachClasses = new ArrayList<>();
-        TeachClass teachClass = new TeachClass();
-        teachClass.setId(1L);
-        teachClass.setStatus(1);
-        teachClass.setStudentId(1L);
-        teachClasses.add(teachClass);
-
-        TeachClass teachClass1 = new TeachClass();
-        teachClass1.setId(1L);
-        teachClass1.setStatus(2);
-        teachClass1.setStudentId(1L);
-        teachClasses.add(teachClass1);
-
-        return teachClasses;
+    private void setSelected(int index) {
+        tabFind.setSelected(0 == index);
+        tabBookShelf.setSelected(1 == index);
+        tabTeachClass.setSelected(2 == index);
+        tabMine.setSelected(3 == index);
     }
 }

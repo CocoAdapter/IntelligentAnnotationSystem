@@ -16,6 +16,17 @@
         <item name="android:gravity">center</item>
     </style>
 
+    <style name="MainTabItem" parent="AppTheme">
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="drawableWidth">25dp</item>
+        <item name="drawableHeight">25dp</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:gravity">center_horizontal</item>
+    </style>
+
     <style name="FullscreenTheme" parent="AppTheme">
         <item name="android:actionBarStyle">@style/FullscreenActionBarStyle</item>
         <item name="android:windowActionBarOverlay">true</item>

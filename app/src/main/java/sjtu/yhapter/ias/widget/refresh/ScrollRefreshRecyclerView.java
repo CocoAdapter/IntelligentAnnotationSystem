@@ -36,6 +36,8 @@ public class ScrollRefreshRecyclerView extends ScrollRefreshLayout {
 
     /**
      * 刚进入的时候不点击界面，自动刷新
+     * // TODO 有bug，如果start 和 finish 对 时间靠得太近，finish的时候会停止不了
+     * // TODO 两个runnable 被调度的先后顺序变了
      * */
     public void startRefresh(){
         mRecyclerView.post(()-> setRefreshing(true));

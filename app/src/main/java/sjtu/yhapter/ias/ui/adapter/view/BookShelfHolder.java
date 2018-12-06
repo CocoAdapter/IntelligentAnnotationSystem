@@ -1,10 +1,17 @@
 package sjtu.yhapter.ias.ui.adapter.view;
 
+import android.widget.ImageView;
+import android.widget.TextView;
+
 import sjtu.yhapter.ias.R;
+import sjtu.yhapter.ias.model.pojo.Book;
 import sjtu.yhapter.ias.model.pojo.TeachClass;
 import sjtu.yhapter.ias.ui.base.adapter.ViewHolderImpl;
+import sjtu.yhapter.reader.util.LogUtil;
 
-public class BookShelfHolder extends ViewHolderImpl<Object> {
+public class BookShelfHolder extends ViewHolderImpl<Book> {
+    private ImageView imgCover;
+    private TextView tvTitle;
 
     @Override
     protected int getItemLayoutId() {
@@ -13,11 +20,17 @@ public class BookShelfHolder extends ViewHolderImpl<Object> {
 
     @Override
     public void initView() {
-
+        imgCover = findViewById(R.id.img_cover);
+        tvTitle = findViewById(R.id.tv_title);
     }
 
     @Override
-    public void onBind(Object data, int pos) {
-
+    public void onBind(Book book, int pos) {
+        LogUtil.log(pos + ": " + book.toString());
+        tvTitle.setText(book.getTitle());
+        String coverPath = book.getCoverPath();
+        if (coverPath != null && !coverPath.equals("")) {
+            // Glide.
+        }
     }
 }

@@ -14,6 +14,8 @@ import sjtu.yhapter.reader.util.LogUtil;
 public class TeachClassHolder extends ViewHolderImpl<TeachClass> {
     private View llClassInfo;
     private View llReadList; // TODO 阅读书单加红点，如果有更新
+    private TextView tvName, tvClassInfo, tvReadList;
+    private ImageView imgStatus;
 
     @Override
     protected int getItemLayoutId() {
@@ -22,8 +24,12 @@ public class TeachClassHolder extends ViewHolderImpl<TeachClass> {
 
     @Override
     public void initView() {
+        tvName = findViewById(R.id.tv_name);
+        imgStatus = findViewById(R.id.img_status);
         llClassInfo = findViewById(R.id.ll_class_info);
         llReadList = findViewById(R.id.ll_readlist);
+        tvClassInfo = llClassInfo.findViewById(R.id.tv_class_info);
+        tvReadList = llReadList.findViewById(R.id.tv_read_list);
 
         View.OnClickListener ocl = v -> {
             switch (v.getId()) {
@@ -41,9 +47,7 @@ public class TeachClassHolder extends ViewHolderImpl<TeachClass> {
 
     @Override
     public void onBind(TeachClass data, int pos) {
-        ImageView imgStatus = findViewById(R.id.img_status);
-        TextView tvClassInfo = llClassInfo.findViewById(R.id.tv_class_info);
-        TextView tvReadList = llReadList.findViewById(R.id.tv_read_list);
+        tvName.setText(data.getName());
         if (data.getStatus() == 1) {
             Glide.with(getContext())
                     .load(R.drawable.ic_teach_class_status_waiting)
