@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.RectF;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -105,7 +106,7 @@ public class PageElement {
     public void openBook() {
         BookData bookData = new BookData();
         bookData.setId(1);
-        bookData.setPath(App.getInstance().getFilesDir().getPath() + "the_great_gatsby.txt");
+        bookData.setPath(App.getInstance().getCacheDir().getAbsolutePath() + File.separator  + "the_great_gatsby.txt");
 
         bookLoader.setBookData(bookData);
         bookLoader.openBook();

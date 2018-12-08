@@ -10,7 +10,7 @@ import android.view.ViewGroup;
  */
 
 public abstract class ViewHolderImpl<T> implements IViewHolder<T> {
-    private View view;
+    protected View view;
     private Context context;
     /****************************************************/
     protected abstract int getItemLayoutId();

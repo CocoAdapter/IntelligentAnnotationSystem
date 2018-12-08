@@ -29,6 +29,8 @@ public class Book {
     private Long id;
     private String title;
     private String author;
+    private String link;
+    private boolean isDownloaded;
     private String path;
     private String shortIntro;
     private String coverPath;
@@ -38,13 +40,16 @@ public class Book {
     // teach class related
     private Long studentId;
     private Long teachCourseId;
-    @Generated(hash = 433965162)
-    public Book(Long id, String title, String author, String path,
-            String shortIntro, String coverPath, Date createdTime, Date updatedTime,
-            Long studentId, Long teachCourseId) {
+    @Generated(hash = 528710385)
+    public Book(Long id, String title, String author, String link,
+            boolean isDownloaded, String path, String shortIntro, String coverPath,
+            Date createdTime, Date updatedTime, Long studentId,
+            Long teachCourseId) {
         this.id = id;
         this.title = title;
         this.author = author;
+        this.link = link;
+        this.isDownloaded = isDownloaded;
         this.path = path;
         this.shortIntro = shortIntro;
         this.coverPath = coverPath;
@@ -115,5 +120,17 @@ public class Book {
     }
     public void setTeachCourseId(Long teachCourseId) {
         this.teachCourseId = teachCourseId;
+    }
+    public String getLink() {
+        return this.link;
+    }
+    public void setLink(String link) {
+        this.link = link;
+    }
+    public boolean getIsDownloaded() {
+        return this.isDownloaded;
+    }
+    public void setIsDownloaded(boolean isDownloaded) {
+        this.isDownloaded = isDownloaded;
     }
 }

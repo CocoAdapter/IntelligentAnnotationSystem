@@ -89,7 +89,7 @@ public class BookShelfPresenter extends RxPresenter<BookShelfContract.View> impl
                 } catch (InterruptedException ignore) {}
 
                 List<Book> books = new ArrayList<>();
-                for (int i = 0; i < 2; i ++) {
+                for (int i = 0; i < 1; i ++) {
                     Book book = new Book();
                     book.setTitle("了不起的盖茨比 " + i);
                     book.setAuthor("弗·司各特·菲茨杰拉德");
@@ -98,6 +98,7 @@ public class BookShelfPresenter extends RxPresenter<BookShelfContract.View> impl
                     book.setUpdatedTime(nowTime);
                     book.setStudentId(1L);
                     book.setTeachCourseId((long) (i % 2));
+                    book.setLink("http://192.168.1.105:8080/download");
 
                     books.add(book);
                 }

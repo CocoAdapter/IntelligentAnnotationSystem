@@ -1,5 +1,6 @@
 package sjtu.yhapter.ias.ui.adapter.view;
 
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -7,6 +8,7 @@ import sjtu.yhapter.ias.R;
 import sjtu.yhapter.ias.model.pojo.Book;
 import sjtu.yhapter.ias.model.pojo.TeachClass;
 import sjtu.yhapter.ias.ui.base.adapter.ViewHolderImpl;
+import sjtu.yhapter.ias.util.DownloadUtils;
 import sjtu.yhapter.reader.util.LogUtil;
 
 public class BookShelfHolder extends ViewHolderImpl<Book> {
@@ -26,7 +28,6 @@ public class BookShelfHolder extends ViewHolderImpl<Book> {
 
     @Override
     public void onBind(Book book, int pos) {
-        LogUtil.log(pos + ": " + book.toString());
         tvTitle.setText(book.getTitle());
         String coverPath = book.getCoverPath();
         if (coverPath != null && !coverPath.equals("")) {

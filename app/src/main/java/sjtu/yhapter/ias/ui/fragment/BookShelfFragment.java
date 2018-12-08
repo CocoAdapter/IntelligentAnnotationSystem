@@ -5,16 +5,22 @@ import android.support.v7.widget.GridLayoutManager;
 import android.view.View;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.List;
 
+import sjtu.yhapter.ias.App;
 import sjtu.yhapter.ias.R;
+import sjtu.yhapter.ias.model.Constants;
 import sjtu.yhapter.ias.model.pojo.Book;
 import sjtu.yhapter.ias.model.pojo.TeachClass;
 import sjtu.yhapter.ias.presenter.BookShelfPresenter;
 import sjtu.yhapter.ias.presenter.contract.BookShelfContract;
+import sjtu.yhapter.ias.service.DownloadService;
 import sjtu.yhapter.ias.ui.adapter.BookShelfAdapter;
 import sjtu.yhapter.ias.ui.base.BaseMVPFragment;
+import sjtu.yhapter.ias.ui.base.adapter.BaseListAdapter;
 import sjtu.yhapter.ias.ui.dialog.BookShelfMenu;
+import sjtu.yhapter.ias.util.DownloadUtils;
 import sjtu.yhapter.ias.widget.refresh.ScrollRefreshRecyclerView;
 import sjtu.yhapter.ias.widget.refresh.divider.SpacesItemDecoration;
 import sjtu.yhapter.reader.util.LogUtil;
@@ -69,6 +75,39 @@ public class BookShelfFragment extends BaseMVPFragment<BookShelfContract.Present
         rvBooks.setOnRefreshListener(() -> {
             presenter.requestBooks(menuIndex);
         });
+        adapter.setOnItemClickListener((view, pos) -> {
+            Book book = adapter.getItem(pos);
+            DownloadUtils task = new DownloadUtils(Constants.BASE_URL, new DownloadService.DownloadListener() {
+                @Override
+                public void onStart(long totalSize) {
+                    // 还是跑在子线程， i/o线程
+                    LogUtil.log("onStart: " + totalSize);
+                }
+
+                @Override
+                public void onProgress(long currSize) {
+                    // 还是跑在子线程里的，computation线程
+                    LogUtil.log("onProgress: " + currSize);
+                }
+
+                @Override
+                public void onFail(String errorInfo) {
+                    // 主线程
+                    LogUtil.log("onError: " + errorInfo);
+                }
+
+                @Override
+                public void onFinish() {
+                    // 主线程
+                    LogUtil.log("onFinish");
+                    File file = new File(App.getInstance().getFilesDir().getPath() + "test.txt");
+                    LogUtil.log(file.exists() ? file.getAbsolutePath() : "not exist");
+                }
+            });
+            // SD卡可能不存在
+            addDisposable(task.download("/download", App.getInstance().getExternalCacheDir().getAbsolutePath() + File.separator + "test.txt"));
+        });
+
         bookShelfMenu.setOnItemClickListener(position -> {
             menuIndex = position;
             refreshByMenu(menuIndex);
