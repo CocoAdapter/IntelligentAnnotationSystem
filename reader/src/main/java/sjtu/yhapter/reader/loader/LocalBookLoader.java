@@ -20,10 +20,9 @@ public class LocalBookLoader extends BookLoader {
     public void openBook() {
         status = STATUS_PARSING;
         try {
-            // TODO 数据库根据id找到路径
-            file = new File(bookData.getPath());
-            pageParser.parse(App.getInstance().getAssets().open("the_great_gatsby.txt"), file);
-//            pageParser.parse(file);
+            file = new File(book.path());
+//            pageParser.parse(App.getInstance().getAssets().open("the_great_gatsby.txt"), file);
+            pageParser.parse(file);
             status = STATUS_PARSING_FINISHED;
             if (onPageChangeListener != null) {
                 onPageChangeListener.onChaptersLoaded(pageParser.getChapters());

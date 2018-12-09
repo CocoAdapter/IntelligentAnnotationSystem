@@ -2,10 +2,29 @@ package sjtu.yhapter.ias.service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
-public class DownloadService extends Service {
+import java.util.List;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import sjtu.yhapter.ias.RxBus;
+import sjtu.yhapter.ias.model.Constants;
+import sjtu.yhapter.ias.model.pojo.DownloadTask;
+import sjtu.yhapter.ias.model.remote.download.DownloadListener;
+import sjtu.yhapter.ias.ui.base.BaseService;
+import sjtu.yhapter.ias.util.DownloadUtils;
+import sjtu.yhapter.reader.util.LogUtil;
+
+public class DownloadService extends BaseService {
+    public static final int STATUS_WAIT = 0;
+    public static final int STATUS_DOWNLOADING = 1;
+    public static final int STATUS_PAUSE = 2;
+    public static final int STATUS_FINISH = 3;
+    public static final int STATUS_ERROR = 4;
+
 
     @Override
     public void onCreate() {
@@ -15,31 +34,47 @@ public class DownloadService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+
         return null;
     }
 
-    public interface DownloadListener {
-        /**
-         * called when the download start
-         * @param totalSize total size of the file to be downloaded
-         */
-        void onStart(long totalSize);
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        // 主线程上
+        LogUtil.log("onStartCommand");
+        Disposable downloadDisp = RxBus.getInstance().toObservable(DownloadTask.class)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(event -> {
+                    DownloadUtils task = new DownloadUtils(Constants.BOOK_DOWNLOAD_BASE_URL, event.getDownloadListener());
+                    addDisposable(task.download(event.getLink(), event.getLocalPath()));
+                });
+        addDisposable(downloadDisp);
 
-        /**
-         * called when the current already downloaded size is updated
-         * @param currSize the current downloaded size
-         */
-        void onProgress(long currSize);
+        return super.onStartCommand(intent, flags, startId);
+    }
 
-        /**
-         * called when the download is failed, which means the onFinish() will never be called
-         * @param errorInfo error info
-         */
-        void onFail(String errorInfo);
+    class TaskBuilder extends Binder implements DownloadManager {
+        @Override
+        public List<DownloadTask> getDownloadTasks() {
+            return null;
+        }
 
-        /**
-         * called when the download is finished with no error
-         */
-        void onFinish();
+        @Override
+        public void setOnDownloadListener(int position, DownloadListener downloadListener) {
+
+        }
+
+        @Override
+        public void setStatus(int position, int status) {
+
+        }
+    }
+
+    public interface DownloadManager {
+        List<DownloadTask> getDownloadTasks();
+
+        void setOnDownloadListener(int position, DownloadListener downloadListener);
+
+        void setStatus(int position, int status);
     }
 }

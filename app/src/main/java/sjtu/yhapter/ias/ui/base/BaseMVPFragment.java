@@ -9,12 +9,14 @@ public abstract class BaseMVPFragment<T extends BaseContract.BasePresenter> exte
     @Override
     protected void processLogic() {
         presenter = bindPresenter();
-        presenter.attachView(this);
+        if (presenter != null)
+            presenter.attachView(this);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        presenter.detachView();
+        if (presenter != null)
+            presenter.detachView();
     }
 }

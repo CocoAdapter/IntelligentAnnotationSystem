@@ -1,12 +1,14 @@
 package sjtu.yhapter.ias;
 
 import android.app.Application;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 
 import sjtu.yhapter.common.IModuleApplication;
 import sjtu.yhapter.ias.model.dao.DaoMaster;
 import sjtu.yhapter.ias.model.dao.DaoSession;
 import sjtu.yhapter.ias.model.pojo.Student;
+import sjtu.yhapter.ias.service.DownloadService;
 import sjtu.yhapter.reader.util.LogUtil;
 
 public class App extends Application {
@@ -34,6 +36,9 @@ public class App extends Application {
         student.setStudentId("123456789");
 
         getDaoInstant().getStudentDao().insertOrReplaceInTx(student);
+
+        // start DownloadService
+        startService(new Intent(getInstance(), DownloadService.class));
     }
 
     private void setupDatabase(){

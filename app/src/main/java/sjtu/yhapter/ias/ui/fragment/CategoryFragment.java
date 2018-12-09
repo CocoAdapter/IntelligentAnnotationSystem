@@ -11,6 +11,7 @@ import android.widget.ListView;
 import java.util.List;
 
 import sjtu.yhapter.ias.R;
+import sjtu.yhapter.ias.presenter.CategoryPresenter;
 import sjtu.yhapter.ias.presenter.contract.CategoryContract;
 import sjtu.yhapter.ias.ui.activity.ReadActivity;
 import sjtu.yhapter.ias.ui.adapter.CategoryAdapter;
@@ -78,7 +79,7 @@ public class CategoryFragment extends BaseMVPFragment<CategoryContract.Presenter
 
     @Override
     protected CategoryContract.Presenter bindPresenter() {
-        return null;
+        return new CategoryPresenter();
     }
 
     @Override

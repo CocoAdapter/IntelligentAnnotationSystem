@@ -6,7 +6,7 @@ import java.util.List;
 import io.reactivex.disposables.Disposable;
 import sjtu.yhapter.reader.loader.parser.PageParser;
 import sjtu.yhapter.reader.loader.parser.TxtPageParser;
-import sjtu.yhapter.reader.model.pojo.BookData;
+import sjtu.yhapter.reader.model.pojo.Book;
 import sjtu.yhapter.reader.model.pojo.ChapterData;
 import sjtu.yhapter.reader.model.pojo.ReadingRecord;
 
@@ -25,7 +25,7 @@ public abstract class BookLoader {
     protected int currChapterIndex;
     protected int lastChapterIndex;
 
-    protected BookData bookData;
+    protected Book book;
     protected ReadingRecord readingRecord;
 
     protected OnPreLoadingListener onPreLoadingListener;
@@ -34,8 +34,8 @@ public abstract class BookLoader {
 
     protected OnPageChangeListener onPageChangeListener;
 
-    public void setBookData(BookData bookData) {
-        this.bookData = bookData;
+    public void setBookData(Book book) {
+        this.book = book;
         // TODO 数据库中查
         readingRecord = new ReadingRecord();
         currChapterIndex = readingRecord.getChapterIndex();

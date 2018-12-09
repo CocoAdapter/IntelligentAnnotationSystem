@@ -1,5 +1,7 @@
 package sjtu.yhapter.ias.ui.fragment;
 
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.view.View;
@@ -13,9 +15,11 @@ import sjtu.yhapter.ias.R;
 import sjtu.yhapter.ias.model.Constants;
 import sjtu.yhapter.ias.model.pojo.Book;
 import sjtu.yhapter.ias.model.pojo.TeachClass;
+import sjtu.yhapter.ias.model.remote.download.DownloadListener;
 import sjtu.yhapter.ias.presenter.BookShelfPresenter;
 import sjtu.yhapter.ias.presenter.contract.BookShelfContract;
 import sjtu.yhapter.ias.service.DownloadService;
+import sjtu.yhapter.ias.ui.activity.ReadActivity;
 import sjtu.yhapter.ias.ui.adapter.BookShelfAdapter;
 import sjtu.yhapter.ias.ui.base.BaseMVPFragment;
 import sjtu.yhapter.ias.ui.base.adapter.BaseListAdapter;
@@ -33,6 +37,9 @@ public class BookShelfFragment extends BaseMVPFragment<BookShelfContract.Present
 
     private BookShelfAdapter adapter;
     private long menuIndex;
+
+    private ServiceConnection conn;
+    private DownloadService.DownloadManager service;
 
     @Override
     protected BookShelfContract.Presenter bindPresenter() {
@@ -77,35 +84,19 @@ public class BookShelfFragment extends BaseMVPFragment<BookShelfContract.Present
         });
         adapter.setOnItemClickListener((view, pos) -> {
             Book book = adapter.getItem(pos);
-            DownloadUtils task = new DownloadUtils(Constants.BASE_URL, new DownloadService.DownloadListener() {
-                @Override
-                public void onStart(long totalSize) {
-                    // 还是跑在子线程， i/o线程
-                    LogUtil.log("onStart: " + totalSize);
-                }
-
-                @Override
-                public void onProgress(long currSize) {
-                    // 还是跑在子线程里的，computation线程
-                    LogUtil.log("onProgress: " + currSize);
-                }
-
-                @Override
-                public void onFail(String errorInfo) {
-                    // 主线程
-                    LogUtil.log("onError: " + errorInfo);
-                }
-
-                @Override
-                public void onFinish() {
-                    // 主线程
-                    LogUtil.log("onFinish");
-                    File file = new File(App.getInstance().getFilesDir().getPath() + "test.txt");
-                    LogUtil.log(file.exists() ? file.getAbsolutePath() : "not exist");
-                }
-            });
-            // SD卡可能不存在
-            addDisposable(task.download("/download", App.getInstance().getExternalCacheDir().getAbsolutePath() + File.separator + "test.txt"));
+            LogUtil.log(book.getDownloadTask().toString());
+            // 首先判断是不是download/pause, 是的话 换状态
+            if (book.getDownloadTask().getStatus() == DownloadService.STATUS_FINISH) {
+                // local file found, try to read from local
+                Intent intent = new Intent(getActivity(), ReadActivity.class);
+                intent.putExtra("book", book);
+                startActivity(intent);
+            } else {
+                LogUtil.log("local not found");
+                // 这里还不知道是不是下载，可能是暂停
+                // 不是local 的话, 可能正在下载 -》 暂停 ； 暂停 -》 继续下载
+                presenter.downloadBook(pos, book);
+            }
         });
 
         bookShelfMenu.setOnItemClickListener(position -> {
@@ -129,6 +120,7 @@ public class BookShelfFragment extends BaseMVPFragment<BookShelfContract.Present
     @Override
     protected void processLogic() {
         super.processLogic();
+        presenter.requestMenu(); // init loading menu
         refreshByMenu(BookShelfMenu.ID_RECENTLY_READ); // init loading
     }
 
@@ -151,8 +143,15 @@ public class BookShelfFragment extends BaseMVPFragment<BookShelfContract.Present
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
         if (!hidden) {
-            LogUtil.log("onResume");
             presenter.requestMenu(); // refresh teach classes info
         }
+    }
+
+    @Override
+    public void onDownloadStatusUpdate(int pos, boolean post) {
+        if (post)
+            getActivity().runOnUiThread(() -> adapter.notifyItemChanged(pos));
+        else
+            adapter.notifyItemChanged(pos);
     }
 }

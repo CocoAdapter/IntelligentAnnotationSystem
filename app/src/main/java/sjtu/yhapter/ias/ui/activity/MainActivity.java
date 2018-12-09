@@ -92,7 +92,6 @@ public class MainActivity extends BaseFragmentActivity<MainContract.Presenter> i
     @Override
     protected void onResume() {
         super.onResume();
-        //
     }
 
     @Override

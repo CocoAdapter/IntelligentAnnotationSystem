@@ -26,12 +26,14 @@ public class TeachClassPresenter extends RxPresenter<TeachClassContract.View> im
 
             List<TeachClass> teachClasses = new ArrayList<>();
             TeachClass teachClass = new TeachClass();
+            teachClass.setId(1L);
             teachClass.setName("计算机系统原理");
             teachClass.setStatus(1);
             teachClass.setStudentId(userId);
             teachClasses.add(teachClass);
 
             TeachClass teachClass1 = new TeachClass();
+            teachClass1.setId(2L);
             teachClass1.setName("学术英语");
             teachClass1.setStatus(2);
             teachClass1.setStudentId(userId);
@@ -71,7 +73,7 @@ public class TeachClassPresenter extends RxPresenter<TeachClassContract.View> im
 
             TeachClass teachClass1 = new TeachClass();
             teachClass1.setName("过程建模及优化");
-            teachClass1.setId(1L);
+            teachClass1.setId(3L);
             teachClass1.setStatus(1);
             teachClass1.setStudentId(userId);
 

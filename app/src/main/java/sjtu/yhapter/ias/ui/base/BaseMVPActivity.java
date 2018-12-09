@@ -14,12 +14,14 @@ public abstract class BaseMVPActivity<T extends BaseContract.BasePresenter> exte
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        presenter.detachView();
+        if (presenter != null)
+            presenter.detachView();
     }
 
     @SuppressWarnings("unchecked")
     private void attachView(T presenter){
         this.presenter = presenter;
-        presenter.attachView(this);
+        if (presenter != null)
+            presenter.attachView(this);
     }
 }

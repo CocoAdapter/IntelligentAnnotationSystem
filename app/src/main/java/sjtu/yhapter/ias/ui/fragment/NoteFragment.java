@@ -2,6 +2,8 @@ package sjtu.yhapter.ias.ui.fragment;
 
 import android.os.Bundle;
 
+import sjtu.yhapter.ias.R;
+import sjtu.yhapter.ias.presenter.NotePresenter;
 import sjtu.yhapter.ias.presenter.contract.NoteContract;
 import sjtu.yhapter.ias.ui.base.BaseMVPFragment;
 
@@ -12,7 +14,7 @@ import sjtu.yhapter.ias.ui.base.BaseMVPFragment;
 public class NoteFragment extends BaseMVPFragment<NoteContract.Presenter> implements NoteContract.View {
     @Override
     protected NoteContract.Presenter bindPresenter() {
-        return null;
+        return new NotePresenter();
     }
 
     @Override
@@ -27,7 +29,7 @@ public class NoteFragment extends BaseMVPFragment<NoteContract.Presenter> implem
 
     @Override
     protected int getLayoutResID() {
-        return 0;
+        return R.layout.frgm_note;
     }
 
     @Override

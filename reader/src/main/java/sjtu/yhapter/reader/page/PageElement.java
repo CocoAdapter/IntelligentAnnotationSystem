@@ -15,12 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.Observer;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 import io.reactivex.SingleObserver;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -30,7 +25,7 @@ import sjtu.yhapter.reader.App;
 import sjtu.yhapter.reader.loader.BookLoader;
 import sjtu.yhapter.reader.loader.LocalBookLoader;
 import sjtu.yhapter.reader.model.pojo.Annotation;
-import sjtu.yhapter.reader.model.pojo.BookData;
+import sjtu.yhapter.reader.model.pojo.Book;
 import sjtu.yhapter.reader.model.pojo.ChapterData;
 import sjtu.yhapter.reader.model.pojo.LineData;
 import sjtu.yhapter.reader.model.pojo.PageData;
@@ -103,12 +98,8 @@ public class PageElement {
         currChapterIndex = 0;
     }
 
-    public void openBook() {
-        BookData bookData = new BookData();
-        bookData.setId(1);
-        bookData.setPath(App.getInstance().getCacheDir().getAbsolutePath() + File.separator  + "the_great_gatsby.txt");
-
-        bookLoader.setBookData(bookData);
+    public void openBook(Book book) {
+        bookLoader.setBookData(book);
         bookLoader.openBook();
     }
 
@@ -280,6 +271,7 @@ public class PageElement {
 
             } else {
                 // 前一章为空 ？？ 为什么会出现这种情况
+                // TODO 出现了
                 LogUtil.log(this, "前一章为空 ？？ 为什么会出现这种情况");
             }
         } else if (currChapterIndex < lastChapterIndex) {

@@ -3,6 +3,7 @@ package sjtu.yhapter.ias.ui.activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
@@ -24,6 +25,7 @@ import sjtu.yhapter.ias.ui.fragment.CategoryFragment;
 import sjtu.yhapter.ias.ui.fragment.HotLineFragment;
 import sjtu.yhapter.ias.ui.fragment.NoteFragment;
 import sjtu.yhapter.reader.loader.BookLoader;
+import sjtu.yhapter.reader.model.pojo.Book;
 import sjtu.yhapter.reader.model.pojo.ChapterData;
 import sjtu.yhapter.reader.page.PageElement;
 import sjtu.yhapter.reader.reader.ReaderView;
@@ -37,7 +39,6 @@ public class ReadActivity extends BaseMVPActivity<ReadContract.Presenter> implem
     private DrawerLayout drawer;
     private ReaderView readerView;
     private TabLayout tab;
-
     private View topMenu, bottomMenu;
     private ImageView imgBack;
     private ImageView imgMenu, imgProgress, imgNight, imgFont;
@@ -45,8 +46,8 @@ public class ReadActivity extends BaseMVPActivity<ReadContract.Presenter> implem
     private Animation animTopIn, animTopOut, animBottomIn, animBottomOut;
 
     private Fragment[] drawerFragments;
-
     private PageElement pageElement;
+    private Book book;
 
     @Override
     public void onBackPressed() {
@@ -87,6 +88,8 @@ public class ReadActivity extends BaseMVPActivity<ReadContract.Presenter> implem
         animTopOut = AnimationUtils.loadAnimation(ReadActivity.this, R.anim.read_menu_top_exit);
         animBottomIn = AnimationUtils.loadAnimation(ReadActivity.this, R.anim.read_menu_bottom_enter);
         animBottomOut = AnimationUtils.loadAnimation(ReadActivity.this, R.anim.read_menu_bottom_exit);
+
+        book = getIntent().getParcelableExtra("book");
     }
 
     @Override
@@ -138,7 +141,7 @@ public class ReadActivity extends BaseMVPActivity<ReadContract.Presenter> implem
         View.OnClickListener ocl = v -> {
             switch (v.getId()) {
                 case R.id.img_back:
-                    onBackClick();
+                    finish();
                     break;
                 case R.id.img_menu:
                     drawer.openDrawer(Gravity.START);
@@ -214,11 +217,16 @@ public class ReadActivity extends BaseMVPActivity<ReadContract.Presenter> implem
     @Override
     protected void processLogic() {
         super.processLogic();
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
 
-        pageElement.openBook();
+        pageElement.openBook(book);
     }
 
     private void toggleMenu(boolean isOpen) {
+        // TODO 增删状态栏会触发触发ReaderView on Size Changed
+        // TODO 微信的状态栏似乎是画在自己定制的View上的
+//        getWindow().getDecorView().setSystemUiVisibility(isOpen ?
+//                View.SYSTEM_UI_FLAG_VISIBLE : View.SYSTEM_UI_FLAG_FULLSCREEN);
         isMenuShowing = isOpen;
         topMenu.setEnabled(isOpen);
         bottomMenu.setEnabled(isOpen);

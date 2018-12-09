@@ -2,6 +2,8 @@ package sjtu.yhapter.ias.ui.fragment;
 
 import android.os.Bundle;
 
+import sjtu.yhapter.ias.R;
+import sjtu.yhapter.ias.presenter.HotLinePresenter;
 import sjtu.yhapter.ias.presenter.contract.HotLineContract;
 import sjtu.yhapter.ias.ui.base.BaseMVPFragment;
 
@@ -12,7 +14,7 @@ import sjtu.yhapter.ias.ui.base.BaseMVPFragment;
 public class HotLineFragment extends BaseMVPFragment<HotLineContract.Presenter> implements HotLineContract.View {
     @Override
     protected HotLineContract.Presenter bindPresenter() {
-        return null;
+        return new HotLinePresenter();
     }
 
     @Override
@@ -27,7 +29,7 @@ public class HotLineFragment extends BaseMVPFragment<HotLineContract.Presenter> 
 
     @Override
     protected int getLayoutResID() {
-        return 0;
+        return R.layout.frgm_hotline;
     }
 
     @Override
