@@ -15,7 +15,7 @@ public class Annotation {
 
     // id
     @Id(autoincrement = true)
-    private long id;
+    private Long id;
     // book id
     private long bookId;
     // chapter id
@@ -35,8 +35,8 @@ public class Annotation {
     // additional note, nullable
     private String note;
 
-    @Generated(hash = 1810896761)
-    public Annotation(long id, long bookId, long chapterId, long startIndex,
+    @Generated(hash = 794746748)
+    public Annotation(Long id, long bookId, long chapterId, long startIndex,
             long endIndex, String content, String type, Date date, long userId,
             String note) {
         this.id = id;
@@ -55,12 +55,8 @@ public class Annotation {
     public Annotation() {
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public long getBookId() {
@@ -144,7 +140,7 @@ public class Annotation {
     public boolean equals(Object obj) {
         if (obj instanceof Annotation) {
             Annotation other = (Annotation) obj;
-            return this.id == other.id;
+            return this.id.equals(other.id);
         }
 
         return false;
@@ -164,5 +160,9 @@ public class Annotation {
                 ", userId=" + userId +
                 ", note='" + note + '\'' +
                 '}';
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

@@ -295,8 +295,7 @@ public class PageElement {
         if (annotation == null)
             return;
 
-        LogUtil.log(annotation.toString());
-        App.getDaoInstant().getAnnotationDao().insertOrReplaceInTx(annotation);
+        App.getDaoInstant().getAnnotationDao().saveInTx(annotation);
     }
 
     public void delAnnotation(Annotation annotation) {

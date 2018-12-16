@@ -24,7 +24,7 @@ public class AnnotationDao extends AbstractDao<Annotation, Long> {
      * Can be used for QueryBuilder and for referencing column names.
      */
     public static class Properties {
-        public final static Property Id = new Property(0, long.class, "id", true, "_id");
+        public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property BookId = new Property(1, long.class, "bookId", false, "BOOK_ID");
         public final static Property ChapterId = new Property(2, long.class, "chapterId", false, "CHAPTER_ID");
         public final static Property StartIndex = new Property(3, long.class, "startIndex", false, "START_INDEX");
@@ -49,7 +49,7 @@ public class AnnotationDao extends AbstractDao<Annotation, Long> {
     public static void createTable(Database db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"ANNOTATION\" (" + //
-                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL ," + // 0: id
+                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"BOOK_ID\" INTEGER NOT NULL ," + // 1: bookId
                 "\"CHAPTER_ID\" INTEGER NOT NULL ," + // 2: chapterId
                 "\"START_INDEX\" INTEGER NOT NULL ," + // 3: startIndex
@@ -70,7 +70,11 @@ public class AnnotationDao extends AbstractDao<Annotation, Long> {
     @Override
     protected final void bindValues(DatabaseStatement stmt, Annotation entity) {
         stmt.clearBindings();
-        stmt.bindLong(1, entity.getId());
+ 
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
         stmt.bindLong(2, entity.getBookId());
         stmt.bindLong(3, entity.getChapterId());
         stmt.bindLong(4, entity.getStartIndex());
@@ -101,7 +105,11 @@ public class AnnotationDao extends AbstractDao<Annotation, Long> {
     @Override
     protected final void bindValues(SQLiteStatement stmt, Annotation entity) {
         stmt.clearBindings();
-        stmt.bindLong(1, entity.getId());
+ 
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
         stmt.bindLong(2, entity.getBookId());
         stmt.bindLong(3, entity.getChapterId());
         stmt.bindLong(4, entity.getStartIndex());
@@ -131,13 +139,13 @@ public class AnnotationDao extends AbstractDao<Annotation, Long> {
 
     @Override
     public Long readKey(Cursor cursor, int offset) {
-        return cursor.getLong(offset + 0);
+        return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
     }    
 
     @Override
     public Annotation readEntity(Cursor cursor, int offset) {
         Annotation entity = new Annotation( //
-            cursor.getLong(offset + 0), // id
+            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.getLong(offset + 1), // bookId
             cursor.getLong(offset + 2), // chapterId
             cursor.getLong(offset + 3), // startIndex
@@ -153,7 +161,7 @@ public class AnnotationDao extends AbstractDao<Annotation, Long> {
      
     @Override
     public void readEntity(Cursor cursor, Annotation entity, int offset) {
-        entity.setId(cursor.getLong(offset + 0));
+        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setBookId(cursor.getLong(offset + 1));
         entity.setChapterId(cursor.getLong(offset + 2));
         entity.setStartIndex(cursor.getLong(offset + 3));
@@ -182,7 +190,7 @@ public class AnnotationDao extends AbstractDao<Annotation, Long> {
 
     @Override
     public boolean hasKey(Annotation entity) {
-        throw new UnsupportedOperationException("Unsupported for entities with a non-null key");
+        return entity.getId() != null;
     }
 
     @Override
