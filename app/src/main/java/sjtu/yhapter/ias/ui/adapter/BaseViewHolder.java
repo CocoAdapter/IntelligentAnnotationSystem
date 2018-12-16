@@ -5,6 +5,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+/**
+ * 与ui.base包下的类重复了，重构时删去
+ * @param <T>
+ */
+@Deprecated
 public abstract class BaseViewHolder<T> implements BaseAdapter.IViewHolder<T> {
     private View view;
     private Context context;

@@ -9,20 +9,12 @@ import java.io.BufferedReader;
  */
 public abstract class ChapterData implements Parcelable {
     protected long id;
-    protected long bookId;
     protected String title;
-
-    // TODO 只有分页后才知道
-    protected int pageStartIndex;
-    protected int pageEndIndex;
 
     public long getId() {
         return id;
     }
 
-    public long getBookId() {
-        return bookId;
-    }
 
     public String getTitle() {
         return title;
@@ -30,10 +22,6 @@ public abstract class ChapterData implements Parcelable {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public void setBookId(long bookId) {
-        this.bookId = bookId;
     }
 
     public void setTitle(String title) {

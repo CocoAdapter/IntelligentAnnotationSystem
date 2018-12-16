@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.Gravity;
 
+import sjtu.yhapter.reader.App;
 import sjtu.yhapter.reader.animation.PageAnimationMode;
 import sjtu.yhapter.reader.model.pojo.Annotation;
 import sjtu.yhapter.reader.util.ScreenUtil;
@@ -126,6 +127,10 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
 
     public PageElement getPageElement() {
         return pageElement;
+    }
+
+    public void setUserId(long uid) {
+        App.USER_ID = uid;
     }
 
     @Override

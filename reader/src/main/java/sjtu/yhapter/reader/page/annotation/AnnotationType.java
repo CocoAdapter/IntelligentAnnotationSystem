@@ -6,5 +6,5 @@ package sjtu.yhapter.reader.page.annotation;
 
 public enum AnnotationType {
 
-    FILL, NORMAL, WAVE
+    FILL, NORMAL, WAVE, IDEA
 }

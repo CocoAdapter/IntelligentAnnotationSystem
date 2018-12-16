@@ -4,6 +4,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.RectF;
 
+import org.greenrobot.greendao.query.WhereCondition;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.util.ArrayList;
@@ -14,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.DoubleAccumulator;
 
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
@@ -24,6 +27,7 @@ import io.reactivex.schedulers.Schedulers;
 import sjtu.yhapter.reader.App;
 import sjtu.yhapter.reader.loader.BookLoader;
 import sjtu.yhapter.reader.loader.LocalBookLoader;
+import sjtu.yhapter.reader.model.dao.AnnotationDao;
 import sjtu.yhapter.reader.model.pojo.Annotation;
 import sjtu.yhapter.reader.model.pojo.Book;
 import sjtu.yhapter.reader.model.pojo.ChapterData;
@@ -74,9 +78,6 @@ public class PageElement {
 
     private int lastChapterIndex;
 
-    // annotation
-    private Map<PageData, Set<Annotation>> pageAnnotationMap;
-
     private Disposable loadDisp;
     private Disposable preLoadPreDisp, preLoadNextDisp;
 
@@ -87,7 +88,6 @@ public class PageElement {
 
         // data init
         currChapterPages = new ArrayList<>();
-        pageAnnotationMap = new HashMap<>();
 
         // UI init
         statusElement = new StatusElement();
@@ -131,7 +131,6 @@ public class PageElement {
         }, pageData -> {
             readerView.postInvalidate();
         });
-
     }
 
     public PageData getCurrPage() {
@@ -296,20 +295,15 @@ public class PageElement {
         if (annotation == null)
             return;
 
-        // TODO fake init
-        if (annotation.getId() == 0)
-            annotation.setId(count.getAndIncrement());
-
-        annotations.add(annotation);
-        pageAnnotationMap.get(currPage).add(annotation);
+        LogUtil.log(annotation.toString());
+        App.getDaoInstant().getAnnotationDao().insertOrReplaceInTx(annotation);
     }
 
     public void delAnnotation(Annotation annotation) {
         if (annotation == null)
             return;
 
-        annotations.remove(annotation);
-        pageAnnotationMap.get(currPage).remove(annotation);
+        App.getDaoInstant().getAnnotationDao().delete(annotation);
     }
 
     /**
@@ -358,27 +352,44 @@ public class PageElement {
         });
     }
 
-    private Set<Annotation> getAnnotationsOfPage(PageData pageData) {
-        if (annotations == null || annotations.isEmpty())
-            return null;
-
-        List<Annotation> annotations = new ArrayList<>();
-
-        // getSelectLines
-        long charStart = pageData.lines.get(0).getChars().get(0).chapterIndex;
+    /**
+     * @param bookId bookId
+     * @param chapterId chapterId
+     * @param pageData pageData
+     * @return not-null set of annotations in the pageData, may be empty.
+     */
+    private Set<Annotation> getAnnotationsOfPage(long bookId, long chapterId, PageData pageData) {
+        // get the start and end char index of curr page in chapter data
+        long charStart, charEnd;
+        charStart = pageData.lines.get(0).getChars().get(0).chapterIndex;
         List<PointChar> tem = pageData.lines.get(pageData.lines.size() - 1).getChars();
-        long charEnd = tem.get(tem.size() - 1).chapterIndex;
+        charEnd = tem.get(tem.size() - 1).chapterIndex;
 
-        Collections.sort(annotations, (o1, o2) -> (int) (o1.getStartIndex() - o2.getStartIndex()));
-        for (Annotation annotation : annotations) {
-            if (annotation.getStartIndex() < charStart)
-                continue;
-            if (annotation.getStartIndex() <= charEnd) {
-                annotations.add(annotation);
-            } else
-                break;
+        // get those annotations between start and end index
+        AnnotationDao dao = App.getDaoInstant().getAnnotationDao();
+        // TODO test
+        List<Annotation> all = dao.loadAll();
+        LogUtil.log("-----ALL");
+        for (Annotation annotation : all) {
+            LogUtil.log(annotation.toString());
         }
+        LogUtil.log("-----ALL");
 
+        List<Annotation> annotations = dao
+                .queryBuilder()
+                .where(
+                        AnnotationDao.Properties.BookId.eq(bookId),
+                        AnnotationDao.Properties.ChapterId.eq(chapterId),
+                        AnnotationDao.Properties.StartIndex.ge(charStart),
+                        AnnotationDao.Properties.EndIndex.le(charEnd))
+                .orderAsc(AnnotationDao.Properties.StartIndex)
+                .list();
+        // TODO test
+        LogUtil.log("-----MATCH");
+        for (Annotation annotation : annotations) {
+            LogUtil.log(annotation.toString());
+        }
+        LogUtil.log("-----MATCH");
         return new HashSet<>(annotations);
     }
 
@@ -396,12 +407,8 @@ public class PageElement {
 
         footerElement.setTotalPageNum(currChapterPages.size());
         footerElement.draw(canvas, currPage);
-
-        if (pageAnnotationMap.get(currPage) == null) {
-            Set<Annotation> annotations = getAnnotationsOfPage(currPage);
-            pageAnnotationMap.put(currPage, annotations);
-        }
-        lineElement.setAnnotations(pageAnnotationMap.get(currPage));
+        // 这里把当前页的annotations给了lineElement
+        lineElement.setAnnotations(getAnnotationsOfPage(bookLoader.getBookId(), currChapterIndex, currPage));
         lineElement.draw(canvas, currPage);
     }
 
@@ -416,7 +423,7 @@ public class PageElement {
         status = STATUS_LOADING;
 
         abortPreLoadChapter();
-        if (loadDisp != null && !loadDisp.isDisposed())
+        if (loadDisp != null)
             loadDisp.dispose();
 
         Single.create((SingleOnSubscribe<BufferedReader>) emitter -> {
@@ -485,8 +492,8 @@ public class PageElement {
                     if (contentHeight <= 0) {
                         PageData pageData = new PageData();
                         // TODO
-                        pageData.bookId = 1;
-                        pageData.chapterId = 1;
+                        pageData.bookId = bookLoader.getBookId();
+                        pageData.chapterId = chapter.getId();
                         pageData.title = chapter.getTitle();
                         pageData.position = pages.size();
                         pageData.lines = new ArrayList<>(lines);
@@ -537,9 +544,6 @@ public class PageElement {
             IOUtil.close(br);
         }
     }
-
-    private Set<Annotation> annotations = new HashSet<>();
-    private AtomicInteger count = new AtomicInteger(1);
 
     private void abortPreLoadChapter() {
         if (preLoadPreDisp != null && !preLoadPreDisp.isDisposed())

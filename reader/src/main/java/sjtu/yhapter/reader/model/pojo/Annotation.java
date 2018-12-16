@@ -1,14 +1,20 @@
 package sjtu.yhapter.reader.model.pojo;
 
+import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Id;
+
 import java.util.Date;
+import org.greenrobot.greendao.annotation.Generated;
 
 /**
  * Created by CocoAdapter on 2018/11/24.
  */
 
+@Entity
 public class Annotation {
 
     // id
+    @Id(autoincrement = true)
     private long id;
     // book id
     private long bookId;
@@ -28,6 +34,26 @@ public class Annotation {
     private long userId;
     // additional note, nullable
     private String note;
+
+    @Generated(hash = 1810896761)
+    public Annotation(long id, long bookId, long chapterId, long startIndex,
+            long endIndex, String content, String type, Date date, long userId,
+            String note) {
+        this.id = id;
+        this.bookId = bookId;
+        this.chapterId = chapterId;
+        this.startIndex = startIndex;
+        this.endIndex = endIndex;
+        this.content = content;
+        this.type = type;
+        this.date = date;
+        this.userId = userId;
+        this.note = note;
+    }
+
+    @Generated(hash = 1426594540)
+    public Annotation() {
+    }
 
     public long getId() {
         return id;
@@ -116,7 +142,7 @@ public class Annotation {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj != null && obj instanceof Annotation) {
+        if (obj instanceof Annotation) {
             Annotation other = (Annotation) obj;
             return this.id == other.id;
         }
@@ -134,6 +160,9 @@ public class Annotation {
                 ", endIndex=" + endIndex +
                 ", content='" + content + '\'' +
                 ", type='" + type + '\'' +
+                ", date=" + date +
+                ", userId=" + userId +
+                ", note='" + note + '\'' +
                 '}';
     }
 }

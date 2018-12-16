@@ -43,7 +43,6 @@ public class TxtChapterData extends ChapterData {
                 "startIndex=" + startIndex +
                 ", endIndex=" + endIndex +
                 ", id=" + id +
-                ", bookId=" + bookId +
                 ", title='" + title + '\'' +
                 '}';
     }
@@ -56,7 +55,6 @@ public class TxtChapterData extends ChapterData {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(id);
-        dest.writeLong(bookId);
         dest.writeString(title);
         dest.writeLong(startIndex);
         dest.writeLong(endIndex);
@@ -76,7 +74,6 @@ public class TxtChapterData extends ChapterData {
 
     private TxtChapterData(Parcel in) {
         id = in.readLong();
-        bookId = in.readLong();
         title = in.readString();
         startIndex = in.readLong();
         endIndex = in.readLong();

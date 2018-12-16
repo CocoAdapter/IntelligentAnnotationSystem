@@ -109,8 +109,6 @@ public class BookShelfPresenter extends RxPresenter<BookShelfContract.View> impl
                     book.setPath(FileUtils.getCachePath() + File.separator + book.getId());
 
                     DownloadTask task = App.getDaoInstant().getDownloadTaskDao().load(book.getId());
-                    if (task != null)
-                        LogUtil.log(task.toString());
                     if (task == null) {
                         task = new DownloadTask();
                         task.setId(book.getId()); // 这里可能ID冲突，还是加个前缀比较好
@@ -168,7 +166,6 @@ public class BookShelfPresenter extends RxPresenter<BookShelfContract.View> impl
 
                     @Override
                     public void onSuccess(List<TeachClass> teachClasses) {
-                        LogUtil.log(teachClasses.toString());
                         view.onRequestMenu(teachClasses);
                     }
 

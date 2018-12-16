@@ -7,6 +7,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * 与ui.base包下的类重复了，重构时删去
+ * @param <T>
+ */
+@Deprecated
 public abstract class BaseAdapter<T> extends android.widget.BaseAdapter {
     private List<T> data = new ArrayList<>();
 

@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 
+import java.util.Date;
+
 import sjtu.yhapter.reader.App;
 import sjtu.yhapter.reader.R;
 import sjtu.yhapter.reader.model.pojo.Annotation;
@@ -146,8 +148,10 @@ public class AnnotationMenu extends PopupWindow {
                     annotation.setContent(content);
                     annotation.setStartIndex(startIndex);
                     annotation.setEndIndex(endIndex);
+                    annotation.setDate(new Date());
+                    annotation.setUserId(App.USER_ID);
+                    annotation.setNote(null);
                     annotation.setType(AnnotationType.FILL.name());
-                    // TODO
                     // draw Annotation
                     if (annotationListener != null)
                         annotationListener.onAnnotationDraw(annotation);

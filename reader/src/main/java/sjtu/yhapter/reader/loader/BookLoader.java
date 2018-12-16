@@ -50,6 +50,10 @@ public abstract class BookLoader {
         return pageParser.getChapters();
     }
 
+    public Long getBookId() {
+        return book.id();
+    }
+
     public BufferedReader getChapterReader(int chapterIndex) {
         if (status != STATUS_PARSING_FINISHED)
             return null;

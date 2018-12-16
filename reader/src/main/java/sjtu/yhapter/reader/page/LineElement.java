@@ -12,6 +12,7 @@ import android.text.TextPaint;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 import sjtu.yhapter.reader.model.pojo.Annotation;
 import sjtu.yhapter.reader.model.pojo.LineData;
@@ -88,6 +89,10 @@ public class LineElement extends BasePageElement {
     public void resetParse() {
         chapterIndex = 0;
     }
+
+//    public List<LineData> measureLineData(Stream<String> lines) {
+//
+//    }
 
     // TODO 把baseline 暴露给上层，就可以线程安全
     public LineData measureLineData(String str) {

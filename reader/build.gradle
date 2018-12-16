@@ -21,6 +21,12 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    greendao {
+        schemaVersion 1
+        daoPackage 'sjtu.yhapter.reader.model.dao'
+        targetGenDir 'src/main/java'
+    }
 }
 
 dependencies {

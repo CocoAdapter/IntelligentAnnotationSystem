@@ -41,7 +41,6 @@ public class DownloadService extends BaseService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // 主线程上
-        LogUtil.log("onStartCommand");
         Disposable downloadDisp = RxBus.getInstance().toObservable(DownloadTask.class)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(event -> {

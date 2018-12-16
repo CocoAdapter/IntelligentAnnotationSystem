@@ -32,6 +32,7 @@ public class DownloadTaskDao extends AbstractDao<DownloadTask, Long> {
         public final static Property EndTime = new Property(5, java.util.Date.class, "endTime", false, "END_TIME");
         public final static Property Size = new Property(6, long.class, "size", false, "SIZE");
         public final static Property Progress = new Property(7, long.class, "progress", false, "PROGRESS");
+        public final static Property Status = new Property(8, int.class, "status", false, "STATUS");
     }
 
 
@@ -54,7 +55,8 @@ public class DownloadTaskDao extends AbstractDao<DownloadTask, Long> {
                 "\"START_TIME\" INTEGER," + // 4: startTime
                 "\"END_TIME\" INTEGER," + // 5: endTime
                 "\"SIZE\" INTEGER NOT NULL ," + // 6: size
-                "\"PROGRESS\" INTEGER NOT NULL );"); // 7: progress
+                "\"PROGRESS\" INTEGER NOT NULL ," + // 7: progress
+                "\"STATUS\" INTEGER NOT NULL );"); // 8: status
     }
 
     /** Drops the underlying database table. */
@@ -98,6 +100,7 @@ public class DownloadTaskDao extends AbstractDao<DownloadTask, Long> {
         }
         stmt.bindLong(7, entity.getSize());
         stmt.bindLong(8, entity.getProgress());
+        stmt.bindLong(9, entity.getStatus());
     }
 
     @Override
@@ -135,6 +138,7 @@ public class DownloadTaskDao extends AbstractDao<DownloadTask, Long> {
         }
         stmt.bindLong(7, entity.getSize());
         stmt.bindLong(8, entity.getProgress());
+        stmt.bindLong(9, entity.getStatus());
     }
 
     @Override
@@ -152,7 +156,8 @@ public class DownloadTaskDao extends AbstractDao<DownloadTask, Long> {
             cursor.isNull(offset + 4) ? null : new java.util.Date(cursor.getLong(offset + 4)), // startTime
             cursor.isNull(offset + 5) ? null : new java.util.Date(cursor.getLong(offset + 5)), // endTime
             cursor.getLong(offset + 6), // size
-            cursor.getLong(offset + 7) // progress
+            cursor.getLong(offset + 7), // progress
+            cursor.getInt(offset + 8) // status
         );
         return entity;
     }
@@ -167,6 +172,7 @@ public class DownloadTaskDao extends AbstractDao<DownloadTask, Long> {
         entity.setEndTime(cursor.isNull(offset + 5) ? null : new java.util.Date(cursor.getLong(offset + 5)));
         entity.setSize(cursor.getLong(offset + 6));
         entity.setProgress(cursor.getLong(offset + 7));
+        entity.setStatus(cursor.getInt(offset + 8));
      }
     
     @Override

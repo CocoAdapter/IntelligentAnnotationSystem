@@ -19,6 +19,8 @@ public class App extends Application {
 
     private static App instance;
 
+    public static final long USER_ID = 1L;
+
     @Override
     public void onCreate() {
         super.onCreate();

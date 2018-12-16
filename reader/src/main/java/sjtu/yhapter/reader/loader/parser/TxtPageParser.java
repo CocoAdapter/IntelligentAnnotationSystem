@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,6 +34,8 @@ public class TxtPageParser implements PageParser {
             "^(\\s{0,4})([\\(\uff08\u3010\u300a])(.{0,30})([\\)\uff09\u3011\u300b])(\\s{0,2})$",
             "^(\\s{0,4})(\u6b63\u6587)(.{0,20})$",
             "^(.{0,4})(Chapter|chapter)(\\s{0,4})([0-9]{1,4})(.{0,30})$"};
+    private static final String PRE_CHAPTER_NAME = "序章";
+
     private Pattern chapterPattern;
 
     private IOUtil.Charset charset;
@@ -71,6 +74,8 @@ public class TxtPageParser implements PageParser {
 
     // TODO index 把章节标题去掉
     private void parse(InputStream in, boolean hasChapter) throws Exception {
+        AtomicInteger chapterId = new AtomicInteger(0);
+
         chapters = new ArrayList<>();
         //加载章节
         byte[] buffer = new byte[BUFFER_SIZE];
@@ -100,7 +105,8 @@ public class TxtPageParser implements PageParser {
                         if (curOffset == 0) {
                             //如果当前对整个文件的偏移位置为0的话，那么就是序章
                             TxtChapterData preChapter = new TxtChapterData();
-                            preChapter.setTitle("序章");
+                            preChapter.setId(chapterId.getAndIncrement());
+                            preChapter.setTitle(PRE_CHAPTER_NAME);
                             preChapter.setStartIndex(0);
                             preChapter.setEndIndex(chapterContent.getBytes(charset.getName()).length); //获取String的byte值,作为最终值
 
@@ -111,6 +117,7 @@ public class TxtPageParser implements PageParser {
 
                             //新起一章
                             TxtChapterData curChapter = new TxtChapterData();
+                            curChapter.setId(chapterId.getAndIncrement());
                             curChapter.setTitle(matcher.group());
                             curChapter.setStartIndex(preChapter.getEndIndex());
                             chapters.add(curChapter);
@@ -122,10 +129,12 @@ public class TxtPageParser implements PageParser {
                             //如果章节内容太小，则移除
                             if (preChapter.getEndIndex() - preChapter.getStartIndex() < 30) {
                                 chapters.remove(preChapter);
+                                chapterId.decrementAndGet();
                             }
 
                             //创建当前章节
                             TxtChapterData curChapter = new TxtChapterData();
+                            curChapter.setId(chapterId.getAndIncrement());
                             curChapter.setTitle(matcher.group());
                             curChapter.setStartIndex(preChapter.getEndIndex());
                             chapters.add(curChapter);
@@ -144,16 +153,19 @@ public class TxtPageParser implements PageParser {
                             //如果章节内容太小，则移除
                             if (preChapter.getEndIndex() - preChapter.getStartIndex() < 30) {
                                 chapters.remove(preChapter);
+                                chapterId.decrementAndGet();
                             }
 
                             //创建当前章节
                             TxtChapterData curChapter = new TxtChapterData();
+                            curChapter.setId(chapterId.getAndIncrement());
                             curChapter.setTitle(matcher.group());
                             curChapter.setStartIndex(preChapter.getEndIndex());
                             chapters.add(curChapter);
                         } else {
                             //如果章节不存在则创建章节
                             TxtChapterData curChapter = new TxtChapterData();
+                            curChapter.setId(chapterId.getAndIncrement());
                             curChapter.setTitle(matcher.group());
                             curChapter.setStartIndex(0);
                             chapters.add(curChapter);

@@ -84,18 +84,19 @@ public class BookShelfFragment extends BaseMVPFragment<BookShelfContract.Present
         });
         adapter.setOnItemClickListener((view, pos) -> {
             Book book = adapter.getItem(pos);
-            LogUtil.log(book.getDownloadTask().toString());
             // 首先判断是不是download/pause, 是的话 换状态
-            if (book.getDownloadTask().getStatus() == DownloadService.STATUS_FINISH) {
-                // local file found, try to read from local
-                Intent intent = new Intent(getActivity(), ReadActivity.class);
-                intent.putExtra("book", book);
-                startActivity(intent);
-            } else {
-                LogUtil.log("local not found");
-                // 这里还不知道是不是下载，可能是暂停
-                // 不是local 的话, 可能正在下载 -》 暂停 ； 暂停 -》 继续下载
-                presenter.downloadBook(pos, book);
+            switch (book.getDownloadTask().getStatus()) {
+                case DownloadService.STATUS_FINISH:
+                    // local file found, try to read from local
+                    Intent intent = new Intent(getActivity(), ReadActivity.class);
+                    intent.putExtra("book", book);
+                    startActivity(intent);
+                    break;
+                default:
+                    // TODO 这里还不知道是不是下载，可能是暂停
+                    // 不是local 的话, 可能正在下载 -》 暂停 ； 暂停 -》 继续下载
+                    presenter.downloadBook(pos, book);
+                    break;
             }
         });
 

@@ -36,15 +36,14 @@ public class DownloadTask {
     private Date endTime;
     private long size;
     private long progress;
-
-    @Transient
     private int status = DownloadService.STATUS_WAIT;
+
     @Transient
     private DownloadListener downloadListener;
 
-    @Generated(hash = 1409303561)
+    @Generated(hash = 1096830968)
     public DownloadTask(Long id, String link, String localPath, String taskName,
-            Date startTime, Date endTime, long size, long progress) {
+            Date startTime, Date endTime, long size, long progress, int status) {
         this.id = id;
         this.link = link;
         this.localPath = localPath;
@@ -53,6 +52,7 @@ public class DownloadTask {
         this.endTime = endTime;
         this.size = size;
         this.progress = progress;
+        this.status = status;
     }
 
     @Generated(hash = 1999398913)
