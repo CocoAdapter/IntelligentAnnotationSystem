@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import java.io.File;
+import java.util.Date;
 import java.util.List;
 
 import sjtu.yhapter.ias.App;
@@ -29,6 +30,7 @@ import sjtu.yhapter.ias.widget.refresh.ScrollRefreshRecyclerView;
 import sjtu.yhapter.ias.widget.refresh.divider.SpacesItemDecoration;
 import sjtu.yhapter.reader.util.LogUtil;
 import sjtu.yhapter.reader.util.ScreenUtil;
+import sjtu.yhapter.reader.util.SharedPrefUtil;
 
 public class BookShelfFragment extends BaseMVPFragment<BookShelfContract.Presenter> implements BookShelfContract.View {
     private ScrollRefreshRecyclerView rvBooks;
@@ -87,6 +89,9 @@ public class BookShelfFragment extends BaseMVPFragment<BookShelfContract.Present
             // 首先判断是不是download/pause, 是的话 换状态
             switch (book.getDownloadTask().getStatus()) {
                 case DownloadService.STATUS_FINISH:
+                    // add to recently read
+                    book.setLastReadTime(new Date());
+                    App.getDaoInstant().getBookDao().updateInTx(book);
                     // local file found, try to read from local
                     Intent intent = new Intent(getActivity(), ReadActivity.class);
                     intent.putExtra("book", book);

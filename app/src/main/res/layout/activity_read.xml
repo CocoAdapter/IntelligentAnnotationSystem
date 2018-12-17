@@ -57,7 +57,7 @@
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:padding="5dp"
-                    android:src="@drawable/write_idea" />
+                    android:src="@drawable/ic_write_idea" />
 
                 <EditText
                     android:id="@+id/et_idea"
@@ -121,7 +121,7 @@
             android:id="@+id/tab_layout"
             android:layout_gravity="bottom"
             app:tabIndicatorHeight="0dp"
-            app:tabBackground="@color/drawer_tab_bg"
+            app:tabBackground="@color/reader_status_bar"
             app:tabSelectedTextColor="@color/drawer_text_selected"
             app:tabTextColor="@color/drawer_text_normal"
             android:layout_width="match_parent"

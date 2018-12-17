@@ -1,15 +1,23 @@
 package sjtu.yhapter.reader.page.annotation;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 
 import java.util.Date;
 
@@ -31,6 +39,7 @@ public class AnnotationMenu extends PopupWindow {
     private Point anchorPoint;
     private ImageTextView btnCopy, btnDrawLine, btnWriteIdea, btnQuery, btnShare;
     private LineTypeMenu lineTypeMenu;
+    private WriteIdeaWindow writeIdeaWindow;
 
     private long bookId;
     private long chapterId;
@@ -46,6 +55,7 @@ public class AnnotationMenu extends PopupWindow {
         setContentView(contentView);
 
         lineTypeMenu = new LineTypeMenu(context);
+        writeIdeaWindow = new WriteIdeaWindow(context);
 
         btnCopy = contentView.findViewById(R.id.btn_copy);
         btnDrawLine = contentView.findViewById(R.id.btn_drawline);
@@ -170,9 +180,14 @@ public class AnnotationMenu extends PopupWindow {
                         dismiss();
                     }
                 }
+            } else if (i == R.id.btn_writeidea) {
+                dismiss();
+                // pop another window
+                writeIdeaWindow.showAtLocation(parentView, Gravity.BOTTOM, 0, 0);
             }
         };
         btnDrawLine.setOnClickListener(ocl);
+        btnWriteIdea.setOnClickListener(ocl);
     }
 
     private class LineTypeMenu extends PopupWindow implements View.OnClickListener{
@@ -181,7 +196,7 @@ public class AnnotationMenu extends PopupWindow {
 
         private ImageView btnFill, btnNormal, btnWave;
 
-        public LineTypeMenu(Context context) {
+        LineTypeMenu(Context context) {
             View contentView = LayoutInflater.from(context).inflate(R.layout.widget_anno_menu_linetype, null);
             setContentView(contentView);
             btnFill = contentView.findViewById(R.id.btn_fill);
@@ -258,6 +273,94 @@ public class AnnotationMenu extends PopupWindow {
             btnFill.setOnClickListener(this);
             btnNormal.setOnClickListener(this);
             btnWave.setOnClickListener(this);
+        }
+    }
+
+    private class WriteIdeaWindow extends PopupWindow {
+        private EditText et_idea;
+        private TextView tv_reference;
+
+        WriteIdeaWindow(Context context) {
+            this(context, "");
+        }
+
+        WriteIdeaWindow(Context context, String reference) {
+            View contentView = LayoutInflater.from(context).inflate(R.layout.widget_anno_menu_writeidea, null);
+            setContentView(contentView);
+
+            setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+            setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
+
+            setTouchable(true);
+            setOutsideTouchable(true);
+            setFocusable(true);
+            setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            setInputMethodMode(PopupWindow.INPUT_METHOD_NEEDED);
+            setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
+            et_idea = contentView.findViewById(R.id.et_idea);
+            tv_reference = contentView.findViewById(R.id.tv_reference);
+
+            et_idea.setFocusable(true);
+            et_idea.setFocusableInTouchMode(true);
+            et_idea.setOnEditorActionListener((v, actionId, event) -> {
+                if (actionId == KeyEvent.ACTION_DOWN || actionId == EditorInfo.IME_ACTION_SEND) {
+                    // TODO 是否考虑过滤空值
+                    dismiss();
+                    // TODO 创建了想法
+                    // 包装成一个 Annotation 然后调用 onAnnotationListener
+                    Annotation annotation = new Annotation();
+                    annotation.setBookId(bookId);
+                    annotation.setChapterId(chapterId);
+                    annotation.setContent(content);
+                    annotation.setStartIndex(startIndex);
+                    annotation.setEndIndex(endIndex);
+                    annotation.setDate(new Date());
+                    annotation.setUserId(App.USER_ID);
+                    annotation.setNote(et_idea.getText().toString());
+                    annotation.setType(AnnotationType.IDEA.name());
+                    // draw Annotation
+                    if (annotationListener != null)
+                        annotationListener.onAnnotationDraw(annotation);
+                    return true;
+                }
+                return false;
+            });
+
+            tv_reference.setText(reference);
+        }
+
+        void setReference(String reference) {
+            tv_reference.setText(reference);
+        }
+
+        @Override
+        public void showAtLocation(View parent, int gravity, int x, int y) {
+            Activity activity = (Activity) et_idea.getContext();
+            Window window = activity.getWindow();
+            WindowManager.LayoutParams lp = window.getAttributes();
+            lp.alpha = 0.5f;
+            window.setAttributes(lp);
+
+            parent.postDelayed(() -> {
+                InputMethodManager imm = (InputMethodManager) et_idea.getContext()
+                        .getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null)
+                    imm.toggleSoftInput(0, InputMethodManager.SHOW_FORCED);
+            }, 100);
+
+            super.showAtLocation(parent, gravity, x, y);
+        }
+
+        @Override
+        public void dismiss() {
+            Activity activity = (Activity) et_idea.getContext();
+            Window window = activity.getWindow();
+            WindowManager.LayoutParams lp = window.getAttributes();
+            lp.alpha = 1.0f;
+            window.setAttributes(lp);
+
+            super.dismiss();
         }
     }
 

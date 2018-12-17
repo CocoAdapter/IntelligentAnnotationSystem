@@ -10,6 +10,7 @@ import android.view.Gravity;
 import sjtu.yhapter.reader.App;
 import sjtu.yhapter.reader.animation.PageAnimationMode;
 import sjtu.yhapter.reader.model.pojo.Annotation;
+import sjtu.yhapter.reader.util.LogUtil;
 import sjtu.yhapter.reader.util.ScreenUtil;
 import sjtu.yhapter.reader.animation.CoverPageAnim;
 import sjtu.yhapter.reader.animation.HorizontalPageAnim;
@@ -219,6 +220,7 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
         // draw annotation
         canvas = new Canvas(pageAnimation.getFrontBitmap());
         if (annotation != null) {
+            LogUtil.log(annotation.toString());
             pageElement.addAnnotation(annotation);
             pageElement.drawCurrPage(canvas); // draw line
         }

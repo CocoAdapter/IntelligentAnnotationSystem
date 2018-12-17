@@ -10,6 +10,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Gravity;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
@@ -17,6 +18,7 @@ import android.widget.ImageView;
 
 import java.util.List;
 
+import sjtu.yhapter.ias.App;
 import sjtu.yhapter.ias.R;
 import sjtu.yhapter.ias.presenter.ReadPresenter;
 import sjtu.yhapter.ias.presenter.contract.ReadContract;
@@ -131,6 +133,7 @@ public class ReadActivity extends BaseMVPActivity<ReadContract.Presenter> implem
         tab.addTab(tab.newTab().setText(R.string.drawer_note));
         tab.addTab(tab.newTab().setText(R.string.drawer_hotline));
 
+        readerView.setUserId(App.USER_ID);
         pageElement = readerView.getPageElement();
     }
 
@@ -217,9 +220,15 @@ public class ReadActivity extends BaseMVPActivity<ReadContract.Presenter> implem
     @Override
     protected void processLogic() {
         super.processLogic();
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
-
         pageElement.openBook(book);
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // TODO 关闭书本
     }
 
     private void toggleMenu(boolean isOpen) {

@@ -47,6 +47,8 @@ public class Book implements sjtu.yhapter.reader.model.pojo.Book {
     private String coverPath;
     private Date createdTime;
     private Date updatedTime;
+    private Date lastReadTime;
+    private Boolean isFavorite;
 
     // download related
     private Long taskId;
@@ -247,6 +249,22 @@ public class Book implements sjtu.yhapter.reader.model.pojo.Book {
         myDao = daoSession != null ? daoSession.getBookDao() : null;
     }
 
+    public Date getLastReadTime() {
+        return this.lastReadTime;
+    }
+
+    public void setLastReadTime(Date lastReadTime) {
+        this.lastReadTime = lastReadTime;
+    }
+
+    public Boolean getIsFavorite() {
+        return this.isFavorite;
+    }
+
+    public void setIsFavorite(Boolean isFavorite) {
+        this.isFavorite = isFavorite;
+    }
+
     public static final Parcelable.Creator<Book> CREATOR
             = new Parcelable.Creator<Book>() {
 
@@ -272,10 +290,11 @@ public class Book implements sjtu.yhapter.reader.model.pojo.Book {
         path = in.readString();
     }
 
-    @Generated(hash = 1417996878)
+    @Generated(hash = 1642284315)
     public Book(Long id, String title, String author, String link, String path,
             String shortIntro, String coverPath, Date createdTime, Date updatedTime,
-            Long taskId, Long studentId, Long teachCourseId) {
+            Date lastReadTime, Boolean isFavorite, Long taskId, Long studentId,
+            Long teachCourseId) {
         this.id = id;
         this.title = title;
         this.author = author;
@@ -285,6 +304,8 @@ public class Book implements sjtu.yhapter.reader.model.pojo.Book {
         this.coverPath = coverPath;
         this.createdTime = createdTime;
         this.updatedTime = updatedTime;
+        this.lastReadTime = lastReadTime;
+        this.isFavorite = isFavorite;
         this.taskId = taskId;
         this.studentId = studentId;
         this.teachCourseId = teachCourseId;

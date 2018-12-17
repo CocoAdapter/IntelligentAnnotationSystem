@@ -38,9 +38,11 @@ public class BookDao extends AbstractDao<Book, Long> {
         public final static Property CoverPath = new Property(6, String.class, "coverPath", false, "COVER_PATH");
         public final static Property CreatedTime = new Property(7, java.util.Date.class, "createdTime", false, "CREATED_TIME");
         public final static Property UpdatedTime = new Property(8, java.util.Date.class, "updatedTime", false, "UPDATED_TIME");
-        public final static Property TaskId = new Property(9, Long.class, "taskId", false, "TASK_ID");
-        public final static Property StudentId = new Property(10, Long.class, "studentId", false, "STUDENT_ID");
-        public final static Property TeachCourseId = new Property(11, Long.class, "teachCourseId", false, "TEACH_COURSE_ID");
+        public final static Property LastReadTime = new Property(9, java.util.Date.class, "lastReadTime", false, "LAST_READ_TIME");
+        public final static Property IsFavorite = new Property(10, Boolean.class, "isFavorite", false, "IS_FAVORITE");
+        public final static Property TaskId = new Property(11, Long.class, "taskId", false, "TASK_ID");
+        public final static Property StudentId = new Property(12, Long.class, "studentId", false, "STUDENT_ID");
+        public final static Property TeachCourseId = new Property(13, Long.class, "teachCourseId", false, "TEACH_COURSE_ID");
     }
 
     private DaoSession daoSession;
@@ -68,9 +70,11 @@ public class BookDao extends AbstractDao<Book, Long> {
                 "\"COVER_PATH\" TEXT," + // 6: coverPath
                 "\"CREATED_TIME\" INTEGER," + // 7: createdTime
                 "\"UPDATED_TIME\" INTEGER," + // 8: updatedTime
-                "\"TASK_ID\" INTEGER," + // 9: taskId
-                "\"STUDENT_ID\" INTEGER," + // 10: studentId
-                "\"TEACH_COURSE_ID\" INTEGER);"); // 11: teachCourseId
+                "\"LAST_READ_TIME\" INTEGER," + // 9: lastReadTime
+                "\"IS_FAVORITE\" INTEGER," + // 10: isFavorite
+                "\"TASK_ID\" INTEGER," + // 11: taskId
+                "\"STUDENT_ID\" INTEGER," + // 12: studentId
+                "\"TEACH_COURSE_ID\" INTEGER);"); // 13: teachCourseId
     }
 
     /** Drops the underlying database table. */
@@ -128,19 +132,29 @@ public class BookDao extends AbstractDao<Book, Long> {
             stmt.bindLong(9, updatedTime.getTime());
         }
  
+        java.util.Date lastReadTime = entity.getLastReadTime();
+        if (lastReadTime != null) {
+            stmt.bindLong(10, lastReadTime.getTime());
+        }
+ 
+        Boolean isFavorite = entity.getIsFavorite();
+        if (isFavorite != null) {
+            stmt.bindLong(11, isFavorite ? 1L: 0L);
+        }
+ 
         Long taskId = entity.getTaskId();
         if (taskId != null) {
-            stmt.bindLong(10, taskId);
+            stmt.bindLong(12, taskId);
         }
  
         Long studentId = entity.getStudentId();
         if (studentId != null) {
-            stmt.bindLong(11, studentId);
+            stmt.bindLong(13, studentId);
         }
  
         Long teachCourseId = entity.getTeachCourseId();
         if (teachCourseId != null) {
-            stmt.bindLong(12, teachCourseId);
+            stmt.bindLong(14, teachCourseId);
         }
     }
 
@@ -193,19 +207,29 @@ public class BookDao extends AbstractDao<Book, Long> {
             stmt.bindLong(9, updatedTime.getTime());
         }
  
+        java.util.Date lastReadTime = entity.getLastReadTime();
+        if (lastReadTime != null) {
+            stmt.bindLong(10, lastReadTime.getTime());
+        }
+ 
+        Boolean isFavorite = entity.getIsFavorite();
+        if (isFavorite != null) {
+            stmt.bindLong(11, isFavorite ? 1L: 0L);
+        }
+ 
         Long taskId = entity.getTaskId();
         if (taskId != null) {
-            stmt.bindLong(10, taskId);
+            stmt.bindLong(12, taskId);
         }
  
         Long studentId = entity.getStudentId();
         if (studentId != null) {
-            stmt.bindLong(11, studentId);
+            stmt.bindLong(13, studentId);
         }
  
         Long teachCourseId = entity.getTeachCourseId();
         if (teachCourseId != null) {
-            stmt.bindLong(12, teachCourseId);
+            stmt.bindLong(14, teachCourseId);
         }
     }
 
@@ -232,9 +256,11 @@ public class BookDao extends AbstractDao<Book, Long> {
             cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // coverPath
             cursor.isNull(offset + 7) ? null : new java.util.Date(cursor.getLong(offset + 7)), // createdTime
             cursor.isNull(offset + 8) ? null : new java.util.Date(cursor.getLong(offset + 8)), // updatedTime
-            cursor.isNull(offset + 9) ? null : cursor.getLong(offset + 9), // taskId
-            cursor.isNull(offset + 10) ? null : cursor.getLong(offset + 10), // studentId
-            cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11) // teachCourseId
+            cursor.isNull(offset + 9) ? null : new java.util.Date(cursor.getLong(offset + 9)), // lastReadTime
+            cursor.isNull(offset + 10) ? null : cursor.getShort(offset + 10) != 0, // isFavorite
+            cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11), // taskId
+            cursor.isNull(offset + 12) ? null : cursor.getLong(offset + 12), // studentId
+            cursor.isNull(offset + 13) ? null : cursor.getLong(offset + 13) // teachCourseId
         );
         return entity;
     }
@@ -250,9 +276,11 @@ public class BookDao extends AbstractDao<Book, Long> {
         entity.setCoverPath(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
         entity.setCreatedTime(cursor.isNull(offset + 7) ? null : new java.util.Date(cursor.getLong(offset + 7)));
         entity.setUpdatedTime(cursor.isNull(offset + 8) ? null : new java.util.Date(cursor.getLong(offset + 8)));
-        entity.setTaskId(cursor.isNull(offset + 9) ? null : cursor.getLong(offset + 9));
-        entity.setStudentId(cursor.isNull(offset + 10) ? null : cursor.getLong(offset + 10));
-        entity.setTeachCourseId(cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11));
+        entity.setLastReadTime(cursor.isNull(offset + 9) ? null : new java.util.Date(cursor.getLong(offset + 9)));
+        entity.setIsFavorite(cursor.isNull(offset + 10) ? null : cursor.getShort(offset + 10) != 0);
+        entity.setTaskId(cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11));
+        entity.setStudentId(cursor.isNull(offset + 12) ? null : cursor.getLong(offset + 12));
+        entity.setTeachCourseId(cursor.isNull(offset + 13) ? null : cursor.getLong(offset + 13));
      }
     
     @Override

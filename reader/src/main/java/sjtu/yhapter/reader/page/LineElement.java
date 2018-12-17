@@ -2,6 +2,7 @@ package sjtu.yhapter.reader.page;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
@@ -247,23 +248,30 @@ public class LineElement extends BasePageElement {
     private void drawAnnotation(Canvas canvas, PointChar start, PointChar end, AnnotationType type, Paint paint) {
         switch (type) {
             case FILL:
-                annotationPaint.setStyle(Paint.Style.FILL);
+                paint.setStyle(Paint.Style.FILL);
                 paint.setColor(Color.parseColor("#77FADB08"));
                 canvas.drawRect(start.topLeft.x, start.topLeft.y, end.bottomRight.x, end.bottomRight.y, paint);
                 break;
             case NORMAL:
-                annotationPaint.setStyle(Paint.Style.STROKE);
-                annotationPaint.setStrokeWidth(ScreenUtil.dpToPx(1));
+                paint.setStyle(Paint.Style.STROKE);
+                paint.setStrokeWidth(ScreenUtil.dpToPx(1));
                 paint.setColor(Color.RED);
                 canvas.drawLine(start.bottomLeft.x, start.bottomLeft.y,
-                        end.bottomRight.x, end.bottomRight.y, annotationPaint);
+                        end.bottomRight.x, end.bottomRight.y, paint);
                 break;
             case WAVE:
-                annotationPaint.setStyle(Paint.Style.STROKE);
-                annotationPaint.setStrokeWidth(ScreenUtil.dpToPx(1));
+                paint.setStyle(Paint.Style.STROKE);
+                paint.setStrokeWidth(ScreenUtil.dpToPx(1));
                 paint.setColor(Color.BLUE);
                 Path path = getWaveLine(start, end);
                 canvas.drawPath(path, paint);
+                break;
+            case IDEA:
+                paint.setStyle(Paint.Style.STROKE);
+                int px = ScreenUtil.dpToPx(2);
+                paint.setPathEffect(new DashPathEffect(new float[] {px, px}, 0));
+                paint.setColor(Color.GRAY);
+                canvas.drawLine(start.bottomLeft.x, start.bottomLeft.y, end.bottomLeft.x, end.bottomRight.y, paint);
                 break;
         }
     }

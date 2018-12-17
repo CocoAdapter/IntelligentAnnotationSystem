@@ -15,6 +15,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import sjtu.yhapter.ias.App;
 import sjtu.yhapter.ias.RxBus;
+import sjtu.yhapter.ias.model.dao.BookDao;
 import sjtu.yhapter.ias.model.pojo.Book;
 import sjtu.yhapter.ias.model.pojo.DownloadTask;
 import sjtu.yhapter.ias.model.pojo.TeachClass;
@@ -31,13 +32,10 @@ public class BookShelfPresenter extends RxPresenter<BookShelfContract.View> impl
     public void requestBooks(long menuIndex) {
         if (menuIndex == BookShelfMenu.ID_RECENTLY_READ) {
             Single.create((SingleOnSubscribe<List<Book>>) emitter -> {
-                // TODO 从数据库取
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                emitter.onSuccess(Collections.emptyList());
+                List<Book> books = App.getDaoInstant().getBookDao().queryBuilder()
+                        .orderDesc(BookDao.Properties.LastReadTime)
+                        .list();
+                emitter.onSuccess(books);
             }).subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new SingleObserver<List<Book>>() {
@@ -49,7 +47,7 @@ public class BookShelfPresenter extends RxPresenter<BookShelfContract.View> impl
                         @Override
                         public void onSuccess(List<Book> books) {
                             view.complete();
-                            view.onRequestBooks(Collections.emptyList());
+                            view.onRequestBooks(books);
                         }
 
                         @Override
@@ -59,14 +57,12 @@ public class BookShelfPresenter extends RxPresenter<BookShelfContract.View> impl
                         }
                     });
         } else if (menuIndex == BookShelfMenu.ID_COLLECTION) {
-            // TODO 从数据库取
             Single.create((SingleOnSubscribe<List<Book>>) emitter -> {
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                emitter.onSuccess(Collections.emptyList());
+                List<Book> books = App.getDaoInstant().getBookDao().queryBuilder()
+                        .where(BookDao.Properties.IsFavorite.eq(true))
+                        .orderDesc(BookDao.Properties.LastReadTime)
+                        .list();
+                emitter.onSuccess(books);
             }).subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new SingleObserver<List<Book>>() {
@@ -105,7 +101,7 @@ public class BookShelfPresenter extends RxPresenter<BookShelfContract.View> impl
                     book.setUpdatedTime(nowTime);
                     book.setStudentId(1L);
                     book.setTeachCourseId((long) i);
-                    book.setLink(book.getId() + "");
+                    book.setLink("http://pixwdujby.bkt.clouddn.com//default/all/0/9511860afcac487e8776093b36016e77.txt");
                     book.setPath(FileUtils.getCachePath() + File.separator + book.getId());
 
                     DownloadTask task = App.getDaoInstant().getDownloadTaskDao().load(book.getId());

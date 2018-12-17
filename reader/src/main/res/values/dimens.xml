@@ -9,4 +9,6 @@
     <dimen name="anno_menu_line_margin">10dp</dimen>
     <dimen name="anno_menu_line_padding">10dp</dimen>
     <dimen name="anno_menu_line_space">10dp</dimen>
+
+    <dimen name="read_menu_padding">18dp</dimen>
 </resources>

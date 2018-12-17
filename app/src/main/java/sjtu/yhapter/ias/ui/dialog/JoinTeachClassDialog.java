@@ -19,8 +19,7 @@ import sjtu.yhapter.ias.R;
 
 public class JoinTeachClassDialog extends Dialog {
     private static final int CODE_LENGTH = 11;
-
-
+    
     private EditText etClassNum;
     private Button btnJoin;
 

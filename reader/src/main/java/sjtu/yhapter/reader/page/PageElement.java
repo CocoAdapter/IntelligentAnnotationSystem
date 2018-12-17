@@ -25,6 +25,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import sjtu.yhapter.reader.App;
+import sjtu.yhapter.reader.R;
 import sjtu.yhapter.reader.loader.BookLoader;
 import sjtu.yhapter.reader.loader.LocalBookLoader;
 import sjtu.yhapter.reader.model.dao.AnnotationDao;
@@ -366,13 +367,6 @@ public class PageElement {
 
         // get those annotations between start and end index
         AnnotationDao dao = App.getDaoInstant().getAnnotationDao();
-        // TODO test
-        List<Annotation> all = dao.loadAll();
-        LogUtil.log("-----ALL");
-        for (Annotation annotation : all) {
-            LogUtil.log(annotation.toString());
-        }
-        LogUtil.log("-----ALL");
 
         List<Annotation> annotations = dao
                 .queryBuilder()
@@ -383,18 +377,12 @@ public class PageElement {
                         AnnotationDao.Properties.EndIndex.le(charEnd))
                 .orderAsc(AnnotationDao.Properties.StartIndex)
                 .list();
-        // TODO test
-        LogUtil.log("-----MATCH");
-        for (Annotation annotation : annotations) {
-            LogUtil.log(annotation.toString());
-        }
-        LogUtil.log("-----MATCH");
         return new HashSet<>(annotations);
     }
 
     private void drawPage(Canvas canvas) {
         // bg
-        canvas.drawColor(Color.parseColor("#A8C5A8"));
+        canvas.drawColor(App.getInstance().getResources().getColor(R.color.reader_bg));
 
         if (currPage == null) {
             statusElement.draw(canvas, null);

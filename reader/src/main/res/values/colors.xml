@@ -3,4 +3,9 @@
     <color name="annotation_menu_bg">#000000</color>
     <color name="annotation_menu_text_color">#ffffff</color>
     <color name="anno_menu_line_bg">#000000</color>
+
+    <color name="reader_bg">#d5edc9</color>
+    <color name="reader_status_bar">#d2eac7</color>
+
+    <color name="divider">#AAAAAA</color>
 </resources>

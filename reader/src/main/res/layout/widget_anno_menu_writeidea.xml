@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_bottom"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/reader_status_bar"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/read_menu_padding"
+    android:paddingEnd="@dimen/read_menu_padding">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:padding="5dp"
+            android:src="@drawable/ic_write_idea" />
+
+        <EditText
+            android:id="@+id/et_idea"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginStart="5dp"
+            android:background="@null"
+            android:imeOptions="actionSend"
+            android:hint="@string/read_menu_idea_hint"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/divider" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+
+        <TextView
+            android:layout_centerVertical="true"
+            android:id="@+id/tv_start"
+            android:text="@string/read_menu_idea_reference"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_centerVertical="true"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:id="@+id/tv_reference"
+            android:layout_toEndOf="@id/tv_start"
+            android:layout_toStartOf="@+id/lv_end"
+            android:text="双骄都爱双骄都爱双骄都爱双骄都爱大家安静德拉克斯绝代双骄都爱捷达皮实"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            android:background="@drawable/elipse_bfbfbf"
+            android:layout_centerVertical="true"
+            android:gravity="center_vertical"
+            android:layout_alignParentEnd="true"
+            android:id="@+id/lv_end"
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:src="@drawable/ic_public"
+                android:layout_width="10dp"
+                android:layout_height="10dp" />
+
+            <TextView
+                android:layout_marginStart="5dp"
+                android:text="@string/share_public"
+                android:textSize="10sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <ImageView
+                android:src="@drawable/ic_arrow_right"
+                android:layout_width="10dp"
+                android:layout_height="10dp" />
+        </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>
