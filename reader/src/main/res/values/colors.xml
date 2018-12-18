@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="transparent">#00000000</color>
+
     <color name="annotation_menu_bg">#000000</color>
     <color name="annotation_menu_text_color">#ffffff</color>
     <color name="anno_menu_line_bg">#000000</color>

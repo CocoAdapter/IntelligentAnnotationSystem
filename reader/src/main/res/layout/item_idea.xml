@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/profile_image"
+        android:layout_width="50dp"
+        android:layout_height="40dp"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="15dp"
+        android:src="@drawable/ic_user_profile_default" />
+
+    <android.support.v7.widget.CardView
+        app:cardElevation="5dp"
+        app:cardUseCompatPadding="true"
+        android:layout_marginStart="5dp"
+        android:id="@+id/cv_idea_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:padding="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CocoAdapter" />
+
+            <TextView
+                android:id="@+id/tv_idea"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="技术的骄傲i时间你的卡技术的骄傲i时间你的卡技术的骄傲i时间你的卡技术技术的骄傲i时间你的卡技术的骄傲i时间你的卡技术的骄傲i时间你的卡技术技术的骄傲i时间你的卡技术的骄傲i时间你的卡技术的骄傲i时间你的卡技术的骄傲i时间你的卡杀死后大叔大婶记录的咯技术的骄傲i时间你的卡上决定啦就是都i静安寺庞大n"
+                android:ellipsize="end"
+                android:maxLines="4" />
+
+            <View
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/divider"
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <sjtu.yhapter.reader.widget.ImageTextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:drawableWidth="20dp"
+                    app:drawableHeight="20dp"
+                    android:drawablePadding="10dp"
+                    android:text="5"
+                    android:gravity="center_vertical"
+                    android:drawableStart="@drawable/ic_idea_like" />
+
+                <sjtu.yhapter.reader.widget.ImageTextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawablePadding="10dp"
+                    app:drawableWidth="20dp"
+                    app:drawableHeight="20dp"
+                    android:text="5"
+                    android:gravity="center_vertical"
+                    android:drawableStart="@drawable/ic_idea_comment" />
+            </LinearLayout>
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+</LinearLayout>

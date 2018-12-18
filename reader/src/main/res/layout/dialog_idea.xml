@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:paddingTop="@dimen/read_menu_padding"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:layout_above="@+id/ll_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:layout_gravity="center"
+            android:id="@+id/rv_idea"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_marginBottom="40dp"
+        android:orientation="horizontal"
+        android:id="@+id/ll_bottom"
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/img_exit"
+            android:padding="15dp"
+            android:src="@drawable/ic_idea_exit"
+            android:background="@drawable/circle_515151"
+            android:layout_width="50dp"
+            android:layout_height="50dp" />
+
+        <LinearLayout
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:background="@drawable/ellipse_515151"
+            android:layout_marginStart="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:padding="5dp"
+                android:src="@drawable/ic_write_my_opinion" />
+
+            <EditText
+                android:textColorHint="#bfbfbf"
+                android:textColor="#ffffff"
+                android:id="@+id/et_idea"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginStart="5dp"
+                android:background="@null"
+                android:imeOptions="actionSend"
+                android:hint="@string/write_my_opinion"
+                android:textSize="16sp" />
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

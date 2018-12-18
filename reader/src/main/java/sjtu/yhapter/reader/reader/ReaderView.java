@@ -1,5 +1,6 @@
 package sjtu.yhapter.reader.reader;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.RectF;
@@ -10,6 +11,8 @@ import android.view.Gravity;
 import sjtu.yhapter.reader.App;
 import sjtu.yhapter.reader.animation.PageAnimationMode;
 import sjtu.yhapter.reader.model.pojo.Annotation;
+import sjtu.yhapter.reader.page.annotation.AnnotationType;
+import sjtu.yhapter.reader.page.annotation.IdeaDialog;
 import sjtu.yhapter.reader.util.LogUtil;
 import sjtu.yhapter.reader.util.ScreenUtil;
 import sjtu.yhapter.reader.animation.CoverPageAnim;
@@ -27,6 +30,7 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
     protected TextSelectorElement textSelector;
     protected PageElement pageElement;
     protected AnnotationMenu annotationMenu;
+    protected IdeaDialog ideaDialog;
 
     protected OnClickListener onClickListener;
 
@@ -53,7 +57,7 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
             textSelector.clear(canvas);
             postInvalidate();
         });
-
+        ideaDialog = new IdeaDialog(context, (Activity) context);
         canTouch = true;
         setOnTouchListener(this);
     }
@@ -154,8 +158,14 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
     public boolean onClick(int x, int y) {
         Annotation annotation = pageElement.checkIfAnnotation(x, y);
         if (annotation != null) {
-            annotationMenu.setAnnotation(annotation);
-            annotationMenu.showAtLocation(this, Gravity.NO_GRAVITY, x, y);
+            if (AnnotationType.valueOf(annotation.getType()) == AnnotationType.IDEA) {
+                // TODO
+                ideaDialog.show();
+            } else {
+                annotationMenu.setAnnotation(annotation);
+                annotationMenu.showAtLocation(this, Gravity.NO_GRAVITY, x, y);
+            }
+
             return true;
         }
 

@@ -43,4 +43,5 @@ ext {
     rxandroidVersion = '2.1.0'
     rxjavaVersion = '2.1.0'
     commonsIOVersion = '2.6'
+    cricleImageViewVersion = '2.2.0'
 }

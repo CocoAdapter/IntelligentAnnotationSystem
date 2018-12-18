@@ -183,6 +183,7 @@ public class AnnotationMenu extends PopupWindow {
             } else if (i == R.id.btn_writeidea) {
                 dismiss();
                 // pop another window
+                writeIdeaWindow.setReference(content);
                 writeIdeaWindow.showAtLocation(parentView, Gravity.BOTTOM, 0, 0);
             }
         };
@@ -307,8 +308,7 @@ public class AnnotationMenu extends PopupWindow {
                 if (actionId == KeyEvent.ACTION_DOWN || actionId == EditorInfo.IME_ACTION_SEND) {
                     // TODO 是否考虑过滤空值
                     dismiss();
-                    // TODO 创建了想法
-                    // 包装成一个 Annotation 然后调用 onAnnotationListener
+
                     Annotation annotation = new Annotation();
                     annotation.setBookId(bookId);
                     annotation.setChapterId(chapterId);

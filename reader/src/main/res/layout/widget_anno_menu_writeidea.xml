@@ -65,7 +65,7 @@
             android:paddingBottom="2dp"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
-            android:background="@drawable/elipse_bfbfbf"
+            android:background="@drawable/ellipse_bfbfbf"
             android:layout_centerVertical="true"
             android:gravity="center_vertical"
             android:layout_alignParentEnd="true"

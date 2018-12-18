@@ -7,6 +7,7 @@
     <string name="annotation_query">查询</string>
     <string name="annotation_share">分享</string>
     <string name="read_menu_idea_hint">写下这一刻的想法</string>
+    <string name="write_my_opinion">发表我的看法</string>
     <string name="read_menu_idea_reference">引用:</string>
     <string name="share_public">公开</string>
 </resources>

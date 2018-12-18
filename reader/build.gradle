@@ -35,6 +35,7 @@ dependencies {
     implementation "com.android.support:support-v4:$rootProject.supportLibraryVersion"
     implementation "com.android.support:design:$rootProject.supportLibraryVersion"
     implementation "com.android.support:cardview-v7:$rootProject.supportLibraryVersion"
+    implementation "de.hdodenhof:circleimageview:$rootProject.cricleImageViewVersion"
     //    Network
     implementation "com.squareup.retrofit2:retrofit:$rootProject.retrofitVersion"
     //    Image
