@@ -30,19 +30,17 @@ public class BookDao extends AbstractDao<Book, Long> {
      */
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property Title = new Property(1, String.class, "title", false, "TITLE");
+        public final static Property Name = new Property(1, String.class, "name", false, "NAME");
         public final static Property Author = new Property(2, String.class, "author", false, "AUTHOR");
-        public final static Property Link = new Property(3, String.class, "link", false, "LINK");
+        public final static Property Url = new Property(3, String.class, "url", false, "URL");
         public final static Property Path = new Property(4, String.class, "path", false, "PATH");
-        public final static Property ShortIntro = new Property(5, String.class, "shortIntro", false, "SHORT_INTRO");
-        public final static Property CoverPath = new Property(6, String.class, "coverPath", false, "COVER_PATH");
-        public final static Property CreatedTime = new Property(7, java.util.Date.class, "createdTime", false, "CREATED_TIME");
-        public final static Property UpdatedTime = new Property(8, java.util.Date.class, "updatedTime", false, "UPDATED_TIME");
+        public final static Property Brief = new Property(5, String.class, "brief", false, "BRIEF");
+        public final static Property Picture = new Property(6, String.class, "picture", false, "PICTURE");
+        public final static Property Create_time = new Property(7, java.util.Date.class, "create_time", false, "CREATE_TIME");
+        public final static Property Update_time = new Property(8, java.util.Date.class, "update_time", false, "UPDATE_TIME");
         public final static Property LastReadTime = new Property(9, java.util.Date.class, "lastReadTime", false, "LAST_READ_TIME");
         public final static Property IsFavorite = new Property(10, Boolean.class, "isFavorite", false, "IS_FAVORITE");
         public final static Property TaskId = new Property(11, Long.class, "taskId", false, "TASK_ID");
-        public final static Property StudentId = new Property(12, Long.class, "studentId", false, "STUDENT_ID");
-        public final static Property TeachCourseId = new Property(13, Long.class, "teachCourseId", false, "TEACH_COURSE_ID");
     }
 
     private DaoSession daoSession;
@@ -62,19 +60,17 @@ public class BookDao extends AbstractDao<Book, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"BOOK\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
-                "\"TITLE\" TEXT," + // 1: title
+                "\"NAME\" TEXT," + // 1: name
                 "\"AUTHOR\" TEXT," + // 2: author
-                "\"LINK\" TEXT," + // 3: link
+                "\"URL\" TEXT," + // 3: url
                 "\"PATH\" TEXT," + // 4: path
-                "\"SHORT_INTRO\" TEXT," + // 5: shortIntro
-                "\"COVER_PATH\" TEXT," + // 6: coverPath
-                "\"CREATED_TIME\" INTEGER," + // 7: createdTime
-                "\"UPDATED_TIME\" INTEGER," + // 8: updatedTime
+                "\"BRIEF\" TEXT," + // 5: brief
+                "\"PICTURE\" TEXT," + // 6: picture
+                "\"CREATE_TIME\" INTEGER," + // 7: create_time
+                "\"UPDATE_TIME\" INTEGER," + // 8: update_time
                 "\"LAST_READ_TIME\" INTEGER," + // 9: lastReadTime
                 "\"IS_FAVORITE\" INTEGER," + // 10: isFavorite
-                "\"TASK_ID\" INTEGER," + // 11: taskId
-                "\"STUDENT_ID\" INTEGER," + // 12: studentId
-                "\"TEACH_COURSE_ID\" INTEGER);"); // 13: teachCourseId
+                "\"TASK_ID\" INTEGER);"); // 11: taskId
     }
 
     /** Drops the underlying database table. */
@@ -92,9 +88,9 @@ public class BookDao extends AbstractDao<Book, Long> {
             stmt.bindLong(1, id);
         }
  
-        String title = entity.getTitle();
-        if (title != null) {
-            stmt.bindString(2, title);
+        String name = entity.getName();
+        if (name != null) {
+            stmt.bindString(2, name);
         }
  
         String author = entity.getAuthor();
@@ -102,9 +98,9 @@ public class BookDao extends AbstractDao<Book, Long> {
             stmt.bindString(3, author);
         }
  
-        String link = entity.getLink();
-        if (link != null) {
-            stmt.bindString(4, link);
+        String url = entity.getUrl();
+        if (url != null) {
+            stmt.bindString(4, url);
         }
  
         String path = entity.getPath();
@@ -112,24 +108,24 @@ public class BookDao extends AbstractDao<Book, Long> {
             stmt.bindString(5, path);
         }
  
-        String shortIntro = entity.getShortIntro();
-        if (shortIntro != null) {
-            stmt.bindString(6, shortIntro);
+        String brief = entity.getBrief();
+        if (brief != null) {
+            stmt.bindString(6, brief);
         }
  
-        String coverPath = entity.getCoverPath();
-        if (coverPath != null) {
-            stmt.bindString(7, coverPath);
+        String picture = entity.getPicture();
+        if (picture != null) {
+            stmt.bindString(7, picture);
         }
  
-        java.util.Date createdTime = entity.getCreatedTime();
-        if (createdTime != null) {
-            stmt.bindLong(8, createdTime.getTime());
+        java.util.Date create_time = entity.getCreate_time();
+        if (create_time != null) {
+            stmt.bindLong(8, create_time.getTime());
         }
  
-        java.util.Date updatedTime = entity.getUpdatedTime();
-        if (updatedTime != null) {
-            stmt.bindLong(9, updatedTime.getTime());
+        java.util.Date update_time = entity.getUpdate_time();
+        if (update_time != null) {
+            stmt.bindLong(9, update_time.getTime());
         }
  
         java.util.Date lastReadTime = entity.getLastReadTime();
@@ -145,16 +141,6 @@ public class BookDao extends AbstractDao<Book, Long> {
         Long taskId = entity.getTaskId();
         if (taskId != null) {
             stmt.bindLong(12, taskId);
-        }
- 
-        Long studentId = entity.getStudentId();
-        if (studentId != null) {
-            stmt.bindLong(13, studentId);
-        }
- 
-        Long teachCourseId = entity.getTeachCourseId();
-        if (teachCourseId != null) {
-            stmt.bindLong(14, teachCourseId);
         }
     }
 
@@ -167,9 +153,9 @@ public class BookDao extends AbstractDao<Book, Long> {
             stmt.bindLong(1, id);
         }
  
-        String title = entity.getTitle();
-        if (title != null) {
-            stmt.bindString(2, title);
+        String name = entity.getName();
+        if (name != null) {
+            stmt.bindString(2, name);
         }
  
         String author = entity.getAuthor();
@@ -177,9 +163,9 @@ public class BookDao extends AbstractDao<Book, Long> {
             stmt.bindString(3, author);
         }
  
-        String link = entity.getLink();
-        if (link != null) {
-            stmt.bindString(4, link);
+        String url = entity.getUrl();
+        if (url != null) {
+            stmt.bindString(4, url);
         }
  
         String path = entity.getPath();
@@ -187,24 +173,24 @@ public class BookDao extends AbstractDao<Book, Long> {
             stmt.bindString(5, path);
         }
  
-        String shortIntro = entity.getShortIntro();
-        if (shortIntro != null) {
-            stmt.bindString(6, shortIntro);
+        String brief = entity.getBrief();
+        if (brief != null) {
+            stmt.bindString(6, brief);
         }
  
-        String coverPath = entity.getCoverPath();
-        if (coverPath != null) {
-            stmt.bindString(7, coverPath);
+        String picture = entity.getPicture();
+        if (picture != null) {
+            stmt.bindString(7, picture);
         }
  
-        java.util.Date createdTime = entity.getCreatedTime();
-        if (createdTime != null) {
-            stmt.bindLong(8, createdTime.getTime());
+        java.util.Date create_time = entity.getCreate_time();
+        if (create_time != null) {
+            stmt.bindLong(8, create_time.getTime());
         }
  
-        java.util.Date updatedTime = entity.getUpdatedTime();
-        if (updatedTime != null) {
-            stmt.bindLong(9, updatedTime.getTime());
+        java.util.Date update_time = entity.getUpdate_time();
+        if (update_time != null) {
+            stmt.bindLong(9, update_time.getTime());
         }
  
         java.util.Date lastReadTime = entity.getLastReadTime();
@@ -220,16 +206,6 @@ public class BookDao extends AbstractDao<Book, Long> {
         Long taskId = entity.getTaskId();
         if (taskId != null) {
             stmt.bindLong(12, taskId);
-        }
- 
-        Long studentId = entity.getStudentId();
-        if (studentId != null) {
-            stmt.bindLong(13, studentId);
-        }
- 
-        Long teachCourseId = entity.getTeachCourseId();
-        if (teachCourseId != null) {
-            stmt.bindLong(14, teachCourseId);
         }
     }
 
@@ -248,19 +224,17 @@ public class BookDao extends AbstractDao<Book, Long> {
     public Book readEntity(Cursor cursor, int offset) {
         Book entity = new Book( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // title
+            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // name
             cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // author
-            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // link
+            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // url
             cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // path
-            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // shortIntro
-            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // coverPath
-            cursor.isNull(offset + 7) ? null : new java.util.Date(cursor.getLong(offset + 7)), // createdTime
-            cursor.isNull(offset + 8) ? null : new java.util.Date(cursor.getLong(offset + 8)), // updatedTime
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // brief
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // picture
+            cursor.isNull(offset + 7) ? null : new java.util.Date(cursor.getLong(offset + 7)), // create_time
+            cursor.isNull(offset + 8) ? null : new java.util.Date(cursor.getLong(offset + 8)), // update_time
             cursor.isNull(offset + 9) ? null : new java.util.Date(cursor.getLong(offset + 9)), // lastReadTime
             cursor.isNull(offset + 10) ? null : cursor.getShort(offset + 10) != 0, // isFavorite
-            cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11), // taskId
-            cursor.isNull(offset + 12) ? null : cursor.getLong(offset + 12), // studentId
-            cursor.isNull(offset + 13) ? null : cursor.getLong(offset + 13) // teachCourseId
+            cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11) // taskId
         );
         return entity;
     }
@@ -268,19 +242,17 @@ public class BookDao extends AbstractDao<Book, Long> {
     @Override
     public void readEntity(Cursor cursor, Book entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setTitle(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
+        entity.setName(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
         entity.setAuthor(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setLink(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
+        entity.setUrl(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
         entity.setPath(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
-        entity.setShortIntro(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
-        entity.setCoverPath(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
-        entity.setCreatedTime(cursor.isNull(offset + 7) ? null : new java.util.Date(cursor.getLong(offset + 7)));
-        entity.setUpdatedTime(cursor.isNull(offset + 8) ? null : new java.util.Date(cursor.getLong(offset + 8)));
+        entity.setBrief(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
+        entity.setPicture(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setCreate_time(cursor.isNull(offset + 7) ? null : new java.util.Date(cursor.getLong(offset + 7)));
+        entity.setUpdate_time(cursor.isNull(offset + 8) ? null : new java.util.Date(cursor.getLong(offset + 8)));
         entity.setLastReadTime(cursor.isNull(offset + 9) ? null : new java.util.Date(cursor.getLong(offset + 9)));
         entity.setIsFavorite(cursor.isNull(offset + 10) ? null : cursor.getShort(offset + 10) != 0);
         entity.setTaskId(cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11));
-        entity.setStudentId(cursor.isNull(offset + 12) ? null : cursor.getLong(offset + 12));
-        entity.setTeachCourseId(cursor.isNull(offset + 13) ? null : cursor.getLong(offset + 13));
      }
     
     @Override

@@ -14,8 +14,8 @@ public interface TeachClassContract {
     }
 
     interface Presenter extends BaseContract.BasePresenter<View> {
-        void loadTeachClass(String userId);
+        void loadTeachClass(Long userId);
 
-        void joinTeachClass(String userId, String classCode);
+        void joinTeachClass(Long userId, String classCode);
     }
 }

@@ -20,33 +20,17 @@ import sjtu.yhapter.ias.model.dao.BookDao;
 
 @Entity
 public class Book implements sjtu.yhapter.reader.model.pojo.Book {
-
-    @Override
-    public String toString() {
-        return "Book{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", author='" + author + '\'' +
-                ", path='" + path + '\'' +
-                ", shortIntro='" + shortIntro + '\'' +
-                ", coverPath='" + coverPath + '\'' +
-                ", createdTime=" + createdTime +
-                ", updatedTime=" + updatedTime +
-                ", studentId=" + studentId +
-                ", teachCourseId=" + teachCourseId +
-                '}';
-    }
-
     @Id
     private Long id;
-    private String title;
+    private String name;
     private String author;
-    private String link;
+    private String url;
     private String path;
-    private String shortIntro;
-    private String coverPath;
-    private Date createdTime;
-    private Date updatedTime;
+    private String brief;
+    private String picture;
+    private Date create_time;
+    private Date update_time;
+
     private Date lastReadTime;
     private Boolean isFavorite;
 
@@ -54,10 +38,6 @@ public class Book implements sjtu.yhapter.reader.model.pojo.Book {
     private Long taskId;
     @ToOne(joinProperty = "taskId")
     private DownloadTask downloadTask;
-
-    // teach class related
-    private Long studentId;
-    private Long teachCourseId;
 
     @Override
     public Long id() {
@@ -88,12 +68,12 @@ public class Book implements sjtu.yhapter.reader.model.pojo.Book {
         this.id = id;
     }
 
-    public String getTitle() {
-        return this.title;
+    public String getName() {
+        return this.name;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getAuthor() {
@@ -104,12 +84,12 @@ public class Book implements sjtu.yhapter.reader.model.pojo.Book {
         this.author = author;
     }
 
-    public String getLink() {
-        return this.link;
+    public String getUrl() {
+        return this.url;
     }
 
-    public void setLink(String link) {
-        this.link = link;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public String getPath() {
@@ -120,36 +100,52 @@ public class Book implements sjtu.yhapter.reader.model.pojo.Book {
         this.path = path;
     }
 
-    public String getShortIntro() {
-        return this.shortIntro;
+    public String getBrief() {
+        return this.brief;
     }
 
-    public void setShortIntro(String shortIntro) {
-        this.shortIntro = shortIntro;
+    public void setBrief(String brief) {
+        this.brief = brief;
     }
 
-    public String getCoverPath() {
-        return this.coverPath;
+    public String getPicture() {
+        return this.picture;
     }
 
-    public void setCoverPath(String coverPath) {
-        this.coverPath = coverPath;
+    public void setPicture(String picture) {
+        this.picture = picture;
     }
 
-    public Date getCreatedTime() {
-        return this.createdTime;
+    public Date getCreate_time() {
+        return this.create_time;
     }
 
-    public void setCreatedTime(Date createdTime) {
-        this.createdTime = createdTime;
+    public void setCreate_time(Date create_time) {
+        this.create_time = create_time;
     }
 
-    public Date getUpdatedTime() {
-        return this.updatedTime;
+    public Date getUpdate_time() {
+        return this.update_time;
     }
 
-    public void setUpdatedTime(Date updatedTime) {
-        this.updatedTime = updatedTime;
+    public void setUpdate_time(Date update_time) {
+        this.update_time = update_time;
+    }
+
+    public Date getLastReadTime() {
+        return this.lastReadTime;
+    }
+
+    public void setLastReadTime(Date lastReadTime) {
+        this.lastReadTime = lastReadTime;
+    }
+
+    public Boolean getIsFavorite() {
+        return this.isFavorite;
+    }
+
+    public void setIsFavorite(Boolean isFavorite) {
+        this.isFavorite = isFavorite;
     }
 
     public Long getTaskId() {
@@ -158,22 +154,6 @@ public class Book implements sjtu.yhapter.reader.model.pojo.Book {
 
     public void setTaskId(Long taskId) {
         this.taskId = taskId;
-    }
-
-    public Long getStudentId() {
-        return this.studentId;
-    }
-
-    public void setStudentId(Long studentId) {
-        this.studentId = studentId;
-    }
-
-    public Long getTeachCourseId() {
-        return this.teachCourseId;
-    }
-
-    public void setTeachCourseId(Long teachCourseId) {
-        this.teachCourseId = teachCourseId;
     }
 
     /** To-one relationship, resolved on first access. */
@@ -249,20 +229,9 @@ public class Book implements sjtu.yhapter.reader.model.pojo.Book {
         myDao = daoSession != null ? daoSession.getBookDao() : null;
     }
 
-    public Date getLastReadTime() {
-        return this.lastReadTime;
-    }
-
-    public void setLastReadTime(Date lastReadTime) {
-        this.lastReadTime = lastReadTime;
-    }
-
-    public Boolean getIsFavorite() {
-        return this.isFavorite;
-    }
-
-    public void setIsFavorite(Boolean isFavorite) {
-        this.isFavorite = isFavorite;
+    private Book(Parcel in) {
+        id = in.readLong();
+        path = in.readString();
     }
 
     public static final Parcelable.Creator<Book> CREATOR
@@ -285,33 +254,24 @@ public class Book implements sjtu.yhapter.reader.model.pojo.Book {
     @Generated(hash = 450259512)
     private transient Long downloadTask__resolvedKey;
 
-    private Book(Parcel in) {
-        id = in.readLong();
-        path = in.readString();
+    public Book() {
     }
 
-    @Generated(hash = 1642284315)
-    public Book(Long id, String title, String author, String link, String path,
-            String shortIntro, String coverPath, Date createdTime, Date updatedTime,
-            Date lastReadTime, Boolean isFavorite, Long taskId, Long studentId,
-            Long teachCourseId) {
+    @Generated(hash = 1182808644)
+    public Book(Long id, String name, String author, String url, String path,
+            String brief, String picture, Date create_time, Date update_time,
+            Date lastReadTime, Boolean isFavorite, Long taskId) {
         this.id = id;
-        this.title = title;
+        this.name = name;
         this.author = author;
-        this.link = link;
+        this.url = url;
         this.path = path;
-        this.shortIntro = shortIntro;
-        this.coverPath = coverPath;
-        this.createdTime = createdTime;
-        this.updatedTime = updatedTime;
+        this.brief = brief;
+        this.picture = picture;
+        this.create_time = create_time;
+        this.update_time = update_time;
         this.lastReadTime = lastReadTime;
         this.isFavorite = isFavorite;
         this.taskId = taskId;
-        this.studentId = studentId;
-        this.teachCourseId = teachCourseId;
-    }
-
-    @Generated(hash = 1839243756)
-    public Book() {
     }
 }

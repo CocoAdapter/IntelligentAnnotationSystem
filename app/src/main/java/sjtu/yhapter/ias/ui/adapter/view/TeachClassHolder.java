@@ -47,8 +47,8 @@ public class TeachClassHolder extends ViewHolderImpl<TeachClass> {
 
     @Override
     public void onBind(TeachClass data, int pos) {
-        tvName.setText(data.getName());
-        if (data.getStatus() == 1) {
+        tvName.setText(data.getClassname());
+        if (data.getStatus() == 0) {
             Glide.with(getContext())
                     .load(R.drawable.ic_teach_class_status_waiting)
                     .into(imgStatus);

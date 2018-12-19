@@ -1,6 +1,5 @@
 package sjtu.yhapter.ias.model.dao;
 
-import java.util.List;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 
@@ -9,8 +8,6 @@ import org.greenrobot.greendao.Property;
 import org.greenrobot.greendao.internal.DaoConfig;
 import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.database.DatabaseStatement;
-import org.greenrobot.greendao.query.Query;
-import org.greenrobot.greendao.query.QueryBuilder;
 
 import sjtu.yhapter.ias.model.pojo.TeachClass;
 
@@ -27,13 +24,12 @@ public class TeachClassDao extends AbstractDao<TeachClass, Long> {
      * Can be used for QueryBuilder and for referencing column names.
      */
     public static class Properties {
-        public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property Status = new Property(1, int.class, "status", false, "STATUS");
-        public final static Property StudentId = new Property(2, String.class, "studentId", false, "STUDENT_ID");
-        public final static Property Name = new Property(3, String.class, "name", false, "NAME");
+        public final static Property Classid = new Property(0, Long.class, "classid", true, "_id");
+        public final static Property Classname = new Property(1, String.class, "classname", false, "CLASSNAME");
+        public final static Property Desc = new Property(2, String.class, "desc", false, "DESC");
+        public final static Property Status = new Property(3, int.class, "status", false, "STATUS");
     }
 
-    private Query<TeachClass> student_TeachClassesQuery;
 
     public TeachClassDao(DaoConfig config) {
         super(config);
@@ -47,10 +43,10 @@ public class TeachClassDao extends AbstractDao<TeachClass, Long> {
     public static void createTable(Database db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"TEACH_CLASS\" (" + //
-                "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
-                "\"STATUS\" INTEGER NOT NULL ," + // 1: status
-                "\"STUDENT_ID\" TEXT," + // 2: studentId
-                "\"NAME\" TEXT);"); // 3: name
+                "\"_id\" INTEGER PRIMARY KEY ," + // 0: classid
+                "\"CLASSNAME\" TEXT," + // 1: classname
+                "\"DESC\" TEXT," + // 2: desc
+                "\"STATUS\" INTEGER NOT NULL );"); // 3: status
     }
 
     /** Drops the underlying database table. */
@@ -63,42 +59,42 @@ public class TeachClassDao extends AbstractDao<TeachClass, Long> {
     protected final void bindValues(DatabaseStatement stmt, TeachClass entity) {
         stmt.clearBindings();
  
-        Long id = entity.getId();
-        if (id != null) {
-            stmt.bindLong(1, id);
-        }
-        stmt.bindLong(2, entity.getStatus());
- 
-        String studentId = entity.getStudentId();
-        if (studentId != null) {
-            stmt.bindString(3, studentId);
+        Long classid = entity.getClassid();
+        if (classid != null) {
+            stmt.bindLong(1, classid);
         }
  
-        String name = entity.getName();
-        if (name != null) {
-            stmt.bindString(4, name);
+        String classname = entity.getClassname();
+        if (classname != null) {
+            stmt.bindString(2, classname);
         }
+ 
+        String desc = entity.getDesc();
+        if (desc != null) {
+            stmt.bindString(3, desc);
+        }
+        stmt.bindLong(4, entity.getStatus());
     }
 
     @Override
     protected final void bindValues(SQLiteStatement stmt, TeachClass entity) {
         stmt.clearBindings();
  
-        Long id = entity.getId();
-        if (id != null) {
-            stmt.bindLong(1, id);
-        }
-        stmt.bindLong(2, entity.getStatus());
- 
-        String studentId = entity.getStudentId();
-        if (studentId != null) {
-            stmt.bindString(3, studentId);
+        Long classid = entity.getClassid();
+        if (classid != null) {
+            stmt.bindLong(1, classid);
         }
  
-        String name = entity.getName();
-        if (name != null) {
-            stmt.bindString(4, name);
+        String classname = entity.getClassname();
+        if (classname != null) {
+            stmt.bindString(2, classname);
         }
+ 
+        String desc = entity.getDesc();
+        if (desc != null) {
+            stmt.bindString(3, desc);
+        }
+        stmt.bindLong(4, entity.getStatus());
     }
 
     @Override
@@ -109,32 +105,32 @@ public class TeachClassDao extends AbstractDao<TeachClass, Long> {
     @Override
     public TeachClass readEntity(Cursor cursor, int offset) {
         TeachClass entity = new TeachClass( //
-            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.getInt(offset + 1), // status
-            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // studentId
-            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3) // name
+            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // classid
+            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // classname
+            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // desc
+            cursor.getInt(offset + 3) // status
         );
         return entity;
     }
      
     @Override
     public void readEntity(Cursor cursor, TeachClass entity, int offset) {
-        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setStatus(cursor.getInt(offset + 1));
-        entity.setStudentId(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setName(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
+        entity.setClassid(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
+        entity.setClassname(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
+        entity.setDesc(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
+        entity.setStatus(cursor.getInt(offset + 3));
      }
     
     @Override
     protected final Long updateKeyAfterInsert(TeachClass entity, long rowId) {
-        entity.setId(rowId);
+        entity.setClassid(rowId);
         return rowId;
     }
     
     @Override
     public Long getKey(TeachClass entity) {
         if(entity != null) {
-            return entity.getId();
+            return entity.getClassid();
         } else {
             return null;
         }
@@ -142,7 +138,7 @@ public class TeachClassDao extends AbstractDao<TeachClass, Long> {
 
     @Override
     public boolean hasKey(TeachClass entity) {
-        return entity.getId() != null;
+        return entity.getClassid() != null;
     }
 
     @Override
@@ -150,18 +146,4 @@ public class TeachClassDao extends AbstractDao<TeachClass, Long> {
         return true;
     }
     
-    /** Internal query to resolve the "teachClasses" to-many relationship of Student. */
-    public List<TeachClass> _queryStudent_TeachClasses(String studentId) {
-        synchronized (this) {
-            if (student_TeachClassesQuery == null) {
-                QueryBuilder<TeachClass> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.StudentId.eq(null));
-                student_TeachClassesQuery = queryBuilder.build();
-            }
-        }
-        Query<TeachClass> query = student_TeachClassesQuery.forCurrentThread();
-        query.setParameter(0, studentId);
-        return query.list();
-    }
-
 }

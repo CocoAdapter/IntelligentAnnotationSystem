@@ -1,10 +1,13 @@
 package sjtu.yhapter.ias.ui.adapter.view;
 
+import android.net.Uri;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
 
 import sjtu.yhapter.ias.R;
 import sjtu.yhapter.ias.model.pojo.Book;
@@ -38,10 +41,13 @@ public class BookShelfHolder extends ViewHolderImpl<Book> {
 
     @Override
     public void onBind(Book book, int pos) {
-        tvTitle.setText(book.getTitle());
-        String coverPath = book.getCoverPath();
+        tvTitle.setText(book.getName());
+        String coverPath = book.getPicture();
         if (coverPath != null && !coverPath.equals("")) {
             // Glide.
+            Glide.with(getContext())
+                    .load(Uri.parse(coverPath))
+                    .into(imgCover);
         }
 
         // 下载状态

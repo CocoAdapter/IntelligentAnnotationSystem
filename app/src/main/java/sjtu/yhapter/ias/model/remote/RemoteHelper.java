@@ -7,6 +7,7 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import sjtu.yhapter.ias.model.Constants;
+import sjtu.yhapter.ias.model.remote.gson.ResponseConverterFactory;
 import sjtu.yhapter.reader.util.LogUtil;
 
 public class RemoteHelper {
@@ -19,14 +20,13 @@ public class RemoteHelper {
                 .addNetworkInterceptor(chain -> {
                     Request request = chain.request();
                     Response response = chain.proceed(request);
-                    if (response.isSuccessful())
                     LogUtil.log("intercept: " + request.url().toString());
                     return response;
                 }).build();
 
         retrofit = new Retrofit.Builder()
                 .client(okHttpClient)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(ResponseConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .baseUrl(Constants.BASE_URL)
                 .build();

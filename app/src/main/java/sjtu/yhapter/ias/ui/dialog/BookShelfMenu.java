@@ -85,8 +85,8 @@ public class BookShelfMenu extends PopupWindow {
         itemsMap.put(defaultItems[1], ID_COLLECTION);
 
         for (TeachClass t : teachClasses) {
-            String key = t.getName() == null ? "" : t.getName(); // TODO
-            long value = t.getId();
+            String key = t.getClassname() == null ? "" : t.getClassname(); // TODO
+            long value = t.getClassid();
             adapter.add(key);
             itemsMap.put(key, value);
         }

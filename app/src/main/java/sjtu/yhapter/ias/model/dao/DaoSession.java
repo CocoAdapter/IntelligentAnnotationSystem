@@ -8,12 +8,10 @@ import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.identityscope.IdentityScopeType;
 import org.greenrobot.greendao.internal.DaoConfig;
 
-import sjtu.yhapter.ias.model.pojo.Student;
 import sjtu.yhapter.ias.model.pojo.TeachClass;
 import sjtu.yhapter.ias.model.pojo.Book;
 import sjtu.yhapter.ias.model.pojo.DownloadTask;
 
-import sjtu.yhapter.ias.model.dao.StudentDao;
 import sjtu.yhapter.ias.model.dao.TeachClassDao;
 import sjtu.yhapter.ias.model.dao.BookDao;
 import sjtu.yhapter.ias.model.dao.DownloadTaskDao;
@@ -27,12 +25,10 @@ import sjtu.yhapter.ias.model.dao.DownloadTaskDao;
  */
 public class DaoSession extends AbstractDaoSession {
 
-    private final DaoConfig studentDaoConfig;
     private final DaoConfig teachClassDaoConfig;
     private final DaoConfig bookDaoConfig;
     private final DaoConfig downloadTaskDaoConfig;
 
-    private final StudentDao studentDao;
     private final TeachClassDao teachClassDao;
     private final BookDao bookDao;
     private final DownloadTaskDao downloadTaskDao;
@@ -40,9 +36,6 @@ public class DaoSession extends AbstractDaoSession {
     public DaoSession(Database db, IdentityScopeType type, Map<Class<? extends AbstractDao<?, ?>>, DaoConfig>
             daoConfigMap) {
         super(db);
-
-        studentDaoConfig = daoConfigMap.get(StudentDao.class).clone();
-        studentDaoConfig.initIdentityScope(type);
 
         teachClassDaoConfig = daoConfigMap.get(TeachClassDao.class).clone();
         teachClassDaoConfig.initIdentityScope(type);
@@ -53,26 +46,19 @@ public class DaoSession extends AbstractDaoSession {
         downloadTaskDaoConfig = daoConfigMap.get(DownloadTaskDao.class).clone();
         downloadTaskDaoConfig.initIdentityScope(type);
 
-        studentDao = new StudentDao(studentDaoConfig, this);
         teachClassDao = new TeachClassDao(teachClassDaoConfig, this);
         bookDao = new BookDao(bookDaoConfig, this);
         downloadTaskDao = new DownloadTaskDao(downloadTaskDaoConfig, this);
 
-        registerDao(Student.class, studentDao);
         registerDao(TeachClass.class, teachClassDao);
         registerDao(Book.class, bookDao);
         registerDao(DownloadTask.class, downloadTaskDao);
     }
     
     public void clear() {
-        studentDaoConfig.clearIdentityScope();
         teachClassDaoConfig.clearIdentityScope();
         bookDaoConfig.clearIdentityScope();
         downloadTaskDaoConfig.clearIdentityScope();
-    }
-
-    public StudentDao getStudentDao() {
-        return studentDao;
     }
 
     public TeachClassDao getTeachClassDao() {

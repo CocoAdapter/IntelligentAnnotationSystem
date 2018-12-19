@@ -12,6 +12,7 @@ import io.reactivex.SingleObserver;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import sjtu.yhapter.ias.App;
 import sjtu.yhapter.ias.RxBus;
@@ -19,6 +20,7 @@ import sjtu.yhapter.ias.model.dao.BookDao;
 import sjtu.yhapter.ias.model.pojo.Book;
 import sjtu.yhapter.ias.model.pojo.DownloadTask;
 import sjtu.yhapter.ias.model.pojo.TeachClass;
+import sjtu.yhapter.ias.model.remote.RemoteRepository;
 import sjtu.yhapter.ias.model.remote.download.DownloadListener;
 import sjtu.yhapter.ias.presenter.contract.BookShelfContract;
 import sjtu.yhapter.ias.service.DownloadService;
@@ -84,46 +86,30 @@ public class BookShelfPresenter extends RxPresenter<BookShelfContract.View> impl
                         }
                     });
         } else {
-            // TODO 根据教学班返回书单
-            Single.create((SingleOnSubscribe<List<Book>>) emitter -> {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ignore) {}
-
-                List<Book> books = new ArrayList<>();
-                for (int i = 1; i <= 2; i ++) {
-                    Book book = new Book();
-                    book.setId((long) i);
-                    book.setTitle(i == 1 ? "了不起的盖茨比" : "挪威的森林");
-                    book.setAuthor(i == 1 ? "弗·司各特·菲茨杰拉德" : "村上春树");
-                    Date nowTime = new Date();
-                    book.setCreatedTime(nowTime);
-                    book.setUpdatedTime(nowTime);
-                    book.setStudentId(1L);
-                    book.setTeachCourseId((long) i);
-                    book.setLink("http://pixwdujby.bkt.clouddn.com//default/all/0/9511860afcac487e8776093b36016e77.txt");
-                    book.setPath(FileUtils.getCachePath() + File.separator + book.getId());
-
-                    DownloadTask task = App.getDaoInstant().getDownloadTaskDao().load(book.getId());
-                    if (task == null) {
-                        task = new DownloadTask();
-                        task.setId(book.getId()); // 这里可能ID冲突，还是加个前缀比较好
-                        task.setLink(book.getLink());
-                        task.setLocalPath(book.getPath());
-                        task.setStatus(DownloadService.STATUS_WAIT);
-                        task.setTaskName("download_" + book.getId() + "_" + book.getTitle());
-                        App.getDaoInstant().getDownloadTaskDao().insertOrReplace(task);
-                    }
-
-                    book.setDownloadTask(task);
-                    if (book.getTeachCourseId() == menuIndex)
-                        books.add(book);
-                }
-
-                App.getDaoInstant().getBookDao().insertOrReplaceInTx(books);
-                emitter.onSuccess(books);
-            }).subscribeOn(Schedulers.io())
+            RemoteRepository
+                    .getInstance()
+                    .getClassBookList(menuIndex)
                     .observeOn(AndroidSchedulers.mainThread())
+                    .doOnSuccess(books -> {
+                        for (Book book : books) {
+                            book.setPath(FileUtils.getCachePath() + File.separator + book.getId());
+
+                            DownloadTask task = App.getDaoInstant().getDownloadTaskDao().load(book.getId());
+                            if (task == null) {
+                                task = new DownloadTask();
+                                task.setId(book.getId()); // 这里可能ID冲突，还是加个前缀比较好
+                                task.setLink(book.getUrl());
+                                task.setLocalPath(book.getPath());
+                                task.setStatus(DownloadService.STATUS_WAIT);
+                                task.setTaskName("download_" + book.getId() + "_" + book.getName());
+                                App.getDaoInstant().getDownloadTaskDao().insertOrReplace(task);
+                            }
+
+                            book.setDownloadTask(task);
+                            LogUtil.log(task.toString());
+                        }
+                        App.getDaoInstant().getBookDao().insertOrReplaceInTx(books);
+                    })
                     .subscribe(new SingleObserver<List<Book>>() {
                         @Override
                         public void onSubscribe(Disposable d) {

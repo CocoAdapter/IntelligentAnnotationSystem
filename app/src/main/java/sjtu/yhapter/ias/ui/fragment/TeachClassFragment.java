@@ -11,7 +11,6 @@ import java.util.List;
 
 import sjtu.yhapter.ias.App;
 import sjtu.yhapter.ias.R;
-import sjtu.yhapter.ias.model.pojo.Student;
 import sjtu.yhapter.ias.model.pojo.TeachClass;
 import sjtu.yhapter.ias.presenter.TeachClassPresenter;
 import sjtu.yhapter.ias.presenter.contract.TeachClassContract;
@@ -19,7 +18,6 @@ import sjtu.yhapter.ias.ui.adapter.TeachClassAdapter;
 import sjtu.yhapter.ias.ui.base.BaseMVPFragment;
 import sjtu.yhapter.ias.ui.dialog.JoinTeachClassDialog;
 import sjtu.yhapter.ias.widget.refresh.ScrollRefreshRecyclerView;
-import sjtu.yhapter.reader.util.LogUtil;
 
 public class TeachClassFragment extends BaseMVPFragment<TeachClassContract.Presenter> implements TeachClassContract.View {
     private FloatingActionButton fabAdd;
@@ -27,8 +25,6 @@ public class TeachClassFragment extends BaseMVPFragment<TeachClassContract.Prese
     private TeachClassAdapter teachClassAdapter;
 
     private JoinTeachClassDialog joinDialog;
-
-    private Student student;
 
     @Override
     protected TeachClassContract.Presenter bindPresenter() {
@@ -54,8 +50,6 @@ public class TeachClassFragment extends BaseMVPFragment<TeachClassContract.Prese
 
     @Override
     protected void initData(Bundle savedInstanceState) {
-        student = App.getDaoInstant().getStudentDao().loadAll().get(0);
-
         teachClassAdapter = new TeachClassAdapter();
     }
 
@@ -75,7 +69,7 @@ public class TeachClassFragment extends BaseMVPFragment<TeachClassContract.Prese
         rvList.setVisibility(View.VISIBLE);
 
         rvList.startRefresh();
-        presenter.loadTeachClass(student.getStudentId()); // init loading
+        presenter.loadTeachClass(App.USER_ID); // init loading
     }
 
     @Override
@@ -86,7 +80,7 @@ public class TeachClassFragment extends BaseMVPFragment<TeachClassContract.Prese
                     if (joinDialog == null) {
                         joinDialog = new JoinTeachClassDialog(getActivity(), getActivity());
                         joinDialog.setOnJoinClickListener((code) ->
-                                presenter.joinTeachClass(student.getId(), code));
+                                presenter.joinTeachClass(App.USER_ID, code));
                     }
                     joinDialog.show();
                     break;
@@ -95,7 +89,7 @@ public class TeachClassFragment extends BaseMVPFragment<TeachClassContract.Prese
         fabAdd.setOnClickListener(ocl);
 
         rvList.setOnRefreshListener(() -> {
-            presenter.loadTeachClass(student.getStudentId());
+            presenter.loadTeachClass(App.USER_ID);
         });
     }
 
