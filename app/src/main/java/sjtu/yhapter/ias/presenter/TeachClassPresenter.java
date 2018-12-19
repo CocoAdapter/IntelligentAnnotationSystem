@@ -41,7 +41,7 @@ public class TeachClassPresenter extends RxPresenter<TeachClassContract.View> im
                     public void onError(Throwable e) {
                         LogUtil.log(e.toString());
                         view.complete();
-                        view.showError();
+                        view.showError(e.getMessage());
                     }
                 });
     }

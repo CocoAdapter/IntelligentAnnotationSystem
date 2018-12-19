@@ -15,7 +15,7 @@ public class MineFragment extends BaseMVPFragment<MineContract.Presenter> implem
     }
 
     @Override
-    public void showError() {
+    public void showError(String msg) {
 
     }
 

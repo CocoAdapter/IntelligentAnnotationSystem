@@ -17,7 +17,7 @@ public interface Api {
     Single<String> getClassList(@Query("user") long userId);
 
     @GET("enquiryClassJoined/books")
-    Single<String> getClassBooks(@Query("classID") long classId);
+    Single<String> getClassBooks(@Query("classID") long classId, @Query("userID") String userId);
 
     @POST("studentLogin")
     @Headers({"Content-Type: application/json;charset=UTF-8"})
@@ -30,4 +30,8 @@ public interface Api {
     @POST("applyClass")
     @Headers({"Content-Type: application/json;charset=UTF-8"})
     Single<String> joinClass(@Body RequestBody info);
+
+    @POST("uploadAnnotation")
+    @Headers({"Content-Type: application/json;charset=UTF-8"})
+    Single<String> saveAnnotation(@Body RequestBody info);
 }

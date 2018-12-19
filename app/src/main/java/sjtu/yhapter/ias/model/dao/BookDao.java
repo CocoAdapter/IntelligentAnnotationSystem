@@ -13,6 +13,7 @@ import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.database.DatabaseStatement;
 
 import sjtu.yhapter.ias.model.pojo.DownloadTask;
+import sjtu.yhapter.ias.model.pojo.TeachClass;
 
 import sjtu.yhapter.ias.model.pojo.Book;
 
@@ -41,6 +42,7 @@ public class BookDao extends AbstractDao<Book, Long> {
         public final static Property LastReadTime = new Property(9, java.util.Date.class, "lastReadTime", false, "LAST_READ_TIME");
         public final static Property IsFavorite = new Property(10, Boolean.class, "isFavorite", false, "IS_FAVORITE");
         public final static Property TaskId = new Property(11, Long.class, "taskId", false, "TASK_ID");
+        public final static Property TeachClassId = new Property(12, Long.class, "teachClassId", false, "TEACH_CLASS_ID");
     }
 
     private DaoSession daoSession;
@@ -70,7 +72,8 @@ public class BookDao extends AbstractDao<Book, Long> {
                 "\"UPDATE_TIME\" INTEGER," + // 8: update_time
                 "\"LAST_READ_TIME\" INTEGER," + // 9: lastReadTime
                 "\"IS_FAVORITE\" INTEGER," + // 10: isFavorite
-                "\"TASK_ID\" INTEGER);"); // 11: taskId
+                "\"TASK_ID\" INTEGER," + // 11: taskId
+                "\"TEACH_CLASS_ID\" INTEGER);"); // 12: teachClassId
     }
 
     /** Drops the underlying database table. */
@@ -142,6 +145,11 @@ public class BookDao extends AbstractDao<Book, Long> {
         if (taskId != null) {
             stmt.bindLong(12, taskId);
         }
+ 
+        Long teachClassId = entity.getTeachClassId();
+        if (teachClassId != null) {
+            stmt.bindLong(13, teachClassId);
+        }
     }
 
     @Override
@@ -207,6 +215,11 @@ public class BookDao extends AbstractDao<Book, Long> {
         if (taskId != null) {
             stmt.bindLong(12, taskId);
         }
+ 
+        Long teachClassId = entity.getTeachClassId();
+        if (teachClassId != null) {
+            stmt.bindLong(13, teachClassId);
+        }
     }
 
     @Override
@@ -234,7 +247,8 @@ public class BookDao extends AbstractDao<Book, Long> {
             cursor.isNull(offset + 8) ? null : new java.util.Date(cursor.getLong(offset + 8)), // update_time
             cursor.isNull(offset + 9) ? null : new java.util.Date(cursor.getLong(offset + 9)), // lastReadTime
             cursor.isNull(offset + 10) ? null : cursor.getShort(offset + 10) != 0, // isFavorite
-            cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11) // taskId
+            cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11), // taskId
+            cursor.isNull(offset + 12) ? null : cursor.getLong(offset + 12) // teachClassId
         );
         return entity;
     }
@@ -253,6 +267,7 @@ public class BookDao extends AbstractDao<Book, Long> {
         entity.setLastReadTime(cursor.isNull(offset + 9) ? null : new java.util.Date(cursor.getLong(offset + 9)));
         entity.setIsFavorite(cursor.isNull(offset + 10) ? null : cursor.getShort(offset + 10) != 0);
         entity.setTaskId(cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11));
+        entity.setTeachClassId(cursor.isNull(offset + 12) ? null : cursor.getLong(offset + 12));
      }
     
     @Override
@@ -288,8 +303,11 @@ public class BookDao extends AbstractDao<Book, Long> {
             SqlUtils.appendColumns(builder, "T", getAllColumns());
             builder.append(',');
             SqlUtils.appendColumns(builder, "T0", daoSession.getDownloadTaskDao().getAllColumns());
+            builder.append(',');
+            SqlUtils.appendColumns(builder, "T1", daoSession.getTeachClassDao().getAllColumns());
             builder.append(" FROM BOOK T");
             builder.append(" LEFT JOIN DOWNLOAD_TASK T0 ON T.\"TASK_ID\"=T0.\"_id\"");
+            builder.append(" LEFT JOIN TEACH_CLASS T1 ON T.\"TEACH_CLASS_ID\"=T1.\"_id\"");
             builder.append(' ');
             selectDeep = builder.toString();
         }
@@ -302,6 +320,10 @@ public class BookDao extends AbstractDao<Book, Long> {
 
         DownloadTask downloadTask = loadCurrentOther(daoSession.getDownloadTaskDao(), cursor, offset);
         entity.setDownloadTask(downloadTask);
+        offset += daoSession.getDownloadTaskDao().getAllColumns().length;
+
+        TeachClass teachClass = loadCurrentOther(daoSession.getTeachClassDao(), cursor, offset);
+        entity.setTeachClass(teachClass);
 
         return entity;    
     }

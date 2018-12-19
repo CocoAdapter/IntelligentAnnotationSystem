@@ -90,7 +90,7 @@ public class MainActivity extends BaseFragmentActivity<MainContract.Presenter> i
     }
 
     @Override
-    public void showError() {
+    public void showError(String msg) {
 
     }
 

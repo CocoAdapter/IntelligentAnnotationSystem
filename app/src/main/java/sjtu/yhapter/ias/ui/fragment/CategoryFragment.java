@@ -83,7 +83,7 @@ public class CategoryFragment extends BaseMVPFragment<CategoryContract.Presenter
     }
 
     @Override
-    public void showError() {
+    public void showError(String msg) {
 
     }
 

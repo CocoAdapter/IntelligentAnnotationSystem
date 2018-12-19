@@ -18,7 +18,7 @@ public class HotLineFragment extends BaseMVPFragment<HotLineContract.Presenter> 
     }
 
     @Override
-    public void showError() {
+    public void showError(String msg) {
 
     }
 

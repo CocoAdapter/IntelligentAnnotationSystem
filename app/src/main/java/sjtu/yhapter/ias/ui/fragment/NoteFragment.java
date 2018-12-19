@@ -18,7 +18,7 @@ public class NoteFragment extends BaseMVPFragment<NoteContract.Presenter> implem
     }
 
     @Override
-    public void showError() {
+    public void showError(String msg) {
 
     }
 

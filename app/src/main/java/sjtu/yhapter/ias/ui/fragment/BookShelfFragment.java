@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 
@@ -49,8 +50,11 @@ public class BookShelfFragment extends BaseMVPFragment<BookShelfContract.Present
     }
 
     @Override
-    public void showError() {
-        Toast.makeText(getActivity(), "加载失败", Toast.LENGTH_LONG).show();
+    public void showError(String msg) {
+        if (TextUtils.isEmpty(msg))
+            Toast.makeText(getActivity(), "加载失败", Toast.LENGTH_LONG).show();
+        else
+            Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -95,6 +99,7 @@ public class BookShelfFragment extends BaseMVPFragment<BookShelfContract.Present
                     // local file found, try to read from local
                     Intent intent = new Intent(getActivity(), ReadActivity.class);
                     intent.putExtra("book", book);
+                    intent.putExtra("classId", book.getTeachClassId() + "");
                     startActivity(intent);
                     break;
                 default:

@@ -28,6 +28,7 @@ import sjtu.yhapter.ias.ui.fragment.CategoryFragment;
 import sjtu.yhapter.ias.ui.fragment.HotLineFragment;
 import sjtu.yhapter.ias.ui.fragment.NoteFragment;
 import sjtu.yhapter.reader.loader.BookLoader;
+import sjtu.yhapter.reader.model.pojo.Annotation;
 import sjtu.yhapter.reader.model.pojo.Book;
 import sjtu.yhapter.reader.model.pojo.ChapterData;
 import sjtu.yhapter.reader.page.PageElement;
@@ -51,7 +52,9 @@ public class ReadActivity extends BaseMVPActivity<ReadContract.Presenter> implem
 
     private Fragment[] drawerFragments;
     private PageElement pageElement;
+
     private Book book;
+    private String classId;
 
     @Override
     public void onBackPressed() {
@@ -59,7 +62,7 @@ public class ReadActivity extends BaseMVPActivity<ReadContract.Presenter> implem
     }
 
     @Override
-    public void showError() {
+    public void showError(String msg) {
 
     }
 
@@ -94,6 +97,7 @@ public class ReadActivity extends BaseMVPActivity<ReadContract.Presenter> implem
         animBottomOut = AnimationUtils.loadAnimation(ReadActivity.this, R.anim.read_menu_bottom_exit);
 
         book = getIntent().getParcelableExtra("book");
+        classId = getIntent().getStringExtra("classId");
     }
 
     @Override
@@ -216,6 +220,18 @@ public class ReadActivity extends BaseMVPActivity<ReadContract.Presenter> implem
                 toggleMenu(false);
 
                 pageElement.skipToChapter(position);
+            }
+        });
+
+        pageElement.setAnnotationListener(new PageElement.AnnotationListener() {
+            @Override
+            public void onAnnotationCreate(Annotation annotation) {
+                presenter.saveAnnotation(annotation, classId);
+            }
+
+            @Override
+            public void onAnnotationDelete(Annotation annotation) {
+
             }
         });
     }

@@ -16,6 +16,7 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import sjtu.yhapter.ias.App;
 import sjtu.yhapter.ias.RxBus;
+import sjtu.yhapter.ias.model.Constants;
 import sjtu.yhapter.ias.model.dao.BookDao;
 import sjtu.yhapter.ias.model.pojo.Book;
 import sjtu.yhapter.ias.model.pojo.DownloadTask;
@@ -28,6 +29,7 @@ import sjtu.yhapter.ias.ui.base.RxPresenter;
 import sjtu.yhapter.ias.ui.dialog.BookShelfMenu;
 import sjtu.yhapter.ias.util.FileUtils;
 import sjtu.yhapter.reader.util.LogUtil;
+import sjtu.yhapter.reader.util.SharedPrefUtil;
 
 public class BookShelfPresenter extends RxPresenter<BookShelfContract.View> implements BookShelfContract.Presenter {
     @Override
@@ -54,8 +56,7 @@ public class BookShelfPresenter extends RxPresenter<BookShelfContract.View> impl
 
                         @Override
                         public void onError(Throwable e) {
-                            LogUtil.log(e.toString());
-                            view.showError();
+                            view.showError(e.getMessage());
                         }
                     });
         } else if (menuIndex == BookShelfMenu.ID_COLLECTION) {
@@ -82,13 +83,14 @@ public class BookShelfPresenter extends RxPresenter<BookShelfContract.View> impl
                         @Override
                         public void onError(Throwable e) {
                             LogUtil.log(e.toString());
-                            view.showError();
+                            view.showError(e.getMessage());
                         }
                     });
         } else {
+            String uid = SharedPrefUtil.getInstance().getString(Constants.UID);
             RemoteRepository
                     .getInstance()
-                    .getClassBookList(menuIndex)
+                    .getClassBookList(menuIndex, uid)
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnSuccess(books -> {
                         for (Book book : books) {
@@ -104,9 +106,14 @@ public class BookShelfPresenter extends RxPresenter<BookShelfContract.View> impl
                                 task.setTaskName("download_" + book.getId() + "_" + book.getName());
                                 App.getDaoInstant().getDownloadTaskDao().insertOrReplace(task);
                             }
-
                             book.setDownloadTask(task);
-                            LogUtil.log(task.toString());
+
+                            TeachClass teachClass = App.getDaoInstant().getTeachClassDao().load(menuIndex);
+                            if (teachClass == null) {
+                                // something wrong
+                                LogUtil.log(menuIndex + " teachClass not found");
+                            }
+                            book.setTeachClass(teachClass);
                         }
                         App.getDaoInstant().getBookDao().insertOrReplaceInTx(books);
                     })
@@ -126,7 +133,7 @@ public class BookShelfPresenter extends RxPresenter<BookShelfContract.View> impl
                         public void onError(Throwable e) {
                             LogUtil.log(e.toString());
                             view.complete();
-                            view.showError();
+                            view.showError(e.getMessage());
                         }
                     });
         }
@@ -154,7 +161,7 @@ public class BookShelfPresenter extends RxPresenter<BookShelfContract.View> impl
                     @Override
                     public void onError(Throwable e) {
                         LogUtil.log(e.toString());
-                        view.showError();
+                        view.showError(e.getMessage());
                     }
                 });
     }
@@ -180,7 +187,7 @@ public class BookShelfPresenter extends RxPresenter<BookShelfContract.View> impl
 
             @Override
             public void onFail(String errorInfo) {
-                view.showError();
+                view.showError(errorInfo);
 
                 task.setStatus(DownloadService.STATUS_ERROR);
                 task.setEndTime(new Date());

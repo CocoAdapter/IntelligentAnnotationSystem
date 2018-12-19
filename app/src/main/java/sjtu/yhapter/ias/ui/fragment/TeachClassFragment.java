@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 
@@ -37,8 +38,11 @@ public class TeachClassFragment extends BaseMVPFragment<TeachClassContract.Prese
     }
 
     @Override
-    public void showError() {
-        Toast.makeText(getActivity(), "操作失败", Toast.LENGTH_LONG).show();
+    public void showError(String msg) {
+        if (TextUtils.isEmpty(msg))
+            Toast.makeText(getActivity(), "加载失败", Toast.LENGTH_LONG).show();
+        else
+            Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
     }
 
     @Override

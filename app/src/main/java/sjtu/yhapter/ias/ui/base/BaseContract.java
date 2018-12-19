@@ -11,7 +11,7 @@ public interface BaseContract {
 
     interface BaseView {
 
-        void showError();
+        void showError(String msg);
 
         void complete();
     }

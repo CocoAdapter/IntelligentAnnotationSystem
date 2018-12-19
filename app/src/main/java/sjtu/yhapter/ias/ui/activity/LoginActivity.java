@@ -31,7 +31,7 @@ public class LoginActivity extends BaseMVPActivity<LoginContract.Presenter> impl
     }
 
     @Override
-    public void showError() {
+    public void showError(String msg) {
 
     }
 

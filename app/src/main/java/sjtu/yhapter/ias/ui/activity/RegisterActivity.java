@@ -29,7 +29,7 @@ public class RegisterActivity extends BaseMVPActivity<RegisterContract.Presenter
     }
 
     @Override
-    public void showError() {
+    public void showError(String msg) {
 
     }
 

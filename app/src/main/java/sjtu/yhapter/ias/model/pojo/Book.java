@@ -17,6 +17,7 @@ import org.greenrobot.greendao.DaoException;
 import sjtu.yhapter.ias.model.dao.DaoSession;
 import sjtu.yhapter.ias.model.dao.DownloadTaskDao;
 import sjtu.yhapter.ias.model.dao.BookDao;
+import sjtu.yhapter.ias.model.dao.TeachClassDao;
 
 @Entity
 public class Book implements sjtu.yhapter.reader.model.pojo.Book {
@@ -38,6 +39,10 @@ public class Book implements sjtu.yhapter.reader.model.pojo.Book {
     private Long taskId;
     @ToOne(joinProperty = "taskId")
     private DownloadTask downloadTask;
+
+    private Long teachClassId;
+    @ToOne(joinProperty = "teachClassId")
+    private TeachClass teachClass;
 
     @Override
     public Long id() {
@@ -229,6 +234,43 @@ public class Book implements sjtu.yhapter.reader.model.pojo.Book {
         myDao = daoSession != null ? daoSession.getBookDao() : null;
     }
 
+    public Long getTeachClassId() {
+        return this.teachClassId;
+    }
+
+    public void setTeachClassId(Long teachClassId) {
+        this.teachClassId = teachClassId;
+    }
+
+    /** To-one relationship, resolved on first access. */
+    @Generated(hash = 1624042324)
+    public TeachClass getTeachClass() {
+        Long __key = this.teachClassId;
+        if (teachClass__resolvedKey == null || !teachClass__resolvedKey.equals(__key)) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            TeachClassDao targetDao = daoSession.getTeachClassDao();
+            TeachClass teachClassNew = targetDao.load(__key);
+            synchronized (this) {
+                teachClass = teachClassNew;
+                teachClass__resolvedKey = __key;
+            }
+        }
+        return teachClass;
+    }
+
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 666447524)
+    public void setTeachClass(TeachClass teachClass) {
+        synchronized (this) {
+            this.teachClass = teachClass;
+            teachClassId = teachClass == null ? null : teachClass.getClassid();
+            teachClass__resolvedKey = teachClassId;
+        }
+    }
+
     private Book(Parcel in) {
         id = in.readLong();
         path = in.readString();
@@ -253,14 +295,16 @@ public class Book implements sjtu.yhapter.reader.model.pojo.Book {
     private transient BookDao myDao;
     @Generated(hash = 450259512)
     private transient Long downloadTask__resolvedKey;
+    @Generated(hash = 2024068698)
+    private transient Long teachClass__resolvedKey;
 
     public Book() {
     }
 
-    @Generated(hash = 1182808644)
-    public Book(Long id, String name, String author, String url, String path,
-            String brief, String picture, Date create_time, Date update_time,
-            Date lastReadTime, Boolean isFavorite, Long taskId) {
+    @Generated(hash = 1646449777)
+    public Book(Long id, String name, String author, String url, String path, String brief,
+            String picture, Date create_time, Date update_time, Date lastReadTime,
+            Boolean isFavorite, Long taskId, Long teachClassId) {
         this.id = id;
         this.name = name;
         this.author = author;
@@ -273,5 +317,6 @@ public class Book implements sjtu.yhapter.reader.model.pojo.Book {
         this.lastReadTime = lastReadTime;
         this.isFavorite = isFavorite;
         this.taskId = taskId;
+        this.teachClassId = teachClassId;
     }
 }

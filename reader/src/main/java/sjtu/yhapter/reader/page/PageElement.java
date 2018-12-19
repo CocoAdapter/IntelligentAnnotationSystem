@@ -82,6 +82,8 @@ public class PageElement {
     private Disposable loadDisp;
     private Disposable preLoadPreDisp, preLoadNextDisp;
 
+    private AnnotationListener annotationListener;
+
     public PageElement(ReaderView readerView) {
         // widget init
         this.readerView = readerView;
@@ -297,6 +299,8 @@ public class PageElement {
             return;
 
         App.getDaoInstant().getAnnotationDao().saveInTx(annotation);
+        if (annotationListener != null)
+            annotationListener.onAnnotationCreate(annotation);
     }
 
     public void delAnnotation(Annotation annotation) {
@@ -304,6 +308,8 @@ public class PageElement {
             return;
 
         App.getDaoInstant().getAnnotationDao().delete(annotation);
+        if (annotationListener != null)
+            annotationListener.onAnnotationDelete(annotation);
     }
 
     /**
@@ -350,6 +356,10 @@ public class PageElement {
             readerView.postInvalidate();
 //            preLoadChapter(index);
         });
+    }
+
+    public void setAnnotationListener(AnnotationListener annotationListener) {
+        this.annotationListener = annotationListener;
     }
 
     /**
@@ -623,5 +633,11 @@ public class PageElement {
 
     private interface Action<T> {
         void call(T t);
+    }
+
+    public interface AnnotationListener {
+        void onAnnotationCreate(Annotation annotation);
+
+        void onAnnotationDelete(Annotation annotation);
     }
 }

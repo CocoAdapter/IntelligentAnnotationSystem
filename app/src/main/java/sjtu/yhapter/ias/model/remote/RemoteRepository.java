@@ -20,6 +20,7 @@ import okhttp3.RequestBody;
 import retrofit2.Retrofit;
 import sjtu.yhapter.ias.model.pojo.Book;
 import sjtu.yhapter.ias.model.pojo.TeachClass;
+import sjtu.yhapter.reader.model.pojo.Annotation;
 import sjtu.yhapter.reader.util.LogUtil;
 
 public class RemoteRepository {
@@ -52,8 +53,8 @@ public class RemoteRepository {
                         }.getType()));
     }
 
-    public Single<List<Book>> getClassBookList(long classId) {
-        return api.getClassBooks(classId)
+    public Single<List<Book>> getClassBookList(long classId, String userId) {
+        return api.getClassBooks(classId, userId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation())
                 .map(response -> new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss")
@@ -102,6 +103,21 @@ public class RemoteRepository {
 
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), obj.toString());
         return api.joinClass(requestBody)
+                .subscribeOn(Schedulers.io())
+                .map(response -> true);
+    }
+
+    public Single<Boolean> saveAnnotation(Annotation annotation, String classId) {
+        String str = new Gson().toJson(annotation);
+        JSONObject obj = null;
+        try {
+            obj = new JSONObject(str)
+                    .put("classid", classId);
+        } catch (JSONException ignore) {
+        }
+        assert obj != null;
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), obj.toString());
+        return api.saveAnnotation(requestBody)
                 .subscribeOn(Schedulers.io())
                 .map(response -> true);
     }
