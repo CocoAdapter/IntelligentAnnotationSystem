@@ -2,6 +2,7 @@
 <resources>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
+    <color name="gray">#AAAAAA</color>
     <color name="dim_black">#80808080</color>
 
     <color name="divider">#AAAAAA</color>

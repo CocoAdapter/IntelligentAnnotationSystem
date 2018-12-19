@@ -10,7 +10,7 @@ public interface TeachClassContract {
     interface View extends BaseContract.BaseView {
         void onTeachClassLoaded(List<TeachClass> teachClasses);
 
-        void onJoinTeachClass(TeachClass teachClass);
+        void onJoinTeachClass(boolean success, String msg);
     }
 
     interface Presenter extends BaseContract.BasePresenter<View> {

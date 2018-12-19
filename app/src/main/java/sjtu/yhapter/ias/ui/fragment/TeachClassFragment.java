@@ -9,8 +9,10 @@ import android.widget.Toast;
 
 import java.util.List;
 
+import sjtu.yhapter.common.ui.LoadingDialog;
 import sjtu.yhapter.ias.App;
 import sjtu.yhapter.ias.R;
+import sjtu.yhapter.ias.model.Constants;
 import sjtu.yhapter.ias.model.pojo.TeachClass;
 import sjtu.yhapter.ias.presenter.TeachClassPresenter;
 import sjtu.yhapter.ias.presenter.contract.TeachClassContract;
@@ -18,6 +20,7 @@ import sjtu.yhapter.ias.ui.adapter.TeachClassAdapter;
 import sjtu.yhapter.ias.ui.base.BaseMVPFragment;
 import sjtu.yhapter.ias.ui.dialog.JoinTeachClassDialog;
 import sjtu.yhapter.ias.widget.refresh.ScrollRefreshRecyclerView;
+import sjtu.yhapter.reader.util.SharedPrefUtil;
 
 public class TeachClassFragment extends BaseMVPFragment<TeachClassContract.Presenter> implements TeachClassContract.View {
     private FloatingActionButton fabAdd;
@@ -25,6 +28,8 @@ public class TeachClassFragment extends BaseMVPFragment<TeachClassContract.Prese
     private TeachClassAdapter teachClassAdapter;
 
     private JoinTeachClassDialog joinDialog;
+
+    private LoadingDialog loadingDialog;
 
     @Override
     protected TeachClassContract.Presenter bindPresenter() {
@@ -61,6 +66,8 @@ public class TeachClassFragment extends BaseMVPFragment<TeachClassContract.Prese
         rvList.setLayoutManager(new LinearLayoutManager(getActivity()));
         rvList.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.HORIZONTAL));
         rvList.setAdapter(teachClassAdapter);
+
+        loadingDialog = LoadingDialog.getInstance(getActivity());
     }
 
     @Override
@@ -69,7 +76,8 @@ public class TeachClassFragment extends BaseMVPFragment<TeachClassContract.Prese
         rvList.setVisibility(View.VISIBLE);
 
         rvList.startRefresh();
-        presenter.loadTeachClass(App.USER_ID); // init loading
+        long uid = Long.valueOf(SharedPrefUtil.getInstance().getString(Constants.UID));
+        presenter.loadTeachClass(uid); // init loading
     }
 
     @Override
@@ -79,8 +87,12 @@ public class TeachClassFragment extends BaseMVPFragment<TeachClassContract.Prese
                 case R.id.fab_add:
                     if (joinDialog == null) {
                         joinDialog = new JoinTeachClassDialog(getActivity(), getActivity());
-                        joinDialog.setOnJoinClickListener((code) ->
-                                presenter.joinTeachClass(App.USER_ID, code));
+                        joinDialog.setOnJoinClickListener((code) -> {
+                                    loadingDialog.show();
+                                    long uid = Long.valueOf(SharedPrefUtil.getInstance().getString(Constants.UID));
+                                    presenter.joinTeachClass(uid, code);
+                                }
+                        );
                     }
                     joinDialog.show();
                     break;
@@ -89,7 +101,8 @@ public class TeachClassFragment extends BaseMVPFragment<TeachClassContract.Prese
         fabAdd.setOnClickListener(ocl);
 
         rvList.setOnRefreshListener(() -> {
-            presenter.loadTeachClass(App.USER_ID);
+            long uid = Long.valueOf(SharedPrefUtil.getInstance().getString(Constants.UID));
+            presenter.loadTeachClass(uid);
         });
     }
 
@@ -99,7 +112,14 @@ public class TeachClassFragment extends BaseMVPFragment<TeachClassContract.Prese
     }
 
     @Override
-    public void onJoinTeachClass(TeachClass teachClass) {
-        teachClassAdapter.addItem(teachClass);
+    public void onJoinTeachClass(boolean success, String msg) {
+        loadingDialog.hide();
+        if (success) {
+            // trigger re-loading because of the terrible design of back-end server interface
+            rvList.startRefresh();
+            long uid = Long.valueOf(SharedPrefUtil.getInstance().getString(Constants.UID));
+            presenter.loadTeachClass(uid); // init loading
+        } else
+            Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
     }
 }

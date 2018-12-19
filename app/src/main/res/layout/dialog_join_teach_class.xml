@@ -32,7 +32,7 @@
             android:layout_margin="5dp"
             android:inputType="numberDecimal"
             android:lines="1"
-            android:maxLength="11" />
+            android:maxLength="16" />
 
         <Button
             android:id="@+id/btn_join"

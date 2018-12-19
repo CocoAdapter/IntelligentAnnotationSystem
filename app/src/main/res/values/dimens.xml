@@ -7,4 +7,7 @@
     <dimen name="app_bar_height">50dp</dimen>
     <dimen name="padding_h">10dp</dimen>
     <dimen name="padding_v">18dp</dimen>
+
+    <integer name="password_min_Length">6</integer>
+    <integer name="password_max_length">18</integer>
 </resources>

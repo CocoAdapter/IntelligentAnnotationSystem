@@ -20,6 +20,7 @@ import java.util.List;
 
 import sjtu.yhapter.ias.App;
 import sjtu.yhapter.ias.R;
+import sjtu.yhapter.ias.model.Constants;
 import sjtu.yhapter.ias.presenter.ReadPresenter;
 import sjtu.yhapter.ias.presenter.contract.ReadContract;
 import sjtu.yhapter.ias.ui.base.BaseMVPActivity;
@@ -32,6 +33,7 @@ import sjtu.yhapter.reader.model.pojo.ChapterData;
 import sjtu.yhapter.reader.page.PageElement;
 import sjtu.yhapter.reader.reader.ReaderView;
 import sjtu.yhapter.reader.util.LogUtil;
+import sjtu.yhapter.reader.util.SharedPrefUtil;
 
 /**
  * Created by CocoAdapter on 2018/11/11.
@@ -133,7 +135,8 @@ public class ReadActivity extends BaseMVPActivity<ReadContract.Presenter> implem
         tab.addTab(tab.newTab().setText(R.string.drawer_note));
         tab.addTab(tab.newTab().setText(R.string.drawer_hotline));
 
-        readerView.setUserId(App.USER_ID);
+        long uid = Long.valueOf(SharedPrefUtil.getInstance().getString(Constants.UID));
+        readerView.setUserId(uid);
         pageElement = readerView.getPageElement();
     }
 

@@ -81,11 +81,6 @@ public class MainActivity extends BaseFragmentActivity<MainContract.Presenter> i
     @Override
     protected void processLogic() {
         super.processLogic();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // set foreground color of status bar to be black
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        }
-
         tabFind.performClick();
     }
 

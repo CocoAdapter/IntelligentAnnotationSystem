@@ -17,8 +17,6 @@ public class App extends Application {
 
     private static App instance;
 
-    public static final long USER_ID = 118037910060L;
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -27,15 +25,6 @@ public class App extends Application {
         setupDatabase();
 
         modulesApplicationInit();
-//
-//        // TODO 由Activity设置，但是还是要存储在App里
-//        Student student = new Student();
-//        student.setId("1");
-//        student.setName("何昊西");
-//        student.setPassword("mimashi123");
-//        student.setStudentId("123456789");
-//
-//        getDaoInstant().getStudentDao().insertOrReplaceInTx(student);
 
         // start DownloadService
         startService(new Intent(getInstance(), DownloadService.class));

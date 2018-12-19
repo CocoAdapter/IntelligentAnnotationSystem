@@ -18,7 +18,7 @@ import android.widget.EditText;
 import sjtu.yhapter.ias.R;
 
 public class JoinTeachClassDialog extends Dialog {
-    private static final int CODE_LENGTH = 11;
+    private static final int CODE_MIN_LENGTH = 6;
     
     private EditText etClassNum;
     private Button btnJoin;
@@ -75,7 +75,7 @@ public class JoinTeachClassDialog extends Dialog {
 
             @Override
             public void afterTextChanged(Editable s) {
-                btnJoin.setEnabled(s.length() == CODE_LENGTH);
+                btnJoin.setEnabled(s.length() >= CODE_MIN_LENGTH);
             }
         });
         View.OnClickListener ocl = v -> {

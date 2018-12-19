@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:background="@color/white"
+        android:elevation="10dp"
+        android:id="@+id/img_logo"
+        android:layout_marginTop="80dp"
+        android:layout_centerHorizontal="true"
+        android:src="@mipmap/ic_logo_hd"
+        android:layout_width="105dp"
+        android:layout_height="105dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/img_logo"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:text="薇 信 阅 读"
+        android:textSize="24sp"
+        android:typeface="serif" />
+
+    <View
+        android:id="@+id/flag_center"
+        android:layout_centerVertical="true"
+        android:layout_width="0dp"
+        android:layout_height="0dp"/>
+
+    <EditText
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/flag_center"
+        android:id="@+id/et_username"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:hint="@string/login_hint_userid"
+        android:inputType="number"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content" />
+
+    <EditText
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/et_username"
+        android:hint="@string/login_hint_password"
+        android:maxLength="@integer/password_max_length"
+        android:id="@+id/et_password"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:inputType="textPassword"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:enabled="false"
+        android:layout_margin="10dp"
+        android:id="@+id/btn_login"
+        android:layout_below="@id/et_password"
+        android:text="@string/login_login"
+        android:layout_centerHorizontal="true"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:layout_marginTop="10dp"
+        android:id="@+id/tv_or"
+        android:textColor="@color/gray"
+        android:layout_below="@id/btn_login"
+        android:text="@string/login_or"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_below="@id/tv_or"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/ll_other_actions"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:padding="10dp"
+            android:id="@+id/tv_register"
+            android:text="@string/login_register"
+            android:textColor="@color/colorAccent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:text="|"
+            android:textColor="@color/gray"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:padding="10dp"
+            android:text="@string/login_forget_password"
+            android:textColor="@color/colorAccent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <sjtu.yhapter.reader.widget.ImageTextView
+            android:drawableStart="@drawable/ic_checked_not"
+            app:drawableWidth="15dp"
+            android:layout_marginBottom="20dp"
+            app:drawableHeight="15dp"
+            android:drawablePadding="5dp"
+            android:textColor="#8F8F8F"
+            android:textSize="12sp"
+            android:text="已阅读并同意 软件服务协议及隐私政策"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+</RelativeLayout>

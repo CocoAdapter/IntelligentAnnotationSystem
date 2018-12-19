@@ -48,6 +48,24 @@ public class TeachClassPresenter extends RxPresenter<TeachClassContract.View> im
 
     @Override
     public void joinTeachClass(Long userId, String classCode) {
+        RemoteRepository.getInstance()
+                .joinClass(classCode, userId + "")
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleObserver<Boolean>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        addDisposable(d);
+                    }
 
+                    @Override
+                    public void onSuccess(Boolean aBoolean) {
+                        view.onJoinTeachClass(aBoolean, "");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        view.onJoinTeachClass(false, e.getMessage());
+                    }
+                });
     }
 }
