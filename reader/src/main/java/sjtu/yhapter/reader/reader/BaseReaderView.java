@@ -82,7 +82,6 @@ public abstract class BaseReaderView extends View implements PageAnimation.PageC
                 return true;
             }
 
-
             final int x = (int) event.getX();
             final int y = (int) event.getY();
             switch (event.getAction()) {

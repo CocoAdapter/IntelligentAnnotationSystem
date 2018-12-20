@@ -3,6 +3,7 @@ package sjtu.yhapter.reader.page;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.RectF;
+import android.util.SparseArray;
 
 import org.greenrobot.greendao.query.WhereCondition;
 
@@ -75,6 +76,7 @@ public class PageElement {
 
     private List<PageData> preChapterPages;
     private List<PageData> currChapterPages;
+    private SparseArray<String> annotationsFeedback;
     private List<PageData> nextChapterPages;
 
     private int lastChapterIndex;
@@ -363,6 +365,17 @@ public class PageElement {
     }
 
     /**
+     * TODO id will be cast to int, not safe
+     * @param annotationId the annotation id
+     * @return the feedback, or null if no feedback
+     */
+    public String getFeedback(long annotationId) {
+        if (annotationsFeedback != null)
+            return annotationsFeedback.get((int) annotationId);
+        return null;
+    }
+
+    /**
      * @param bookId bookId
      * @param chapterId chapterId
      * @param pageData pageData
@@ -460,6 +473,13 @@ public class PageElement {
                             onUiThread.call(null);
                     }
                 });
+
+        if (annotationListener != null) {
+            if (annotationsFeedback == null)
+                annotationsFeedback = new SparseArray<>();
+            annotationsFeedback.clear();
+            annotationListener.requestAnnotationFeedback(bookLoader.getBookId(), chapterIndex, annotationsFeedback);
+        }
     }
 
     // 线程在这里竞争了, 用synchronized 不是个很好的解决方法，应该让LineElement线程安全
@@ -639,5 +659,11 @@ public class PageElement {
         void onAnnotationCreate(Annotation annotation);
 
         void onAnnotationDelete(Annotation annotation);
+
+        /**
+         * the reader wants to know if there're any feedback for the given book, chapter, which
+         * should be stored in holder
+         */
+        void requestAnnotationFeedback(long bookId, long chapterId, SparseArray<String> holder);
     }
 }

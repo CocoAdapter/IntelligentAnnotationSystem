@@ -6,16 +6,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import sjtu.yhapter.reader.R;
 import sjtu.yhapter.reader.adapter.view.IdeaHolder;
+import sjtu.yhapter.reader.model.pojo.Annotation;
 
 public class IdeaAdapter extends RecyclerView.Adapter<IdeaHolder> {
-    private final int count;
+    private String username;
+    private Annotation annotation;
+    private String feedback;
 
     public IdeaAdapter() {
-        count = new Random(System.currentTimeMillis()).nextInt(5) + 1;
+
     }
 
     @NonNull
@@ -27,11 +32,25 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull IdeaHolder holder, int position) {
-
+        holder.tvUsername.setText(username);
+        holder.tvIdea.setText(annotation.getNote());
+        holder.tvFeedback.setText("教师批注: " + feedback);
     }
 
     @Override
     public int getItemCount() {
-        return count;
+        return 1;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setAnnotation(Annotation annotation) {
+        this.annotation = annotation;
+    }
+
+    public void setFeedback(String feedback) {
+        this.feedback = feedback;
     }
 }

@@ -3,11 +3,11 @@ package sjtu.yhapter.ias.ui.activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.widget.DrawerLayout;
+import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -18,7 +18,6 @@ import android.widget.ImageView;
 
 import java.util.List;
 
-import sjtu.yhapter.ias.App;
 import sjtu.yhapter.ias.R;
 import sjtu.yhapter.ias.model.Constants;
 import sjtu.yhapter.ias.presenter.ReadPresenter;
@@ -33,7 +32,6 @@ import sjtu.yhapter.reader.model.pojo.Book;
 import sjtu.yhapter.reader.model.pojo.ChapterData;
 import sjtu.yhapter.reader.page.PageElement;
 import sjtu.yhapter.reader.reader.ReaderView;
-import sjtu.yhapter.reader.util.LogUtil;
 import sjtu.yhapter.reader.util.SharedPrefUtil;
 
 /**
@@ -232,6 +230,13 @@ public class ReadActivity extends BaseMVPActivity<ReadContract.Presenter> implem
             @Override
             public void onAnnotationDelete(Annotation annotation) {
 
+            }
+
+            @Override
+            public void requestAnnotationFeedback(long bookId, long chapterId, SparseArray<String> holder) {
+                String uid = SharedPrefUtil.getInstance().getString(Constants.UID);
+                Long cid = Long.valueOf(classId);
+                presenter.requestAnnotationFeedback(cid, uid, bookId, chapterId, holder);
             }
         });
     }

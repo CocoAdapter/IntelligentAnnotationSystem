@@ -160,6 +160,8 @@ public class ReaderView extends BaseReaderView implements BaseReaderView.OnTouch
         if (annotation != null) {
             if (AnnotationType.valueOf(annotation.getType()) == AnnotationType.IDEA) {
                 // TODO
+                ideaDialog.setAnnotation(annotation);
+                ideaDialog.setFeedback(pageElement.getFeedback(annotation.getId()));
                 ideaDialog.show();
             } else {
                 annotationMenu.setAnnotation(annotation);

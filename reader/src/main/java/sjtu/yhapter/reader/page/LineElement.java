@@ -270,7 +270,7 @@ public class LineElement extends BasePageElement {
                 paint.setStyle(Paint.Style.STROKE);
                 int px = ScreenUtil.dpToPx(2);
                 paint.setPathEffect(new DashPathEffect(new float[] {px, px}, 0));
-                paint.setColor(Color.GRAY);
+                paint.setColor(Color.DKGRAY);
                 canvas.drawLine(start.bottomLeft.x, start.bottomLeft.y, end.bottomLeft.x, end.bottomRight.y, paint);
                 break;
         }

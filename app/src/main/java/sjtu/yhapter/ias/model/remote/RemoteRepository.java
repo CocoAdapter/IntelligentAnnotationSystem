@@ -18,6 +18,9 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import retrofit2.Retrofit;
+import retrofit2.http.Query;
+import sjtu.yhapter.ias.App;
+import sjtu.yhapter.ias.model.pojo.AnnotationWrapper;
 import sjtu.yhapter.ias.model.pojo.Book;
 import sjtu.yhapter.ias.model.pojo.TeachClass;
 import sjtu.yhapter.reader.model.pojo.Annotation;
@@ -120,5 +123,13 @@ public class RemoteRepository {
         return api.saveAnnotation(requestBody)
                 .subscribeOn(Schedulers.io())
                 .map(response -> true);
+    }
+
+    public Single<List<AnnotationWrapper>> getFeedback(long classId, String userId, long chapterId, long bookId) {
+        return api.getAnnotationFeedback(classId, userId, chapterId, bookId)
+                .subscribeOn(Schedulers.io())
+                .map(response -> new Gson()
+                        .fromJson(response, new TypeToken<List<AnnotationWrapper>>() {
+                        }.getType()));
     }
 }

@@ -10,8 +10,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 
+import java.util.Map;
+
+import sjtu.yhapter.reader.App;
 import sjtu.yhapter.reader.R;
 import sjtu.yhapter.reader.adapter.IdeaAdapter;
+import sjtu.yhapter.reader.model.pojo.Annotation;
+import sjtu.yhapter.reader.util.LogUtil;
+import sjtu.yhapter.reader.util.SharedPrefUtil;
 
 public class IdeaDialog extends Dialog {
     private RecyclerView rvIdea;
@@ -19,9 +25,13 @@ public class IdeaDialog extends Dialog {
 
     private IdeaAdapter ideaAdapter;
 
+    private Annotation annotation;
+    private String feedback;
+
     public IdeaDialog(@NonNull Context context, Activity ownerActivity) {
         super(context, R.style.IdeaDialog);
         setOwnerActivity(ownerActivity);
+        ideaAdapter = new IdeaAdapter();
     }
 
     @Override
@@ -34,6 +44,14 @@ public class IdeaDialog extends Dialog {
         initListener();
     }
 
+    public void setAnnotation(Annotation annotation) {
+        this.annotation = annotation;
+    }
+
+    public void setFeedback(String feedback) {
+        this.feedback = feedback;
+    }
+
     private void initData() {
 
     }
@@ -43,7 +61,6 @@ public class IdeaDialog extends Dialog {
         imgExit = findViewById(R.id.img_exit);
 
         rvIdea.setLayoutManager(new LinearLayoutManager(getContext()));
-        ideaAdapter = new IdeaAdapter();
         rvIdea.setAdapter(ideaAdapter);
     }
 
@@ -56,4 +73,15 @@ public class IdeaDialog extends Dialog {
         imgExit.setOnClickListener(ocl);
     }
 
+    @Override
+    public void show() {
+        ideaAdapter.setAnnotation(annotation);
+        ideaAdapter.setFeedback(feedback);
+        ideaAdapter.setUsername("用户: " + App.USER_ID);
+
+        LogUtil.log(annotation.toString());
+        LogUtil.log(feedback);
+        LogUtil.log("用户: " + App.USER_ID);
+        super.show();
+    }
 }

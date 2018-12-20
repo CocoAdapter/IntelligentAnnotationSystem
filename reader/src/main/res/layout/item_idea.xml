@@ -49,6 +49,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"/>
 
+            <TextView
+                android:id="@+id/tv_feedback"
+                android:textStyle="italic"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:ellipsize="end"
+                android:maxLines="4"
+                android:textColor="@color/colorAccent"
+                android:text="技术的骄傲的骄傲i时间录的咯技都i静安寺庞大n" />
+
+            <View
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/divider"
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"/>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">

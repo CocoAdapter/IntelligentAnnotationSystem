@@ -19,6 +19,12 @@ public interface Api {
     @GET("enquiryClassJoined/books")
     Single<String> getClassBooks(@Query("classID") long classId, @Query("userID") String userId);
 
+    @GET("getFeedback")
+    Single<String> getAnnotationFeedback(@Query("classId") long classId,
+                                         @Query("userId") String userId,
+                                         @Query("chapterId") long chapterId,
+                                         @Query("bookId") long bookId);
+
     @POST("studentLogin")
     @Headers({"Content-Type: application/json;charset=UTF-8"})
     Single<String> login(@Body RequestBody info);
