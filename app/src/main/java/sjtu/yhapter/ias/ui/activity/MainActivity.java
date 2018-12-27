@@ -7,6 +7,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.widget.PopupMenu;
 
+import sjtu.yhapter.common.ui.LoadingDialog;
 import sjtu.yhapter.ias.R;
 import sjtu.yhapter.ias.presenter.MainPresenter;
 import sjtu.yhapter.ias.presenter.contract.MainContract;

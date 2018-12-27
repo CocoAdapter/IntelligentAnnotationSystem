@@ -49,7 +49,7 @@ public class AnnotationDao extends AbstractDao<Annotation, Long> {
     public static void createTable(Database db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"ANNOTATION\" (" + //
-                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
+                "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
                 "\"BOOK_ID\" INTEGER NOT NULL ," + // 1: bookId
                 "\"CHAPTER_ID\" INTEGER NOT NULL ," + // 2: chapterId
                 "\"START_INDEX\" INTEGER NOT NULL ," + // 3: startIndex

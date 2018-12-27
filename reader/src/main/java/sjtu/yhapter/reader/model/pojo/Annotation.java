@@ -14,8 +14,8 @@ import org.greenrobot.greendao.annotation.Generated;
 public class Annotation {
 
     // id
-    @Id(autoincrement = true)
-    private Long id;
+    @Id
+    private Long id = System.currentTimeMillis() / 1000;
     // book id
     private long bookId;
     // chapter id

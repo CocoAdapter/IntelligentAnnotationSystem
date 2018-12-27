@@ -66,6 +66,7 @@ public class ReadPresenter extends RxPresenter<ReadContract.View> implements Rea
                         for (AnnotationWrapper wrapper : annotationWrappers) {
                             holder.put(wrapper.getId().intValue(), wrapper.getFeedback());
                         }
+                        LogUtil.log(holder.toString());
                         requestFeedbackDip = null;
                     }
 

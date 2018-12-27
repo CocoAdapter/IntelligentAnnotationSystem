@@ -78,10 +78,7 @@ public class IdeaDialog extends Dialog {
         ideaAdapter.setAnnotation(annotation);
         ideaAdapter.setFeedback(feedback);
         ideaAdapter.setUsername("用户: " + App.USER_ID);
-
-        LogUtil.log(annotation.toString());
-        LogUtil.log(feedback);
-        LogUtil.log("用户: " + App.USER_ID);
+        ideaAdapter.notifyDataSetChanged();
         super.show();
     }
 }

@@ -30,8 +30,6 @@ public class TeachClassFragment extends BaseMVPFragment<TeachClassContract.Prese
 
     private JoinTeachClassDialog joinDialog;
 
-    private LoadingDialog loadingDialog;
-
     @Override
     protected TeachClassContract.Presenter bindPresenter() {
         return new TeachClassPresenter();
@@ -70,8 +68,6 @@ public class TeachClassFragment extends BaseMVPFragment<TeachClassContract.Prese
         rvList.setLayoutManager(new LinearLayoutManager(getActivity()));
         rvList.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.HORIZONTAL));
         rvList.setAdapter(teachClassAdapter);
-
-        loadingDialog = LoadingDialog.getInstance(getActivity());
     }
 
     @Override
@@ -92,7 +88,6 @@ public class TeachClassFragment extends BaseMVPFragment<TeachClassContract.Prese
                     if (joinDialog == null) {
                         joinDialog = new JoinTeachClassDialog(getActivity(), getActivity());
                         joinDialog.setOnJoinClickListener((code) -> {
-                                    loadingDialog.show();
                                     long uid = Long.valueOf(SharedPrefUtil.getInstance().getString(Constants.UID));
                                     presenter.joinTeachClass(uid, code);
                                 }
@@ -117,7 +112,6 @@ public class TeachClassFragment extends BaseMVPFragment<TeachClassContract.Prese
 
     @Override
     public void onJoinTeachClass(boolean success, String msg) {
-        loadingDialog.hide();
         if (success) {
             // trigger re-loading because of the terrible design of back-end server interface
             rvList.startRefresh();

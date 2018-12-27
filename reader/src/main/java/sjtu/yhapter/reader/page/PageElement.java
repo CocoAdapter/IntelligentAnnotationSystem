@@ -300,7 +300,7 @@ public class PageElement {
         if (annotation == null)
             return;
 
-        App.getDaoInstant().getAnnotationDao().saveInTx(annotation);
+        App.getDaoInstant().getAnnotationDao().insertOrReplaceInTx(annotation);
         if (annotationListener != null)
             annotationListener.onAnnotationCreate(annotation);
     }
@@ -370,8 +370,9 @@ public class PageElement {
      * @return the feedback, or null if no feedback
      */
     public String getFeedback(long annotationId) {
-        if (annotationsFeedback != null)
+        if (annotationsFeedback != null) {
             return annotationsFeedback.get((int) annotationId);
+        }
         return null;
     }
 
